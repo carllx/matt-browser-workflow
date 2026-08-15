@@ -8,7 +8,7 @@
 
 `matt-browser-workflow` 旨在解决 AI 辅助编程中的核心割裂问题：
 - 网页端大模型（如 ChatGPT / Claude Web）具备强大的全局推理、上下文掌控和架构规划能力（**Browser Lead**）；
-- 本地 IDE Agent（如 Antigravity / Cursor / Claude Code）擅长具体代码编写、测试执行与 Git 操作（**IDE Agent**）；
+- 本地 IDE Agent（如 Antigravity / Cursor / Claude Code / Codex）擅长具体代码编写、测试执行与 Git 操作（**IDE Agent**）；
 - **人类用户**作为高信任中继，通过结构化、就绪的工单（Copy-Ready Work Orders）实现两端无缝协同。
 
 ### 为什么引入 Matt Skills？
@@ -37,16 +37,22 @@
 ### 步骤一：本地 IDE 前置准备 (IDE Setup)
 
 1. **安装 Matt Skills**：
-   确保你的 IDE Agent 具备访问或加载 Matt Skills（`https://github.com/mattpocock/skills`）的能力。
-2. **初始化目标仓库配置（每个仓库仅需一次）**：
-   在你的目标代码仓库中，通过 IDE Agent 显式执行一次配置技能：
+   在终端运行 Matt 官方技能安装器：
    ```bash
+   npx skills@latest add mattpocock/skills
+   ```
+   * 在交互式安装界面中，选择你正在使用的本地 IDE / Agent（如 Claude Code, Cursor, Antigravity, Codex 等）；
+   * 确保勾选并安装了 `setup-matt-pocock-skills`（以及其他常用工程技能）。
+
+2. **初始化目标仓库配置（每个仓库仅需执行一次）**：
+   打开你的目标代码仓库，在 **IDE Agent 的对话框** 中发送以下指令（注意：这是 Agent 对话指令，而非终端 Shell 命令）：
+   ```text
    /setup-matt-pocock-skills
    ```
    * 追踪器（Issue Tracker）推荐选择：`GitHub`（或其他实际使用的系统）；
    * 领域文档（Domain Layout）推荐选择：`single-context`；
-   * 若安装了 `triage` 技能，确认采用 canonical labels 映射并在 GitHub 中存在对应标签。
-   * 该命令会自动在你的项目下生成 `docs/agents/*` 并在 `AGENTS.md` 中注入规则块。
+   * 若安装了 `triage` 技能，确认采用默认 canonical labels 并在 GitHub 中存在对应标签；
+   * 该 Skill 会在目标仓库下自动生成 `docs/agents/*` 并在 `AGENTS.md` 中注入规则块。
 
 ---
 
