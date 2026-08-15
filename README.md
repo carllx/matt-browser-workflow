@@ -68,15 +68,16 @@
    * [`chatgpt-project/browser-agent-playbook.md`](./chatgpt-project/browser-agent-playbook.md)（执行手册）
    * [`chatgpt-project/browser-workflow-spec.md`](./chatgpt-project/browser-workflow-spec.md)（规范性需求 SSOT）
 
-> [!IMPORTANT]
-> **哪些文件不需要上传？**
-> * 根目录的 `README.md`、`AGENTS.md` 以及 `docs/agents/*` 属于仓库自维护或 IDE 端本地配置，**严禁上传**到 ChatGPT Project Sources，以保持网页端上下文精简。
+> [!NOTE]
+> **关于无需上传文件的说明**
+> 根目录的 `README.md`、`AGENTS.md` 以及 `docs/agents/*` 属于仓库自维护或 IDE 端本地配置，正常安装时**无需上传**到 ChatGPT Project Sources。
+> *(若 Browser 暂时无法直接访问 live project authority，可在明确 snapshot freshness 的前提下提供相关文件作为临时证据。)*
 
 ---
 
 ### 步骤三：开启第一次协作对话 (First Session)
 
-在配置好的 ChatGPT Project 中开启新对话，只需发送你的仓库地址与当前目标：
+在配置好的 ChatGPT Project 中开启新对话，只需发送你的项目仓库与当前目标：
 
 ```text
 你好，请接手这个项目：
@@ -84,7 +85,9 @@
 - 目标：<你现在想完成什么>
 ```
 
-Browser Lead 将会自动通过 Bounded Project Sync 解析默认分支与 Tracker 现场，并向你输出极简的启动定位反馈：
+> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。
+
+随后，Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**
 
 ---
