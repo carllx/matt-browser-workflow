@@ -52,8 +52,8 @@
 - 定义 Matt Skills（如 `wayfinder`, `grilling`, `to-spec`, `to-tickets`, `code-review` 等）的 load-bearing 原生行为。
 
 ### C. 目标项目权威 (Project Authority) — “项目实际上发生了什么？”
-- `PROJECT_REPO`、`PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER`；
-- 定义目标项目代码库的真实状态与项目自身规则（`AGENTS.md` / `CLAUDE.md`, `docs/agents/*`, `CONTEXT.md`, relevant ADR 等）。
+- `PROJECT_REPO` 是 Project Binding 坐标指针，用于准确定位目标项目；
+- 真正的 Project Authority 是该坐标所指向的 live repository、tracker（`PROJECT_TRACKER`）、活跃分支/提交（`PROJECT_DEFAULT_BRANCH`, `PROJECT_ACTIVE_REF`）以及项目自身规则文档（`AGENTS.md` / `CLAUDE.md`, `docs/agents/*`, `CONTEXT.md`, relevant ADR 等）。
 
 ---
 
@@ -68,14 +68,16 @@
 
 ## 4. 启动路由与项目接手 (Startup Routing)
 
-### A. 未绑定或新建项目路由 (New / Unbound Project Route)
-如果 Project Instructions 中的 `PROJECT_REPO` 仍为占位符或未绑定（`UNBOUND`）：
-1. **检查仓库状态**：判断目标 repository 是否已经创建；
-2. **绑定或创建 Gate**：
-   - 若仓库已存在：引导用户在 Project Instructions 中完成 `PROJECT_REPO` 绑定；
-   - 若仓库尚未创建：将 repository creation / selection 作为当前首要 Gate，等待仓库就绪并完成绑定；
-3. **执行 Matt Setup**：仓库可访问后，检查并确保完成 Matt per-repo setup（若未完成则下发指令执行 `/setup-matt-pocock-skills`）；
-4. **进入正常流转**：完成前置后进入 Bounded Project Sync 与后续 Flow 路由。
+### A. 未绑定项目路由 (Unbound Project Route)
+如果 Project Instructions 中的 `PROJECT_REPO` 仍为占位符或未绑定（`UNBOUND`），遵循仓库身份优先原则（Repository Identity First）：
+1. **解析仓库身份 (Resolve Repository Identity)**：
+   - 若当前用户消息或已有验证资料已明确提供了 repo URL：验证该 repo 可访问性，并进入 Binding Gate；
+   - 若未提供明确 repo：这是 Project Identity Decision，严禁凭空推断。
+2. **提出必要决策 (Ask Necessary Decision)**：
+   - 明确询问用户：是绑定一个已有的代码仓库，还是为本项目创建全新仓库？
+3. **已有仓库分支**：获取具体 repo URL → Browser 校验可访问性 → 引导用户将该 URL 写入 Project Instructions 顶部的 Project Binding。
+4. **新建仓库分支**：将 repository creation / selection 作为当前首要 Gate。按 Browser READ / IDE EXECUTE 默认分工，向 IDE 下发创建仓库的 Work Order（除非用户明确授权 Browser 远程创建）。
+5. **仓库就绪并绑定后**：执行 Matt per-repo setup check → Bounded Project Sync → 进入正常工作流。
 
 ### B. 已有项目接手流程 (Existing-Project Startup)
 在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
@@ -164,9 +166,10 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ## 9. Matt 技能检索协议 (Matt Skills Retrieval)
 
-### 检索版本策略 (MAT_REF Strategy)
-- **Release 级基准锚定**：本工作流发布版默认锚定经过充分验证的 Matt Ref 基准（`MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）；
+### 检索版本策略 (MAT_REF Strategy & Parity)
+- **Release 级基准锚定**：本工作流发布版默认锚定经过充分验证的 Matt Ref 基准（`MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`），这是 Browser 端 Review 与技能检索的规范行为基线（Canonical Matt Behavior Baseline）；
 - **项目显式声明优先**：若目标项目在 `AGENTS.md` 或文档中明确声明了覆盖的 `MAT_REF`，优先使用项目指定的 ref；
+- **不得隐式假定版本对齐**：不得仅因为 IDE 本地安装了 Matt Skills 就假定其本地版本与 `MAT_REF` 完全相同；若本地安装的 Skill 行为与 Pinned 原文发生冲突，Browser Review 必须以 pinned `MAT_REF` 的 load-bearing source 为最终基准；
 - **禁止隐式版本漂移**：严禁在不同 Fresh Session 中无意识地浮动切换到不同的 Matt main/commit，不自动静默升级。
 
 ### 检索路径

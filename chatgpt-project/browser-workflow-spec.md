@@ -71,12 +71,12 @@
 ## 7. 项目绑定与权威层级 (Project Binding & Authority Layers)
 
 1. **持久仓库绑定 (Project Repository Binding)**：
-   - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为该 Project 的稳定实体标识（Project Identity）；
+   - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为定位该 Project 权威事实的稳定实体标识指针（Project Identity Pointer）；
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
-   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为；
-   - **Project Authority**：由目标代码仓库 live repo / tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实。
+   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为规范。不得隐式假定本地 IDE 安装版本完全一致，冲突时以 Pinned 原文为准；
+   - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
 3. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
 
 ---

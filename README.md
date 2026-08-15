@@ -130,9 +130,12 @@
 
 ## 6. 版本升级指引 (Upgrading)
 
-当 `matt-browser-workflow` 发布新版本（如 `v0.5` 等）时：
+当 `matt-browser-workflow` 发布新版本时，遵循以下步骤更新你的 ChatGPT Project（确保保留已有的项目绑定）：
 
-1. 从本仓库拉取最新文件；
-2. 将最新的 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 重新复制并覆盖 ChatGPT Project Instructions；
-3. 将最新的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project Sources；
-4. 若 `MAT_REF` 发生重大版本迭代，按需在 IDE 中重新校验目标仓库的 `/setup-matt-pocock-skills`。
+1. **记录现有仓库绑定**：在更新前，先记下当前 ChatGPT Project Instructions 顶部绑定的 `PROJECT_REPO` URL；
+2. **更新 Project Instructions**：将本仓库最新版 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 文本复制并粘贴到 Instructions 中；
+3. **恢复 Project Binding**：将第 1 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符；
+4. **更新 Project Sources**：将最新版 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
+5. **按需检查 Skills**：若发布说明提及 `MAT_REF` 基准发生更新，按需在 IDE 中重新校验目标仓库的 `/setup-matt-pocock-skills`。
+
+> **核心原则**：工作流通用指令（Workflow Instructions）可随版本随时升级，但项目独有的仓库绑定（Project-Specific Binding）必须始终保留。
