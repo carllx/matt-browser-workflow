@@ -170,6 +170,16 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 权威优先级：`Target SKILL.md` > `明确引用的材料` > `ask-matt/SKILL.md` > `解释性文档` > `旧记忆/摘要`。
 
+### 仓库级前置检查 (Matt Repository Setup Precondition)
+- **一次性显式前置**：`/setup-matt-pocock-skills` 是仓库级别的显式前置配置（一个 repo 仅需执行一次），不会由 Agent 隐式自动触发；
+- **首次工程流前检查**：Browser Lead 在首次准备对一个 repository 使用 Matt engineering skills 时，必须先检查：
+  1. `docs/agents/issue-tracker.md` 是否存在并与实际 tracker 对齐；
+  2. `docs/agents/domain.md` 是否存在；
+  3. `docs/agents/triage-labels.md`（若 triage 安装）是否存在；
+  4. `AGENTS.md` / `CLAUDE.md` 中是否存在 `## Agent skills` 区块。
+- **缺失时的调度**：若上述配置缺失，Browser Lead 应向用户下发 copy-ready 指令，指引用户在 IDE 中先运行 `/setup-matt-pocock-skills`；
+- **已有配置不重复**：已有有效配置时正常继续，严禁在每次会话机械重跑 setup。仅在配置缺失或 `MAT_REF` 大版本更新不兼容时重新执行。
+
 ---
 
 ## 10. 常用路由边界 (Routing Boundaries)

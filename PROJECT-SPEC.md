@@ -65,3 +65,9 @@
 2. **自维护基线 (Self-Maintenance Boundary)**：
    - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref）**作为维护基准；
    - 正在编辑的工作区规则在未获 Review 与合并前，不得反向支配维护过程。
+
+---
+
+## 7. 仓库级前置条件 (Repository-Level Prerequisites)
+
+Matt engineering workflow 的仓库级配置前置条件（如 `/setup-matt-pocock-skills` 所生成的 `docs/agents/*` 及 `AGENTS.md` 规则块）应严格遵循 pinned `MAT_REF` 的官方 Skill 原生规范，而非由本项目另行复制一套实现。此类必要的工程配置不计入 4 个核心工作流文件，亦不属于过度设计。

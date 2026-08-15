@@ -44,3 +44,19 @@
 4. **防止过度设计 (Avoid Overdesign)**：
    - 遵循“先正确再通用、先验证再扩展、先解决当前阻塞”原则；
    - 不增加无真实第二使用者的额外抽象、复杂目录或冗余脚本。
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+GitHub issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default canonical label mapping. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context. See `docs/agents/domain.md`.
