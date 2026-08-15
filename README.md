@@ -137,7 +137,7 @@
 3. **恢复 Project Binding**：将第 1 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符；
 4. **更新 Project Sources**：将最新版 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
 5. **按需检查 Skills 与仓库配置**：
-   - **Skill 版本更新**：若新版本更新了 `MAT_REF` 基准，请根据实际安装方式（如再次运行 `npx skills@latest add mattpocock/skills`）更新 IDE 本地 Matt Skills，Browser Review 将以新的 canonical `MAT_REF` 为基准；
+   - **Skill 版本更新**：若新版本更新了 `MAT_REF` 基准，应先确认 IDE 本地 Matt Skills 的实际安装方式并使用对应的官方更新机制；对于通过 skills CLI 复制安装的 Skills，Matt 当前文档给出的更新命令为 `npx skills update`。不得假定更新后的本地版本已经与 canonical `MAT_REF` 完全一致，Browser Review 仍以 pinned source 为准；
    - **仓库级配置**：`/setup-matt-pocock-skills` 是单仓库一次性初始化命令（并非技能版本更新器），仅在仓库配置缺失或新版本对仓库前置产生实际不兼容变更时才需重新评估执行。
 
 > **核心原则**：工作流通用指令（Workflow Instructions）可随版本随时升级，但项目独有的仓库绑定（Project-Specific Binding）必须始终保留。
