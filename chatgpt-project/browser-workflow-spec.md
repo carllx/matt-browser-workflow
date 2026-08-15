@@ -1,4 +1,4 @@
-# PROJECT-SPEC.md
+# Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
 > 版本：v0.4

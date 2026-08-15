@@ -18,8 +18,8 @@
 
 ### B. 规则层级边界
 * 本文件（`AGENTS.md`）仅规范**维护者行为**；
-* 本仓库对外提供的规范性需求以 [`PROJECT-SPEC.md`](./PROJECT-SPEC.md) 为权威 SSOT；
-* 工作流的完整运作机制以 [`browser-agent-playbook.md`](./browser-agent-playbook.md) 为准。
+* 本仓库对外提供的规范性需求以 [`chatgpt-project/browser-workflow-spec.md`](./chatgpt-project/browser-workflow-spec.md) 为权威 SSOT；
+* 工作流的完整运作机制以 [`chatgpt-project/browser-agent-playbook.md`](./chatgpt-project/browser-agent-playbook.md) 为准。
 
 ---
 

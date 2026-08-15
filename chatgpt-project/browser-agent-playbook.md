@@ -2,7 +2,7 @@
 
 > 版本：v0.4
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
-> 不保存具体项目的易失状态；规范性需求详见 [`PROJECT-SPEC.md`](./PROJECT-SPEC.md)。
+> 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
 ---
 
@@ -76,7 +76,7 @@ PROJECT_TRACKER
 
 接手已有项目时遵循标准路径：
 ```text
-Read Playbook + PROJECT-SPEC.md
+Read Playbook + browser-workflow-spec.md
 → Read Handoff / Checkpoint
 → Resolve PROJECT_* + MAT_* coordinates
 → Bounded Project Sync
@@ -106,7 +106,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 最小必要证据 (Minimal Evidence)
 - **Coordinates / Freshness**：仓库与 tracker 可访问性、default branch、active ref、当前观察时间/版本。
-- **Rules / Domain**：`AGENTS.md`、`PROJECT-SPEC.md`、`docs/agents/*`、`CONTEXT.md`、关键 ADR。
+- **Rules / Domain**：`AGENTS.md`、`browser-workflow-spec.md`、`docs/agents/*`、`CONTEXT.md`、关键 ADR。
 - **Current Work**：Active Issue / Map / Spec、状态、labels、comments、blockers。
 - **Implementation（相关时才读）**：活跃 branch / PR / commits、diff、测试及 CI 状态。
 
@@ -352,7 +352,7 @@ Browser Lead 必须分别独立评估：
 
 ## Context Pointers
 - AGENTS.md / CLAUDE.md:
-- PROJECT-SPEC.md:
+- browser-workflow-spec.md:
 - docs/agents:
 - CONTEXT.md / ADR:
 - Issue / Map / Spec:

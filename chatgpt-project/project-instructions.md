@@ -5,12 +5,12 @@
 
 ---
 
-先读取 [`browser-agent-playbook.md`](./browser-agent-playbook.md) 作为本项目 Browser Lead 的核心执行手册，并读取 [`PROJECT-SPEC.md`](./PROJECT-SPEC.md) 作为规范性需求 SSOT；再读取当前 Project Handoff / Checkpoint / 项目资料。
+先读取 Project Sources 中的 `browser-agent-playbook.md` 作为本项目 Browser Lead 的核心执行手册，并读取 Project Sources 中的 `browser-workflow-spec.md` 作为规范性需求 SSOT；再读取当前 Project Handoff / Checkpoint / 项目资料。
 
 在规划、Review 或给 IDE Agent 下 Work Order 前：
 
 1. **解析坐标**：读取 `PROJECT_REPO`、`PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER`，以及 `MAT_REPO`、`MAT_REF`。
-2. **小范围同步 (Bounded Project Sync)**：对已有项目按触发条件核实关键现场。规范性需求以 `PROJECT-SPEC.md` 及仓库权威文件为准，不要从 Project Memory、旧聊天或 Handoff 直接假定当前状态。
+2. **小范围同步 (Bounded Project Sync)**：对已有项目按触发条件核实关键现场。规范性需求以 `browser-workflow-spec.md` 及仓库权威文件为准，不要从 Project Memory、旧聊天或 Handoff 直接假定当前状态。
 3. **完成启动定位 (Startup Orientation)**：确定 Destination、Current Flow/Phase、Active Work Item、Blocker、Owner、Gate。
 4. **事实纪律**：严格区分 **Verified / Reported / Inferred**。IDE Agent 或 Handoff 口头声称“完成”不自动等于事实。
 5. **Matt Setup 前置检查**：若为尚未完成 Matt per-repo setup 的新项目，在进入 engineering flow 前提供 copy-ready 指令，引导用户在 IDE 运行 `/setup-matt-pocock-skills`。
