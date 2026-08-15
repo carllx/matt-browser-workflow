@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.4
+> 版本：v0.5
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -9,7 +9,7 @@
 ## 1. 目标与定位 (Purpose & Mission)
 
 `matt-browser-workflow` 旨在构建一套人机协同的高效工程工作流：
-让位于网页端的 **Browser Lead**（如 ChatGPT / Claude Web）通过人类用户作为高信任中继，统筹指导本地端 **IDE Agent**（如 Antigravity / Cursor / Claude Code），并与代码托管平台及追踪器（如 GitHub Issues/PRs）协同完成复杂软件工程研发。
+让位于网页端的 **Browser Lead**（如 ChatGPT / Claude Web）通过人类用户作为高信任中继，统筹指导本地端 **IDE Agent**（如 Antigravity / Cursor / Claude Code / Codex），并与代码托管平台及追踪器（如 GitHub Issues/PRs）协同完成复杂软件工程研发。
 
 ---
 
@@ -63,11 +63,24 @@
    - ChatGPT Project Memory 或聊天摘要是辅助性的检索参考（Useful Context），**不具备规范性权威（Normative SSOT）**；
    - 长期约束和工程事实必须沉淀在仓库文档（Repository Docs）及 Project Instructions 中，以仓库权威为准。
 2. **自维护基线 (Self-Maintenance Boundary)**：
-   - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref）**作为维护基准；
+   - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref，如 `v0.4`）**作为维护基准；
    - 正在编辑的工作区规则在未获 Review 与合并前，不得反向支配维护过程。
 
 ---
 
-## 7. 仓库级前置条件 (Repository-Level Prerequisites)
+## 7. 项目绑定与权威层级 (Project Binding & Authority Layers)
 
-Matt engineering workflow 的仓库级配置前置条件（如 `/setup-matt-pocock-skills` 所生成的 `docs/agents/*` 及 `AGENTS.md` 规则块）应严格遵循 pinned `MAT_REF` 的官方 Skill 原生规范，而非由本项目另行复制一套实现。此类必要的工程配置不计入 4 个核心工作流文件，亦不属于过度设计。
+1. **持久仓库绑定 (Project Repository Binding)**：
+   - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为该 Project 的稳定实体标识（Project Identity）；
+   - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
+2. **三层权威分立 (Three Authority Layers)**：
+   - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
+   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为；
+   - **Project Authority**：由目标代码仓库 live repo / tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实。
+3. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
+
+---
+
+## 8. 仓库级前置条件 (Repository-Level Prerequisites)
+
+Matt engineering workflow 的仓库级配置前置条件（如 `/setup-matt-pocock-skills` 所生成的 `docs/agents/*` 及 `AGENTS.md` 规则块）应严格遵循 pinned `MAT_REF` 的官方 Skill 原生规范，而非由本项目另行复制一套实现。此类必要的工程配置不计入核心交付文件，亦不属于过度设计。

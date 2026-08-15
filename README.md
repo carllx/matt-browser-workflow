@@ -60,8 +60,9 @@
 
 打开 ChatGPT，点击创建或配置一个专用 **Project**：
 
-1. **配置 Project Instructions（核心启动入口）**：
-   复制本仓库 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的**全部文本内容**，粘贴到 ChatGPT Project 的 **Instructions** 输入框中并保存。
+1. **配置 Project Instructions（核心启动入口与仓库绑定）**：
+   - 复制本仓库 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的**全部文本内容**，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
+   - 将文本顶部 `## Project Binding` 中的 `PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>` 替换为该 Project 对应的**目标仓库 URL**（例如 `https://github.com/<owner>/<repo>`）并保存。
 
 2. **上传 Project Sources（核心知识库）**：
    将以下 **2 个交付文件** 上传至该 ChatGPT Project 的 **Files / Sources** 中：
@@ -77,15 +78,14 @@
 
 ### 步骤三：开启第一次协作对话 (First Session)
 
-在配置好的 ChatGPT Project 中开启新对话，只需发送你的项目仓库与当前目标：
+在配置好的 ChatGPT Project 中开启新对话，只需说明你的当前开发目标（仓库地址已在 Project Binding 中自动加载）：
 
 ```text
-你好，请接手这个项目：
-- PROJECT_REPO: https://github.com/<owner>/<repo>
+你好，请接手当前项目：
 - 目标：<你现在想完成什么>
 ```
 
-> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。
+> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。
 
 随后，Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**

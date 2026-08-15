@@ -13,7 +13,7 @@
 维护本仓库时，必须严格区分：
 
 ### A. 自维护边界 (Self-Maintenance Boundary)
-* **维护基准 (Maintenance Authority)**：使用最后一个已经接受并冻结的 Git commit / tag（即 last accepted ref，如 `v0.3`）作为维护过程的基准指令。
+* **维护基准 (Maintenance Authority)**：使用最后一个已经接受并冻结的 Git commit / tag（即 last accepted ref，如 `v0.4`）作为维护过程的基准指令。
 * **开发对象 (Mutable Product)**：当前分支或工作区中正在编辑的文件是“被开发对象”，其尚未经 Review / 合并的新增规则**不得**反向支配当前维护会话。
 
 ### B. 规则层级边界

@@ -1,6 +1,6 @@
 # Browser Agent Playbook
 
-> 版本：v0.4
+> 版本：v0.5
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
 > 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
@@ -39,27 +39,21 @@
 
 ---
 
-## 2. 双重权威 (Two Authorities)
+## 2. 三层权威体系 (Three Authority Layers)
 
-维护和决策时严禁混淆：
+维护和决策时必须严格区分三层权威，严禁混淆：
 
-### 流程权威 (Process Authority) — “应该怎么工作？”
-```text
-MAT_REPO
-MAT_REF
-```
-默认 `MAT_REPO=https://github.com/mattpocock/skills`。
+### A. 工作流权威 (Workflow Authority) — “协作契约与交互规则”
+- 当前部署的 Browser Workflow 发布版本（Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md`，以及 Project Instructions 中的 `project-instructions.md`）；
+- 定义 Browser Lead 与 IDE Agent 的协作机制、中继契约（Relay Contract）与上下文治理法则。
 
-### 项目权威 (Project Authority) — “项目实际上发生了什么？”
-```text
-PROJECT_REPO
-PROJECT_DEFAULT_BRANCH
-PROJECT_ACTIVE_REF
-PROJECT_TRACKER
-```
-- `PROJECT_DEFAULT_BRANCH`：canonical merged state（基准合并分支）。
-- `PROJECT_ACTIVE_REF`：当前活跃 branch / PR / commit；无则为 default branch。
-- `PROJECT_TRACKER`：GitHub Issues、GitLab、Local Markdown、Jira、Linear 等实际 tracker。
+### B. 流程技能权威 (Matt Process Authority) — “工程技能应该怎么工作？”
+- `MAT_REPO @ MAT_REF`（默认 `MAT_REPO=https://github.com/mattpocock/skills`，Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）；
+- 定义 Matt Skills（如 `wayfinder`, `grilling`, `to-spec`, `to-tickets`, `code-review` 等）的 load-bearing 原生行为。
+
+### C. 目标项目权威 (Project Authority) — “项目实际上发生了什么？”
+- `PROJECT_REPO`、`PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER`；
+- 定义目标项目代码库的真实状态与项目自身规则（`AGENTS.md` / `CLAUDE.md`, `docs/agents/*`, `CONTEXT.md`, relevant ADR 等）。
 
 ---
 
@@ -67,18 +61,28 @@ PROJECT_TRACKER
 
 在对 `matt-browser-workflow` 本身进行维护和演进（Meta-Workflow / Self-Hosting）时，严格遵循：
 
-1. **已接受基线优先**：使用最后一个已经接受并冻结的 Git commit / tag（Last Accepted Ref）作为维护过程的基准指令。
+1. **已接受基线优先**：使用最后一个已经接受并冻结的 Git commit / tag（Last Accepted Ref，如 `v0.4`）作为维护过程的基准指令。
 2. **工作区为被开发对象**：working tree 中正在编辑的新规则属于 Mutable Product，在未通过 Review 并合并前，**不得**反向支配当前维护会话。
 
 ---
 
-## 4. 已有项目接手流程 (Existing-Project Startup)
+## 4. 启动路由与项目接手 (Startup Routing)
 
-接手已有项目时遵循标准路径：
+### A. 未绑定或新建项目路由 (New / Unbound Project Route)
+如果 Project Instructions 中的 `PROJECT_REPO` 仍为占位符或未绑定（`UNBOUND`）：
+1. **检查仓库状态**：判断目标 repository 是否已经创建；
+2. **绑定或创建 Gate**：
+   - 若仓库已存在：引导用户在 Project Instructions 中完成 `PROJECT_REPO` 绑定；
+   - 若仓库尚未创建：将 repository creation / selection 作为当前首要 Gate，等待仓库就绪并完成绑定；
+3. **执行 Matt Setup**：仓库可访问后，检查并确保完成 Matt per-repo setup（若未完成则下发指令执行 `/setup-matt-pocock-skills`）；
+4. **进入正常流转**：完成前置后进入 Bounded Project Sync 与后续 Flow 路由。
+
+### B. 已有项目接手流程 (Existing-Project Startup)
+在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
 ```text
-Read Playbook + browser-workflow-spec.md
+Read Workflow Sources (Playbook + browser-workflow-spec.md)
 → Read Handoff / Checkpoint
-→ Resolve PROJECT_* + MAT_* coordinates
+→ Resolve Project Coordinates (PROJECT_* from binding & live repo)
 → Bounded Project Sync
 → Startup Orientation
 → Read load-bearing MAT Skill if needed
@@ -106,7 +110,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 最小必要证据 (Minimal Evidence)
 - **Coordinates / Freshness**：仓库与 tracker 可访问性、default branch、active ref、当前观察时间/版本。
-- **Rules / Domain**：`AGENTS.md`、`browser-workflow-spec.md`、`docs/agents/*`、`CONTEXT.md`、关键 ADR。
+- **Target Project Rules / Domain**：目标代码库 authoritative ref 上的 `AGENTS.md` / `CLAUDE.md`、`docs/agents/*`、`CONTEXT.md`、关键 ADR。（注：工作流契约直接读取 Project Sources 中的 `browser-workflow-spec.md`，严禁去目标项目代码库中寻找该文件）。
 - **Current Work**：Active Issue / Map / Spec、状态、labels、comments、blockers。
 - **Implementation（相关时才读）**：活跃 branch / PR / commits、diff、测试及 CI 状态。
 
@@ -145,7 +149,8 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 ## 8. 事实纪律与信息源 (Source Discipline & Truth)
 
 ### 信息源归类
-- **Project Rules / Domain**：读取 authoritative project ref 上的 rules 与 domain 文档。
+- **Workflow Contract**：读取 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md`。
+- **Target Project Rules / Domain**：读取 authoritative project ref 上的 rules 与 domain 文档。
 - **Work State**：读取 live tracker、active branch、PR、diff 及 CI。
 - **External Facts**：优先权威一手文档（Primary Sources）。
 - **Secondary Context**：Handoff、Project Memory、旧聊天记录仅用于提供线索和定位指针，**不作为规范性 SSOT**。
@@ -159,9 +164,10 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ## 9. Matt 技能检索协议 (Matt Skills Retrieval)
 
-### 检索版本 (MAT_REF)
-- 声明了 `MAT_REF` 时：严格使用该固定 ref，不擅自升级；
-- 未声明时：核实当前版本并记录实际参考的 commit，不将浮动的 `main` 写死为永久规则。
+### 检索版本策略 (MAT_REF Strategy)
+- **Release 级基准锚定**：本工作流发布版默认锚定经过充分验证的 Matt Ref 基准（`MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）；
+- **项目显式声明优先**：若目标项目在 `AGENTS.md` 或文档中明确声明了覆盖的 `MAT_REF`，优先使用项目指定的 ref；
+- **禁止隐式版本漂移**：严禁在不同 Fresh Session 中无意识地浮动切换到不同的 Matt main/commit，不自动静默升级。
 
 ### 检索路径
 - **未知具体 Skill**：先读 `MAT_REPO@MAT_REF` 的 `ask-matt/SKILL.md` 获取路由，再读目标 Skill；
@@ -177,7 +183,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
   2. `docs/agents/domain.md` 是否存在；
   3. 若 triage 已安装，检查 `docs/agents/triage-labels.md` 是否存在，并确认其映射到的实际 tracker labels 确实在 tracker 中存在（若 mapping 指向不存在的 labels，setup 尚未就绪，Browser 应要求 IDE 创建缺失 labels 或修正 mapping，不机械重跑 setup）；
   4. `AGENTS.md` / `CLAUDE.md` 中是否存在 `## Agent skills` 区块。
-- **缺失时的调度**：若上述配置缺失，Browser Lead 应向用户下发 copy-ready 指令，指引用户在 IDE 中先运行 `/setup-matt-pocock-skills`；
+- **缺失时的调度**：若上述配置缺失（无论该代码仓库是新建还是已有项目），Browser Lead 应向用户下发 copy-ready 指令，指引用户在 IDE 中先运行 `/setup-matt-pocock-skills`；
 - **已有配置不重复**：已有有效配置时正常继续，严禁在每次会话机械重跑 setup。仅在配置缺失或 `MAT_REF` 大版本更新不兼容时重新执行。
 
 ---
