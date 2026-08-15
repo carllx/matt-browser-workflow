@@ -76,18 +76,15 @@
 
 ### 步骤三：开启第一次协作对话 (First Session)
 
-在配置好的 ChatGPT Project 中开启新对话，发送你的项目基本坐标：
+在配置好的 ChatGPT Project 中开启新对话，只需发送你的仓库地址与当前目标：
 
 ```text
-你好，请接手当前项目协同：
+你好，请接手这个项目：
 - PROJECT_REPO: https://github.com/<owner>/<repo>
-- PROJECT_DEFAULT_BRANCH: main
-- PROJECT_ACTIVE_REF: main
-- PROJECT_TRACKER: GitHub Issues
-- 目标：<简要描述你的开发目标>
+- 目标：<你现在想完成什么>
 ```
 
-Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
+Browser Lead 将会自动通过 Bounded Project Sync 解析默认分支与 Tracker 现场，并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**
 
 ---
