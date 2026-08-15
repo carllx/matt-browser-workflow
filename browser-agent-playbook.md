@@ -175,7 +175,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 - **首次工程流前检查**：Browser Lead 在首次准备对一个 repository 使用 Matt engineering skills 时，必须先检查：
   1. `docs/agents/issue-tracker.md` 是否存在并与实际 tracker 对齐；
   2. `docs/agents/domain.md` 是否存在；
-  3. `docs/agents/triage-labels.md`（若 triage 安装）是否存在；
+  3. 若 triage 已安装，检查 `docs/agents/triage-labels.md` 是否存在，并确认其映射到的实际 tracker labels 确实在 tracker 中存在（若 mapping 指向不存在的 labels，setup 尚未就绪，Browser 应要求 IDE 创建缺失 labels 或修正 mapping，不机械重跑 setup）；
   4. `AGENTS.md` / `CLAUDE.md` 中是否存在 `## Agent skills` 区块。
 - **缺失时的调度**：若上述配置缺失，Browser Lead 应向用户下发 copy-ready 指令，指引用户在 IDE 中先运行 `/setup-matt-pocock-skills`；
 - **已有配置不重复**：已有有效配置时正常继续，严禁在每次会话机械重跑 setup。仅在配置缺失或 `MAT_REF` 大版本更新不兼容时重新执行。
