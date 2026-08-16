@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.7
+> 版本：v0.8
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -95,7 +95,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - ChatGPT Project Memory 或聊天摘要是辅助性的检索参考（Useful Context），**不具备规范性权威（Normative SSOT）**；
    - 长期约束和工程事实必须沉淀在仓库文档（Repository Docs）及 Project Instructions 中，以仓库权威为准。
 2. **自维护基线 (Self-Maintenance Boundary)**：
-   - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref，如 `v0.5`）**作为维护基准；
+   - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref，如 `v0.7`）**作为维护基准；
    - 正在编辑的工作区规则在未获 Review 与合并前，不得反向支配维护过程。
 
 ---
@@ -107,14 +107,17 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
-   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为规范。不得隐式假定本地 IDE 安装版本完全一致；冲突处理见下方 MAT_REF 权威边界规则；
+   - **Matt Process Authority**：由 `Release Dependency Lock`（`MAT_REPO @ MAT_REF`，Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`，路由路径 `MAT_ROUTER_PATH=skills/engineering/ask-matt/SKILL.md`）定义技能原生行为规范。所有关键负载 Matt 源码检索必须经过 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；冲突处理见下方 MAT_REF 权威边界规则；
    - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
 3. **MAT_REF 权威边界 (MAT Authority Precedence)**：
    区分两种情形：
    - **Accidental / undeclared divergence（无意漂移）**：若 IDE 本地 Skill 行为与 pinned `MAT_REF` 不一致，但目标项目的权威文档（`AGENTS.md` / `docs/agents/*`）没有明确声明这是有意定制，视为版本漂移（version drift）；Browser Review 以 pinned `MAT_REF` 为准。
    - **Explicit project-local adaptation（明确适配）**：若目标项目的权威文档明确声明了某个 Matt 行为是有意覆盖/适配，则该**具体声明点**由 Project Authority 优先；其他未声明的 Matt 行为仍遵循 pinned `MAT_REF`。
    **不使用**笼统的 `Project Authority > Matt Authority`；不引入 MAT_MODE、override registry 或额外配置体系。
-4. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
+4. **历史版本可复现性 (Old Release Reproducibility)**：
+   - 后续 Matt 上游演进绝对不得修改已经发布的 `matt-browser-workflow` 版本的语义；
+   - 历史 release 持续使用其不可变的发布锁定 `MAT_REF`；新工作流版本仅通过显式、经过完整 Review 的 Release 流程采纳新的 `MAT_REF`；严禁重写历史 tag 或 release。
+5. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
 
 ---
 
@@ -163,3 +166,73 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 以下为参考性启发（非硬编码规则）：
 - Small / well-scoped / local-feedback-heavy work → 倾向让相关 Matt flow 在 IDE context 连续运行；
 - Huge / foggy / tracker-native / decision-heavy work → 倾向 Browser-hosted cognition。
+
+### 演进审查的 Relationship-First 不变量 (Relationship-First Invariant)
+
+所有未来的 Matt 依赖更新与工作流版本迭代，必须持续评估其对以下三端关系维度的影响：
+- 用户决策与信任边界（User decision / trust boundary）
+- Browser 工作流统筹与认知角色（Browser workflow / cognitive role）
+- IDE 执行与运行时角色（IDE execution / runtime role）
+- 调用所有权（Invocation Ownership）
+- 权威一手源连续性（Primary-Source Continuity）
+- 反馈局部性（Feedback Locality）
+- 规范产物共享状态（Canonical Artifacts）
+- 跨 Agent 语义与机械中继（Cross-Agent Semantic vs Mechanical Relay）
+- 变更权限与位置分离（Mutation Authority vs Locality）
+- 会话与上下文边界（Session & Context Stewardship）
+
+该关系维度是永久性的架构审查轴线，而非单版本特性。
+
+---
+
+## 11. 上游演进治理规范 (Upstream Evolution Governance)
+
+### 1. 上游漂移感知 (Upstream Detection)
+在涉及 Matt 技能的完整启动导向期间，Browser 执行轻量级检测：
+- 验证锁定 `MAT_REF` 与 `MAT_ROUTER_PATH` 可用性；
+- 获取上游最新默认分支 `UPSTREAM_HEAD` 并比对 `MAT_REF...UPSTREAM_HEAD`；
+- **核心原则**：检测仅用于感知漂移，**绝对不得自动修改或升级 `MAT_REF`**。目标项目工作采用有界相关性（Bounded Relevance），禁止会话间盲目重扫所有技能。
+
+### 2. 候选版本冻结 (Candidate Freeze)
+当上游漂移需要深入分析时，必须冻结不可变候选 SHA：
+- `CURRENT_MAT_REF` = 当前发布锁定 SHA；
+- `CANDIDATE_MAT_REF` = 观察到的上游候选 SHA。
+一旦进入评审，禁止继续基于浮动的 `main` 分支分析，所有语义比对均严格在两者之间展开。
+
+### 3. 技能清单差异与 10 维动态评审透镜
+升级分析必须区分：**Added / Removed / Renamed / Changed / Unchanged**。重命名/移动检测结合标识符与语义防机械判定。
+对受影响的技能，通过 10 维关系透镜进行评审：
+1. **Identity**：旧/新名称与路径，增/删/改/移状态；
+2. **Matt Flow Role**：router / main-flow / on-ramp / standalone / vocabulary layer / precondition；
+3. **Invocation Authority**：user-invoked vs model-invoked、工具/内部调用、显式 slash 要求；
+4. **Decision Ownership**：Agent 自行查证的事实 vs 需 User 裁决的决策；
+5. **Primary-Source Continuity**：Continue / Fresh / Handoff / 上下文继承要求；
+6. **Feedback Locality**：Browser/远程/Tracker 倾向 vs IDE/工作区/运行时/测试 倾向；
+7. **Artifact Contract**：权威输入、持久输出、临时产物；变更权限与位置分离；
+8. **Cross-Agent Relay**：保留语义中继，消除机械搬运；
+9. **Skill Dependencies**：上下游依赖影响、调用边界变更；
+10. **Workflow Adaptation Result**：`KEEP` / `MODIFY` / `DELETE` / `ADD`。
+
+> **横切性语义影响 (Cross-Cutting Semantic Impact)**：
+> 单个 Skill 即使自身 `SKILL.md` 无直接 diff，若候选版本变更了全局横切规范（调用模型、user/model-invoked 边界、内部调用约定、phase 边界/上下文规则、handoff 语义、setup 契约、tracker 契约、共享词汇等），该 Skill 仍须纳入重新评估。评估范围严格限定在受影响的技能上（candidate-scoped），严禁建立静态 Skill 映射表或永久兼容性数据库。
+
+### 4. 适配精简与减法原则 (Adaptation Subtraction)
+升级评审必须审查“可以删除什么适配”。若 Matt 上游已原生支持了此前工作流在本地适配的行为，应优先评估精简或删除本地规则。Matt 上游拥有 Matt 规范语义，本项目保持尽可能轻量。
+
+### 5. 本地 IDE 对齐探测 (Local IDE Alignment Probe)
+Browser 端的 `MAT_REF` 不能直接保证本地 IDE 执行完全相同的版本。在关键技能执行前且对齐状态未知时，Browser 发起窄范围 Fact Probe，探测安装来源、版本、关键技能可用性与对齐状态。
+状态分类：`ALIGNED` / `UNKNOWN / FLOATING` / `DRIFTED NON-MATERIAL` / `DRIFTED MATERIAL`。仅当实质性漂移影响当前流程时才阻断。禁止要求用户手动搬运 IDE 自查事实；禁止建立 Fact Ownership Registry。
+
+### 6. 冲突裁决规则 (Conflict Resolution)
+- **A. Published MAT_REF vs Newer Upstream**：当前发布的 `MAT_REF` 保持绝对权威，上游仅作为候选参考。
+- **B. MAT_REF vs IDE Local Matt**：非实质漂移报告证据不改权威；实质漂移严禁静默执行本地差异语义，必须显式对齐或升级。
+- **C. Pinned Matt vs Project Authority**：延续既有规则，仅在项目明确声明的具体点由项目优先；未声明的差异仍视作漂移，以 Pinned Matt 为准。
+- **D. New Matt Semantics vs Relationship-First Adaptation**：优先保全 Matt 语义意图并适配到三端拓扑。若存在真冲突，向用户呈现权衡决策（保持当前 vs 采纳升级并调整适配）。
+- **E. Last Accepted Workflow vs In-Progress New Workflow**：以最后接受的冻结 release（如 `v0.7`）作为自维护基准；正在开发的分支不能反向支配当前开发。
+- **F. Workflow Adaptation vs Upstream-Native Solution**：优先精简/移除冗余的本地适配，避免累积影子规范。
+
+### 7. 用户分级通知与升级决策协议 (User Notification & Update Decision)
+- **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。
+- **非实质性上游漂移 (Non-Material Drift)**：检测到上游变动但判定无实质影响时，Browser 仅需简要提示上游存在新 commit 且当前锁定版本有效；**严禁**打断正常工作，**严禁**向用户索要升级决策。
+- **实质性更新候选 (Material Update Candidate)**：发现实质价值或影响的候选时，Browser 必须先产出基于证据的升级简报（Upgrade Brief，包含当前/候选坐标、commit 与技能清单变动、实质语义与关系影响、适配调整建议及 `NO UPGRADE` / `DEFER` / `UPGRADE CANDIDATE` 分类），主动呈现给用户，由用户决定是否进入升级排期。
+- **运行时完整性问题 (Runtime Integrity Problem)**：发现锁定源不可用、当前关键技能缺失或本地存在影响流程的 `DRIFTED MATERIAL` 时，Browser 必须将其作为**阻塞性兼容问题**立即呈现，提供具体事实与恢复方案。

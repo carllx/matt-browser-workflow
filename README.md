@@ -20,6 +20,11 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 ### 为什么引入 Matt Skills？
 本工作流融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的工程 discipline：这些 Skill 是小型、可组合的工具，各自拥有明确的 Gate 和边界。Browser 根据当前真正的 blocker 选择合适的 Skill，而非驱动所有项目顺序走完固定的全量流程。Well-scoped work 不应被迫走完整条大型流程。
 
+### 依赖锁定与演进治理 (Dependency Integrity & Upstream Governance)
+- **发布级依赖锁定 (Release Lock)**：每个工作流版本通过不可变的 `MAT_REPO @ MAT_REF` 锁定 Matt 流程技能权威，源码检索受 Ref 严格约束，保证历史已发布版本的确定性与可复现性；
+- **感知演进与分级通知**：`Update notification != Upgrade decision.` 启动时可轻量感知上游演进，但绝不自动升级；非实质漂移不打扰，实质更新候选出具升级简报（Upgrade Brief），运行时完整性问题作为阻塞呈现；
+- **Relationship-First 演进审查**：升级评估不依赖静态矩阵，而是通过 10 维关系透镜审视对 User / Browser / IDE 三端拓扑及横切性语义的影响，并遵循适配精简（Adaptation Subtraction）原则。
+
 ---
 
 ## 2. 默认协作分工 (Default Split)
@@ -64,11 +69,11 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 ---
 
-### 步骤二：配置 ChatGPT Project (Browser Lead Setup)
+## 步骤二：配置 ChatGPT Project (Browser Lead Setup)
 
 打开 ChatGPT，点击创建或配置一个专用 **Project**：
 
-1. **配置 Project Instructions（核心启动入口与仓库绑定）**：
+1. **配置 Project Instructions（核心启动入口、依赖锁定与仓库绑定）**：
    - 复制本仓库 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的**全部文本内容**，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
    - 将文本顶部 `## Project Binding` 中的 `PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>` 替换为该 Project 对应的**目标仓库 URL**（例如 `https://github.com/<owner>/<repo>`）并保存。
 
