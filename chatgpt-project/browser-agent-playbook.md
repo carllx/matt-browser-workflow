@@ -35,18 +35,20 @@
 - PR；
 - Issue / tracker / repo docs 更新。
 
-这是默认分工而非绝对权限禁令。以下是唯一的窄范围例外：
+这是默认分工而非绝对权限禁令。当 Browser 拥有用户明确授权与可审计的 remote write capability 时，以下两类情形可进行**窄范围、可审计的 mutation exception**：
 
-**Browser tracker-native mutation 例外**：当 Browser 正在执行一个 tracker-native Matt cognitive flow（例如 Wayfinder decision work），且拥有用户明确授权与可审计的 remote write capability 时，Browser 可直接维护该 flow 必需的 coordination artifacts，例如：
+**例外 A — Tracker-native flow coordination**：Browser 正在执行 tracker-native Matt cognitive flow（如 Wayfinder decision work）时，可直接维护该 flow 必需的 coordination artifacts：
 - map / decision issue 的内容更新
 - issue comments
 - blocking 关系
 - flow-required labels / state
 - spec / ticket coordination metadata
 
-此例外**不得扩大**到 production code、implementation commit、merge、tag 或与当前 flow 无关的 Issue。
+**例外 B — Domain-modeling persistence**：Browser-hosted decision work 产生了真正的 domain-modeling 成果时，可进行窄范围持久化写入（`CONTEXT.md` glossary 条目 / 符合条件的 ADR）；否则立即向 IDE 下发最小 persistence Work Order。
 
-核心原则：**Human control is required; human copy-paste for every harmless coordination mutation is not inherently required.**
+两类例外均**不得扩大**到 production code、implementation commit、merge、tag 或无关仓库改动。Human 是决策与信任边界；Browser ↔ IDE 的 copy-ready relay 是**默认**执行模式，但并非每一次无害的、明确授权且可审计的 coordination mutation 都必须经由人工复制粘贴。
+
+核心原则：**Human control is required; human copy-paste for every harmless, explicitly authorized and auditable coordination mutation is not inherently required.**
 
 ---
 
@@ -61,7 +63,7 @@
 ### B. 流程技能权威 (Matt Process Authority) — "工程技能应该怎么工作？"
 - `MAT_REPO @ MAT_REF`（默认 `MAT_REPO=https://github.com/mattpocock/skills`，Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）；
 - 定义 Matt Skills 的 load-bearing 原生行为，是 Matt flow routing 的唯一权威地图；
-- 冲突以 pinned `MAT_REF` 原文为准，不以本地安装版本为准。
+- 版本对齐与冲突处理见下方 MAT_REF 权威边界规则。
 
 ### C. 目标项目权威 (Project Authority) — "项目实际上发生了什么？"
 - `PROJECT_REPO` 是 Project Binding 坐标指针，用于准确定位目标项目；
@@ -300,7 +302,7 @@ Browser Lead 必须分别独立评估：
 
 1. **Continue**：若下一阶段仍需要当前深度推理链条，优先继续；
 2. **Clear**：若当前上下文对下一阶段确实无价值，则清空；
-3. **Handoff**：若工作需要跨端、跨工具、跨仓库迁移，或交接给同事（需要 portability）时，生成便携交接包；
+3. **Handoff（Matt `/handoff`）**：仅当真正需要 portability 时使用，例如：切换到新工具/harness；移动到新目录或仓库；将工作交接给同事；在阶段中途分叉侧任务且不打断当前主会话。普通 Browser → IDE Work Order relay **本身不是** Handoff 触发条件。生成便携交接包时遵循 `MAT_REPO@MAT_REF` 的 `handoff/SKILL.md`；
 4. **Subagent**：若有独立的窄任务可 AFK 并行处理，才派遣子代理；
 5. **Compact**：其他需要保留相关 context 但需要新空间的情况。
 

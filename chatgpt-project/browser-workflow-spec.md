@@ -37,7 +37,7 @@
    上下文切换遵循以下有序决策逻辑，依次评估：
    - **Continue**：若下一阶段仍需要当前深度推理链条，优先继续；
    - **Clear**：若当前上下文对下一阶段确实无价值，则清空；
-   - **Handoff**：若需要跨端、跨工具、跨仓库或将工作交接给同事，才生成便携交接包；
+   - **Handoff（Matt `/handoff`）**：仅当真正需要 portability 时使用，例如：切换到新工具/harness、移动到新目录或仓库、将工作交接给同事、在阶段中途分叉侧任务且不打断当前主会话。普通 Browser → IDE Work Order relay **本身不是** Handoff 触发条件。
    - **Subagent**：若任务独立且可 AFK 并行，才派遣子代理；
    - **Compact**：其他需要保留相关 context 但需要新空间的情况。
    Compact 不是首选项；Handoff 不是所有跨会话操作的默认选项。
@@ -91,7 +91,7 @@
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
-   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为规范。不得隐式假定本地 IDE 安装版本完全一致，冲突时以 Pinned 原文为准；
+   - **Matt Process Authority**：由 `MAT_REPO @ MAT_REF`（Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）定义技能原生行为规范。不得隐式假定本地 IDE 安装版本完全一致；冲突处理见下方 MAT_REF 权威边界规则；
    - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
 3. **MAT_REF 权威边界 (MAT Authority Precedence)**：
    区分两种情形：

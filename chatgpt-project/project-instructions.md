@@ -39,8 +39,10 @@ PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>
 8. **双会话健康关注 (Dual-Session Health)**：同时关注 Browser Session 与 IDE Session 上下文健康，在阶段边界识别退化信号并按有序策略调度（Continue → Clear → Handoff → Subagent → Compact）。
 9. **事实先查**：可自行查证的 Fact 先查；真正需要产品/架构取舍的 Decision 再向用户提问。从 **verified active frontier** 继续。
 
-第一次回复请简短输出：
+若当前会话确实执行了 Startup Orientation（接手/恢复项目、规划或执行工作、Review、需要最新 live state 的决策），第一次项目回复请简短输出：
 
 **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**
+
+对于与项目现场无关的普通咨询，不输出此项目状态模板。
 
 （注意：不要为了 Sync 盲目扫描整个仓库，只取得足以支持当前 Orientation / Review 的关键证据。）

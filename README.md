@@ -92,9 +92,9 @@
 
 ---
 
-## 4. 基本工作循环 (Relay Contract Loop)
+## 4. 默认开发协作循环 (Default Relay Contract Loop)
 
-整个开发过程遵循严密、闭环的中继契约（Relay Contract）：
+默认开发协作循环遵循严密、闭环的中继契约（Relay Contract）：
 
 ```text
   [Browser Lead]
@@ -116,6 +116,8 @@
 2. **用户中继传递**：你只需将该代码块一键复制发送给本地 IDE Agent。
 3. **IDE 本地执行与反馈**：IDE Agent 执行操作后，必须返回包含具体改动文件、命令输出、commit SHA 及未推送状态的完整报告，**严禁仅回复“已完成”**。
 4. **Browser 独立评审**：Browser Lead 核验证据与线上事实后，批准通过并进入下一个工作流节点。
+
+> **窄范围例外**：当 Browser 拥有用户明确授权与可审计的 remote write capability 时，允许进行窄范围、可审计的 tracker-native coordination 或 domain-modeling persistence 写入，无需人工复制粘贴。详见 Playbook §1。
 
 ---
 
