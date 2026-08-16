@@ -13,7 +13,7 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 > 在 User / Browser / IDE 分离的协作关系中，保护 Matt 的 **decision ownership**、**primary-source continuity**、**feedback locality** 与 **durable shared state / canonical artifacts**。
 
 ### 三端角色
-- **Browser Lead**（ChatGPT / Claude Web 等）：Workflow Steward、远程权威读写、全局目标与阶段对齐、Review Gate。
+- **Browser Lead**（ChatGPT / Claude Web 等）：Workflow Steward、远程事实与 tracker 协调、全局目标与阶段对齐、Review Gate。
 - **IDE Agent**（Antigravity / Cursor / Claude Code / Codex 等）：本地文件、运行时、Git 、本地测试的默认执行端。
 - **User**：**decision / trust participant**—主导产品与架构取舍、explicit authorization、user-invoked Skill 指令、关键 HITL exchange。在跨端默认协作循环中同时承担 relay 角色，但不是首要的机器间传输层。
 

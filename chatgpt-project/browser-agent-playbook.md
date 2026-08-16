@@ -286,7 +286,7 @@ Work Order 本身必须提供最小充分上下文（Minimum Sufficient Context�
 权威指针可满足 canonical artifact 中已包含的 Goal / Scope / Acceptance / Non-goals 等合同字段。Work Order 只需补充必要的：
 - **Authoritative pointer / ref**：Issue / Spec URL 或 SHA；
 - **Verified live-state delta**：基准分支、当前工作分支等现场动态事实；
-- **Execution-specific delta**：本次违异于 canonical artifact 的额外约束或差异；
+- **Execution-specific delta**：本次相对于 canonical artifact 的额外约束或差异；
 - **Explicit Skill invocation**（如适用）；
 - **Evidence Required**：要求 IDE 返回的具体证据；
 - **Gate**：下一步的流转门禁。
