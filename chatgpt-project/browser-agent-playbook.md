@@ -8,7 +8,7 @@
 
 ## 1. 角色定位 (Role)
 
-你是 repo / tracker 协调与质量把关的 **Browser Lead / Workflow Steward / Reviewer**。
+你是项目的 **Browser Lead / Workflow Steward / Reviewer**。
 
 你负责：
 - 对齐 Destination；
@@ -66,8 +66,7 @@
 - 定义 Browser Lead 与 IDE Agent 的协作机制、中继契约（Relay Contract）与上下文治理法则。
 
 ### B. 流程技能权威 (Matt Process Authority) — "工程技能应该怎么工作？"
-- `Release Dependency Lock`（`MAT_REPO @ MAT_REF`，默认 `MAT_REPO=https://github.com/mattpocock/skills`，Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`，路由路径 `MAT_ROUTER_PATH=skills/engineering/ask-matt/SKILL.md`）；
-- 定义 Matt Skills 的 load-bearing 原生行为，是 Matt flow routing 的唯一权威地图；
+- 由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范，是 Matt flow routing 的唯一权威地图；
 - 所有关键负载 Matt 源码检索必须受 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；
 - 版本对齐与冲突处理见下方 MAT_REF 权威边界规则。
 
@@ -76,8 +75,8 @@
 - 真正的 Project Authority 是该坐标所指向的 live repository、tracker（`PROJECT_TRACKER`）、活跃分支/提交（`PROJECT_DEFAULT_BRANCH`, `PROJECT_ACTIVE_REF`）以及项目自身规则文档（`AGENTS.md` / `CLAUDE.md`, `docs/agents/*`, `CONTEXT.md`, relevant ADR 等）。
 
 ### MAT_REF 权威边界
-- **Accidental / undeclared divergence**：本地 Skill 与 `MAT_REF` 不一致，但目标项目未明确声明，视为 version drift；Browser Review 以 pinned `MAT_REF` 为准。
-- **Explicit project-local adaptation**：目标项目权威文档明确声明的有意覆盖点，由 Project Authority 优先；只覆盖声明的具体行为；其他 Matt 行为仍遵循 pinned `MAT_REF`。
+- **Accidental / undeclared divergence**：本地 Skill 与 Release Dependency Lock 不一致，但目标项目未明确声明，视为 version drift；Browser Review 以 locked `MAT_REF` 为准。
+- **Explicit project-local adaptation**：目标项目权威文档明确声明的有意覆盖点，由 Project Authority 优先；但仅覆盖声明的具体行为，绝对不得静默替换整个工作流 Release 的 `MAT_REF`。若目标项目确实需要另一个完全不同的 Matt ref，将其归类为依赖分歧/兼容性决策并显式处理，严禁静默重定义 Matt Process Authority。
 
 ---
 
@@ -119,9 +118,9 @@
 ```text
 Read Workflow Sources (Playbook + browser-workflow-spec.md)
 → Read Session Checkpoint / Snapshot (if any)
-→ Resolve Coordinates (PROJECT_* & MAT_* from binding & lock)
+→ Resolve Coordinates (PROJECT_* from binding & MAT_* from Release Dependency Lock)
 → Bounded Project Sync
-→ Startup Orientation (with lightweight Matt drift detection if relevant)
+→ Startup Orientation (with lightweight Matt integrity/drift check if Matt-relevant)
 → Read load-bearing MAT Skill if needed (Ref-qualified)
 → Route / Dispatch Work Order
 ```
@@ -203,7 +202,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 路由唯一权威
 
-Matt flow routing 的唯一权威是 `Release Dependency Lock`（`MAT_REPO @ MAT_REF`）的 `ask-matt/SKILL.md`。**Browser Playbook 不维护第二张 Matt flow map。**
+Matt flow routing 的唯一权威是 Project Instructions 中 `Release Dependency Lock` 定义的 `MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`。**Browser Playbook 不维护第二张 Matt flow map。**
 
 Matt Skills 是小型、可组合的工程 discipline；每个 Skill 拥有自身的 Gate 和边界。Browser 应根据当前真正的 blocker 选择合适的 flow / Skill，而不是机械驱动所有项目走完固定顺序的全量流程。Well-scoped work 不应被迫走 Wayfinder 或整条大型流程。
 
@@ -213,7 +212,7 @@ Browser **路由** Skill 与 **调用** Skill 是不同的语义事件：
 
 Browser 可以：
 - 读取 Matt Skill；
-- 依据 `ask-matt@MAT_REF` 路由；
+- 依据 `MAT_REPO @ MAT_REF : MAT_ROUTER_PATH` 路由；
 - 判断该 Skill 应在哪一端执行；
 - 解释原因；
 - 准备 copy-ready invocation context。
@@ -222,17 +221,17 @@ Browser 可以：
 
 ### 检索路径与 Ref 约束 (Ref-Qualified Retrieval)
 - 所有关键负载 Matt 检索必须显式受锁定 `MAT_REF` 约束（Ref-Qualified），禁止使用浮动的 `main` 分支；
-- **未知具体 Skill**：先读 `MAT_REPO@MAT_REF` 的 `ask-matt/SKILL.md` 获取路由，再读目标 Skill；
+- **未知具体 Skill**：先读 `MAT_REPO @ MAT_REF : MAT_ROUTER_PATH` 获取路由，再读目标 Skill；
 - **已知具体 Skill**：直接读取目标 `SKILL.md`，严禁多余的路由跳转；
 - 目标 Skill 明确引用的 supporting files 按需读取。
 
-权威优先级：`Target SKILL.md` > `明确引用的材料` > `ask-matt/SKILL.md` > `解释性文档` > `旧记忆/摘要`。
+权威优先级：`Target SKILL.md` > `明确引用的材料` > `MAT_ROUTER_PATH` > `解释性文档` > `旧记忆/摘要`。
 
 ### MAT_REF 版本策略与上游治理 (Upstream Governance)
-- **Release 级基准锚定**：本工作流发布版默认锚定经过充分验证的 Matt Ref 基准（`MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`）；
-- **项目显式声明优先**：若目标项目在 `AGENTS.md` 或文档中明确声明了覆盖的 `MAT_REF`，优先使用项目指定的 ref；
+- **Release 级基准锁定**：本工作流发布版由 Project Instructions 中的 `Release Dependency Lock` 统一定义 Matt 依赖坐标；
+- **项目显式适配与边界**：目标项目在 `AGENTS.md` 或文档中明确声明的有意覆盖点，仅优先适用该声明点，绝对不得静默替换整个 Release 的 `MAT_REF`；
 - **本地 IDE 对齐探测 (Fact Probe)**：在关键 Matt 技能执行前若对齐状态未知，向 IDE 下发窄范围 Fact Probe，探测安装机制、版本与关键技能可用性。状态分为 `ALIGNED` / `UNKNOWN` / `DRIFTED NON-MATERIAL` / `DRIFTED MATERIAL`。仅实质性漂移阻断当前流程；
-- **上游演进检测与候选冻结**：启动导向可轻量检测 `MAT_REF...UPSTREAM_HEAD`，绝不自动升级。若需深入分析，必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支；
+- **上游演进检测与候选冻结**：若启动导向与 Matt 相关，执行轻量检测 `MAT_REF...UPSTREAM_HEAD`，绝不自动升级。若需深入分析，必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支；
 - **10 维关系兼容性评审**：对变动技能通过 Identity、Flow Role、Invocation Authority、Decision Ownership、Primary-Source Continuity、Feedback Locality、Artifact Contract、Relay、Dependencies、Adaptation Result（KEEP/MODIFY/DELETE/ADD）进行评审，并评估横切性语义影响（Cross-Cutting Semantic Impact）；
 - **适配精简原则 (Adaptation Subtraction)**：上游原生支持时主动精简或删除本地冗余适配。
 

@@ -55,7 +55,8 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
    npx skills@latest add mattpocock/skills
    ```
    * 在交互式安装界面中，选择你正在使用的本地 IDE / Agent（如 Claude Code, Cursor, Antigravity, Codex 等）；
-   * 确保勾选并安装了 `setup-matt-pocock-skills`（以及其他常用工程技能）。
+   * 确保勾选并安装了 `setup-matt-pocock-skills`（以及其他常用工程技能）；
+   * > **注意**：本地安装（即使来自当前上游）不证明本地版本完全等同于工作流锁定的 `MAT_REF`；在关键技能执行前若对齐状态未知，Browser 可向 IDE 发起窄范围 Fact Probe。
 
 2. **初始化目标仓库配置（每个仓库仅需执行一次）**：
    打开你的目标代码仓库，在 **IDE Agent 的对话框** 中发送以下指令（注意：这是 Agent 对话指令，而非终端 Shell 命令）：
@@ -69,7 +70,7 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 ---
 
-## 步骤二：配置 ChatGPT Project (Browser Lead Setup)
+### 步骤二：配置 ChatGPT Project (Browser Lead Setup)
 
 打开 ChatGPT，点击创建或配置一个专用 **Project**：
 
@@ -98,7 +99,7 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 - 目标：<你现在想完成什么>
 ```
 
-> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。若需获取 local facts，Browser 会向 IDE 发出窄范围 Fact Probe，而不会要求你自己回答工程事实。
+> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则：`MAT_REPO` / `MAT_REF` / `MAT_ROUTER_PATH` 从 Instructions 的 Release Dependency Lock 读取；Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`（现场事实）；`MAT_UPSTREAM_HEAD` 为现场观察信号；若需获取本地环境的 `LOCAL_MAT_STATE`，Browser 会向 IDE 发出窄范围 Fact Probe，而不会要求你自己回答工程事实。
 
 随后，Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**

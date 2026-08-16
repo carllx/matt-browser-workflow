@@ -107,12 +107,12 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
-   - **Matt Process Authority**：由 `Release Dependency Lock`（`MAT_REPO @ MAT_REF`，Release 默认锚定 `MAT_REF=8b78b531ab965735c5dc74f6f7a219e1e37326df`，路由路径 `MAT_ROUTER_PATH=skills/engineering/ask-matt/SKILL.md`）定义技能原生行为规范。所有关键负载 Matt 源码检索必须经过 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；冲突处理见下方 MAT_REF 权威边界规则；
+   - **Matt Process Authority**：由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范。所有关键负载 Matt 源码检索必须经过 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；冲突处理见下方 MAT_REF 权威边界规则；
    - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
 3. **MAT_REF 权威边界 (MAT Authority Precedence)**：
    区分两种情形：
-   - **Accidental / undeclared divergence（无意漂移）**：若 IDE 本地 Skill 行为与 pinned `MAT_REF` 不一致，但目标项目的权威文档（`AGENTS.md` / `docs/agents/*`）没有明确声明这是有意定制，视为版本漂移（version drift）；Browser Review 以 pinned `MAT_REF` 为准。
-   - **Explicit project-local adaptation（明确适配）**：若目标项目的权威文档明确声明了某个 Matt 行为是有意覆盖/适配，则该**具体声明点**由 Project Authority 优先；其他未声明的 Matt 行为仍遵循 pinned `MAT_REF`。
+   - **Accidental / undeclared divergence（无意漂移）**：若 IDE 本地 Skill 行为与 Release Dependency Lock 不一致，但目标项目的权威文档（`AGENTS.md` / `docs/agents/*`）没有明确声明这是有意定制，视为版本漂移（version drift）；Browser Review 以 locked `MAT_REF` 为准。
+   - **Explicit project-local adaptation（明确适配）**：若目标项目的权威文档明确声明了某个 Matt 行为是有意覆盖/适配，则该**具体声明点**由 Project Authority 优先；但仅覆盖声明的具体行为，绝对不得静默替换整个工作流 Release 的 `MAT_REF`。若目标项目确实需要另一个完全不同的 Matt ref，将其归类为依赖分歧/兼容性决策并显式处理，严禁静默重定义 Matt Process Authority。
    **不使用**笼统的 `Project Authority > Matt Authority`；不引入 MAT_MODE、override registry 或额外配置体系。
 4. **历史版本可复现性 (Old Release Reproducibility)**：
    - 后续 Matt 上游演进绝对不得修改已经发布的 `matt-browser-workflow` 版本的语义；
