@@ -67,6 +67,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - **grilling → spec / tickets 等依赖当前 primary reasoning 的连续阶段**：优先 Continue，不因 tracker object 边界机械 Clear；
    - **triage / discovery 等可批量处理多 Issue 的 flow**：不强制 Issue:Session 1:1；
    - **Browser Session 与 IDE Session 生命周期独立**：一端 Clear/Fresh 不机械触发另一端。
+   以上默认映射是 session / work-unit 的参考基准，不构成固定的 Skill → Host mapping；实际 execution placement 仍依据 Relationship-First 判断（见 §10）。
 
 ---
 
@@ -155,7 +156,8 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 
 - **primary-source continuity**：若当前 primary reasoning 在 Browser 且下一阶段仍需要该推理链，优先 Continue；
 - **feedback locality**：working-tree / runtime / test 反馈密集的工作倾向 IDE context 连续运行；remote / tracker / decision 密集的工作倾向 Browser-hosted cognition；
-- **authoritative artifact locality**：artifact 在哪里，相关 Agent 就应倾向就近操作；
+- **authoritative artifact locality**：Artifact 的位置用于判断 reading / reasoning 就近、feedback loop 充满度以及 Skill 执行放置；它本身 **不授予 mutation authority**。任何 mutation 仍必须遵循既有的 Browser / IDE Default Split、user authorization 和 Browser narrow/auditable mutation exceptions。
+  > `Location informs placement; it does not grant authority.`
 - **信息损耗成本**：不必要的跨端传递会引入漂移和误差，应最小化。
 
 以下为参考性启发（非硬编码规则）：

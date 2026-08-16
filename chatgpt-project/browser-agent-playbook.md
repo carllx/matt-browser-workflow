@@ -53,7 +53,7 @@
 ### 角色定义与 Skill 执行位置
 
 默认分工表明 Browser / IDE 的**层次和责任**，不规定 Skill 执行的**实际位置**。
-这不意味着所有 cognition 都必须在 Browser，也不意味着所有 Matt Skill 都必须由同一端主持。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact locality 以及跨端信息损耗成本就近判断（详见 Spec §10）。
+这不意味着所有 cognition 都必须在 Browser，也不意味着所有 Matt Skill 都必须由同一端主持。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact locality以及跨端信息损耗成本就近判断（详见 Spec §10）。Artifact locality 用于判断 reading / reasoning 就近和 Skill 执行放置，不授予 mutation authority（`Location informs placement; it does not grant authority.`）。
 
 ---
 
@@ -269,7 +269,10 @@ Browser 可以：
 ## 12. Browser ↔ IDE 中继契约 (Relay Contract)
 
 ### A. 派发工单 (Browser → IDE Work Order)
-Browser Lead 向 IDE 派发任务时，必须提供**最小充分上下文（Minimum Sufficient Context）**，并格式化为易于用户一键复制的结构：
+Browser Lead 向 IDE 派发任务时，需视目标情况采用以下两种契约模式之一，必须提供易于用户一键复制的结构：
+
+**模式一—非 canonical self-contained artifact 场景**
+Work Order 本身必须提供最小充分上下文（Minimum Sufficient Context）：
 - **Goal**：本轮唯一明确的核心目标；
 - **Authoritative Refs**：基准分支、目标分支、相关 commit 或 Issue 编号；
 - **Verified Facts**：已核实的必要现场事实；
@@ -279,7 +282,17 @@ Browser Lead 向 IDE 派发任务时，必须提供**最小充分上下文（Min
 - **Evidence Required**：要求 IDE 返回的具体命令输出、测试结果或 diff 验证；
 - **Gate**：下一步的流转门禁。
 
-已有 self-contained Issue / Spec 时，Work Order 采用 **pointer-first**：传递 Issue/Spec 指针与 execution delta，而非复制完整上下文作为第二份 Spec SSOT。
+**模式二—已有 canonical self-contained Issue / Spec 场景**
+权威指针可满足 canonical artifact 中已包含的 Goal / Scope / Acceptance / Non-goals 等合同字段。Work Order 只需补充必要的：
+- **Authoritative pointer / ref**：Issue / Spec URL 或 SHA；
+- **Verified live-state delta**：基准分支、当前工作分支等现场动态事实；
+- **Execution-specific delta**：本次违异于 canonical artifact 的额外约束或差异；
+- **Explicit Skill invocation**（如适用）；
+- **Evidence Required**：要求 IDE 返回的具体证据；
+- **Gate**：下一步的流转门禁。
+
+不得重新抄写一份 canonical artifact 已包含的内容。Work Order 不是第二份 Spec SSOT。
+
 
 ### B. 证据反馈 (IDE → Browser Feedback)
 IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区，必须提供包含充分证据的报告：
@@ -331,7 +344,7 @@ Browser Lead 必须分别独立评估：
 严禁在阶段中途随意打断切换。
 
 ### D. Work-Unit ↔ Session 对齐
-参见 [`browser-workflow-spec.md`](./browser-workflow-spec.md) § 3.5。Fresh Context 跟随自包含的认知/执行单元，而非机械跟随 tracker 对象。
+参见 [`browser-workflow-spec.md`](./browser-workflow-spec.md) § 3.5。Fresh Context 必须跟随自包含的认知/执行单元，而非机械跟随 tracker 对象。
 
 ---
 
@@ -436,16 +449,16 @@ Browser Lead 必须分别独立评估：
 
 ## 19. Browser Review 与 IDE `/code-review` 的区分
 
-Browser Lead Review 与 IDE 内运行 Matt `/code-review` 有不同的关注轴，不应机械重复：
+Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gate，关注轴不同，不得互相替代，也不得机械重复：
 
 - **IDE `/code-review`**：依据仓库的 coding standards 与对应 Spec/Issue 进行双轴评审（Standards + Spec 实现合规性）。
   - Standards 轴：实现是否符合仓库已文档化的编码规范；
-  - Spec 轴：实现是否忐实和完整地回应了 Issue / Spec 的要求。
+  - Spec 轴：实现是否忠实且完整地回应了 Issue / Spec 的要求。
 
 - **Browser Review**：关注证据 / 权威 / 范围 / release / 工作流 Gate：
-  - 已躺实的修改与已推送引用的一致性；
+  - 已核实的修改与已推送引用的一致性；
   - 是否存在范围外修改或超界行为；
   - 已接受基线是否完好保持；
   - 发布 Gate 的递进条件是否就绪。
 
-两者可以并行运行，各自负责不同的轴，不应因已运行其中一种而认为可以跳过另一种。
+两者是正交的 Gate，各自负责不同的轴。具体顺序服从当前 workflow phase：Matt `/implement` 自身的 `/code-review` 语义保持不变；Browser Review 在获得适当 evidence / ref 后执行独立 Gate。不应因已运行其中一种而跳过另一种。

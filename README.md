@@ -6,13 +6,19 @@
 
 ## 1. 项目简介 (Overview)
 
-`matt-browser-workflow` 旨在解决 AI 辅助编程中的核心割裂问题：
-- 网页端大模型（如 ChatGPT / Claude Web）具备强大的全局推理、上下文掌控和架构规划能力（**Browser Lead**）；
-- 本地 IDE Agent（如 Antigravity / Cursor / Claude Code / Codex）擅长具体代码编写、测试执行与 Git 操作（**IDE Agent**）；
-- **人类用户**作为高信任中继，通过结构化、就绪的工单（Copy-Ready Work Orders）实现两端无缝协同。
+Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working directory ↔ Repo / Runtime / Tracker`。本项目面对的实际拓扑是 `User ↔ Browser Agent ↔ IDE Agent ↔ Repo / Tracker`：Browser 与 IDE 拥有不同的 context、工具能力、事实位置和 feedback loop。
+
+本项目存在的核心价值不是再造一套 Matt workflow，而是：
+
+> 在 User / Browser / IDE 分离的协作关系中，保护 Matt 的 **decision ownership**、**primary-source continuity**、**feedback locality** 与 **durable shared state / canonical artifacts**。
+
+### 三端角色
+- **Browser Lead**（ChatGPT / Claude Web 等）：Workflow Steward、远程权威读写、全局目标与阶段对齐、Review Gate。
+- **IDE Agent**（Antigravity / Cursor / Claude Code / Codex 等）：本地文件、运行时、Git 、本地测试的默认执行端。
+- **User**：**decision / trust participant**—主导产品与架构取舍、explicit authorization、user-invoked Skill 指令、关键 HITL exchange。在跨端默认协作循环中同时承担 relay 角色，但不是首要的机器间传输层。
 
 ### 为什么引入 Matt Skills？
-本工作流融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的工程 discipline：这些 Skill 是小型、可组合的工具，各自拥有明确的 Gate 和边界，包括 `wayfinder` 决策地图、`grilling` 方案拷问、`to-spec` 规范制定、`to-tickets` 工单拆解、`code-review` 双轴评审等。Browser 根据当前真正的 blocker 选择合适的 Skill，而非驱动所有项目顺序走完固定的全量流程。Well-scoped work 不应被迫走完整条大型流程。
+本工作流融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的工程 discipline：这些 Skill 是小型、可组合的工具，各自拥有明确的 Gate 和边界。Browser 根据当前真正的 blocker 选择合适的 Skill，而非驱动所有项目顺序走完固定的全量流程。Well-scoped work 不应被迫走完整条大型流程。
 
 ---
 
@@ -118,6 +124,8 @@
 2. **用户中继传递**：你只需将该代码块一键复制发送给本地 IDE Agent。
 3. **IDE 本地执行与反馈**：IDE Agent 执行操作后，必须返回包含具体改动文件、命令输出、commit SHA 及未推送状态的完整报告，**严禁仅回复“已完成”**。
 4. **Browser 独立评审**：Browser Lead 核验证据与线上事实后，批准通过并进入下一个工作流节点。
+
+> **默认循环说明**：上图是当前跨端协作的默认传输路径，不是所有协作都必须经由人工 copy/paste。**保留 semantic relay**（User decision、explicit authorization、user-invoked slash Skill、真正需要 Human 参与的 HITL exchange）；**减少 mechanical relay**（Agent 可自行取得的 SHA / Issue 内容 / tracker state / remote facts）。Browser 能直接核实和读取的事实，不得为了保持图形循环而要求 User 搬运。
 
 > **窄范围例外**：当 Browser 拥有用户明确授权与可审计的 remote write capability 时，允许进行窄范围、可审计的 tracker-native coordination 或 domain-modeling persistence 写入，无需人工复制粘贴。详见 Playbook §1。
 
