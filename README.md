@@ -12,7 +12,7 @@
 - **人类用户**作为高信任中继，通过结构化、就绪的工单（Copy-Ready Work Orders）实现两端无缝协同。
 
 ### 为什么引入 Matt Skills？
-本工作流深度融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的系统化软件工程哲学（如 `wayfinder` 决策地图、`grilling` 方案拷问、`to-spec` 规范制定、`to-tickets` 工单拆解、`code-review` 双轴评审等），让复杂项目从构想到上线的每一个阶段均有清晰门禁与事实纪律保护，防止越级与过度设计。
+本工作流融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的工程 discipline：这些 Skill 是小型、可组合的工具，各自拥有明确的 Gate 和边界，包括 `wayfinder` 决策地图、`grilling` 方案拷问、`to-spec` 规范制定、`to-tickets` 工单拆解、`code-review` 双轴评审等。Browser 根据当前真正的 blocker 选择合适的 Skill，而非驱动所有项目顺序走完固定的全量流程。Well-scoped work 不应被迫走完整条大型流程。
 
 ---
 
@@ -122,8 +122,9 @@
 ## 5. 跨会话治理与退化预警 (Context Stewardship)
 
 * **双会话独立（Dual-Session）**：Browser 端与 IDE 端是各自独立的上下文空间。一端开启新会话（Fresh Session）不影响另一端继续工作。
-* **阶段边界切换（Phase Boundary）**：严禁在阶段中途（Mid-Phase）随意打断会话。只在任务完成、Issue 关闭或明确的阶段节点进行 Context Compact / Clear / Fresh Session。
-* **退化信号识别**：当 Agent 出现反复询问已知问题、推翻已定决策、回复泛化等情况时，应在最近的阶段节点交接并开启新会话。
+* **阶段边界切换（Phase Boundary）**：严禁在阶段中途（Mid-Phase）随意打断会话。只在任务完成、Issue 关闭或明确的阶段节点进行上下文治理。治理策略按有序逻辑评估：Continue → Clear → Handoff（需要 portability 时）→ Subagent → Compact，Compact 不是首选。
+* **退化信号识别**：当 Agent 出现反复询问已知问题、推翻已定决策、回复泛化等情况时，应在最近的阶段节点执行治理并按需开启新会话。
+* **Session Checkpoint**：Browser 的跨会话状态恢复材料称为 Session Checkpoint / Snapshot，与 Matt `/handoff` Skill 的窄 portability 语义不同（Matt `/handoff` 用于需要跨工具或向他人交接时）。
 * **600 行软警示**：单文件超过 600 行时仅作为合理拆分的评估预警线，绝不进行为了指标而割裂代码的机械硬拆。
 
 ---
