@@ -1,6 +1,6 @@
 # Browser Agent Playbook
 
-> 版本：v0.6
+> 版本：v0.7
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
 > 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
@@ -49,6 +49,11 @@
 两类例外均**不得扩大**到 production code、implementation commit、merge、tag 或无关仓库改动。Human 是决策与信任边界；Browser ↔ IDE 的 copy-ready relay 是**默认**执行模式，但并非每一次无害的、明确授权且可审计的 coordination mutation 都必须经由人工复制粘贴。
 
 核心原则：**Human control is required; human copy-paste for every harmless, explicitly authorized and auditable coordination mutation is not inherently required.**
+
+### 角色定义与 Skill 执行位置
+
+默认分工表明 Browser / IDE 的**层次和责任**，不规定 Skill 执行的**实际位置**。
+这不意味着所有 cognition 都必须在 Browser，也不意味着所有 Matt Skill 都必须由同一端主持。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact locality 以及跨端信息损耗成本就近判断（详见 Spec §10）。
 
 ---
 
@@ -201,6 +206,19 @@ Matt flow routing 的唯一权威是 `MAT_REPO @ MAT_REF` 的 `ask-matt/SKILL.md
 
 Matt Skills 是小型、可组合的工程 discipline；每个 Skill 拥有自身的 Gate 和边界。Browser 应根据当前真正的 blocker 选择合适的 flow / Skill，而不是机械驱动所有项目走完固定顺序的全量流程。Well-scoped work 不应被迫走 Wayfinder 或整条大型流程。
 
+### Skill Routing vs Skill Invocation
+
+Browser **路由** Skill 与 **调用** Skill 是不同的语义事件：
+
+Browser 可以：
+- 读取 Matt Skill；
+- 依据 `ask-matt@MAT_REF` 路由；
+- 判断该 Skill 应在哪一端执行；
+- 解释原因；
+- 准备 copy-ready invocation context。
+
+但对于 user-invoked Skill：Browser **不得**把"推荐该 Skill"描述成"已经在 IDE 内调用该 Skill"。若 Skill 需要在 IDE 内运行，应由 User 将 slash invocation 显式发送给 IDE Agent。这是有意义的 semantic relay，而非机械序列。
+
 ### 检索路径
 - **未知具体 Skill**：先读 `MAT_REPO@MAT_REF` 的 `ask-matt/SKILL.md` 获取路由，再读目标 Skill；
 - **已知具体 Skill**：直接读取目标 `SKILL.md`，严禁多余的路由跳转；
@@ -260,6 +278,8 @@ Browser Lead 向 IDE 派发任务时，必须提供**最小充分上下文（Min
 - **Acceptance Criteria**：具体的验收标准与通过条件；
 - **Evidence Required**：要求 IDE 返回的具体命令输出、测试结果或 diff 验证；
 - **Gate**：下一步的流转门禁。
+
+已有 self-contained Issue / Spec 时，Work Order 采用 **pointer-first**：传递 Issue/Spec 指针与 execution delta，而非复制完整上下文作为第二份 Spec SSOT。
 
 ### B. 证据反馈 (IDE → Browser Feedback)
 IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区，必须提供包含充分证据的报告：
@@ -411,3 +431,21 @@ Browser Lead 必须分别独立评估：
 6. 满足什么证据才通过门禁（Gate Evidence）；
 7. 事实权威来源与引用是否已核实且新鲜（Verified SSOT）；
 8. 若依赖 Matt Skill，是否基于正确 `MAT_REF` 的 load-bearing 原文。
+
+---
+
+## 19. Browser Review 与 IDE `/code-review` 的区分
+
+Browser Lead Review 与 IDE 内运行 Matt `/code-review` 有不同的关注轴，不应机械重复：
+
+- **IDE `/code-review`**：依据仓库的 coding standards 与对应 Spec/Issue 进行双轴评审（Standards + Spec 实现合规性）。
+  - Standards 轴：实现是否符合仓库已文档化的编码规范；
+  - Spec 轴：实现是否忐实和完整地回应了 Issue / Spec 的要求。
+
+- **Browser Review**：关注证据 / 权威 / 范围 / release / 工作流 Gate：
+  - 已躺实的修改与已推送引用的一致性；
+  - 是否存在范围外修改或超界行为；
+  - 已接受基线是否完好保持；
+  - 发布 Gate 的递进条件是否就绪。
+
+两者可以并行运行，各自负责不同的轴，不应因已运行其中一种而认为可以跳过另一种。

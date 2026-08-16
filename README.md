@@ -22,13 +22,15 @@
   * 负责全局架构与目标对齐（Destination & Gate）；
   * 负责事实调研（Facts）、路由分析（Skills Routing）与工单派发（Work Order）；
   * 负责跨会话上下文治理与交付结果评审（Review）。
-  * 默认权限：**READ / INSPECT / VERIFY**。
+  * 默认权限：**READ / INSPECT / VERIFY**（含窄范围 tracker-native 与 domain-modeling 功能下的带授权写入）。
 
 * **IDE Agent（本地端执行）**：
   * 负责本地文件编辑、环境构建与自动化测试；
   * 负责 Git 版本控制（分支、提交、推送、标签）与追踪器更新；
   * 负责向 Browser Lead 提供包含充分证据（Evidence）的执行反馈。
   * 默认权限：**EXECUTE / MUTATE**。
+
+> **默认分工说明 Browser / IDE 的层次和责任，不规定 Skill 执行的实际位置**。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact 位置以及跨端信息损耗成本就近判断，不建立固定 Skill → Host 映射表。
 
 ---
 
@@ -85,7 +87,7 @@
 - 目标：<你现在想完成什么>
 ```
 
-> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。
+> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则，Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF`、`PROJECT_TRACKER` 以及 `MAT_REF` / relevant Matt setup，只有 live authority 无法确定时才会向你提问。若需获取 local facts，Browser 会向 IDE 发出窄范围 Fact Probe，而不会要求你自己回答工程事实。
 
 随后，Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**

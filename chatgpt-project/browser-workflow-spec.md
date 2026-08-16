@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.6
+> 版本：v0.7
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -11,15 +11,30 @@
 `matt-browser-workflow` 旨在构建一套人机协同的高效工程工作流：
 让位于网页端的 **Browser Lead**（如 ChatGPT / Claude Web）通过人类用户作为高信任中继，统筹指导本地端 **IDE Agent**（如 Antigravity / Cursor / Claude Code / Codex），并与代码托管平台及追踪器（如 GitHub Issues/PRs）协同完成复杂软件工程研发。
 
+Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working directory ↔ Repo / Runtime / Tracker`。本项目面临的实际关系模型是 `User ↔ Browser Agent ↔ IDE Agent ↔ Repo / Tracker`。Browser 与 IDE 拥有不同的 context、工具能力、事实位置和 feedback loop。
+
+因此本项目存在的核心价值，不是再造一套 Matt workflow，而是：
+
+> 在 User / Browser / IDE 分离的协作关系中，保护 Matt 的 decision ownership、primary-source continuity、feedback locality 与 durable artifacts。
+
 ---
 
 ## 2. 用户操作与交互原则 (User Operating Principles)
 
 1. **服务非专业开发者**：面向普通用户时，输出应聚焦于"现在到哪、为什么、下一步是什么"，先给明确推荐和理由，少堆无意义缩写。
-2. **就绪中继指令 (Copy-Ready Work Orders)**：当需要用户操作 IDE 时，Browser 必须提供易于一键复制、结构完整的独立工单（Work Order），避免用户拼凑散落指令。
+2. **就绪中继指令 (Copy-Ready Work Orders)**：当需要用户操作 IDE 时，Browser 必须提供易于一键复制、结构完整的独立工单（Work Order），避免用户拼凑散落指令。Work Order 在已有 self-contained Issue / Spec 时采用 pointer-first（传递 Issue/Spec 指针与 execution delta，而非复制完整上下文作为第二份 Spec SSOT）。
 3. **消除双方信息差**：IDE 向 Browser 反馈时必须提供充分的执行证据（Evidence）；Browser 则在必要时向 IDE 提供充足的上下文边界。
 4. **事实独立验证 (Evidence-Based Gate)**：Browser 严禁将 IDE Agent 的口头"完成"声明直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`。
-5. **极简演进与防过度设计 (Avoid Overdesign)**：
+5. **Semantic vs Mechanical Human Relay**：
+   - **应保留的 Semantic relay**：User decision、explicit authorization、user-invoked slash Skill、真正需要 Human participation 的 HITL exchange；
+   - **应尽量减少的 Mechanical relay**：Agent 可自行取得的 SHA / Issue 内容 / tracker state / remote facts / logs / 可直接读取的 canonical artifacts；
+   - 核心原则：**Preserve semantic human relay; minimize mechanical human relay.** Human 是 decision / trust boundary，不是首选 machine-to-machine transport layer。
+6. **Feedback Locality（反馈就近原则）**：Fact / execution 应尽量靠近事实产生的位置处理：
+   - remote / tracker / external facts → Browser 倾向自行取得；
+   - working tree / runtime / local tests → IDE 倾向自行取得；
+   - product / domain / risk / preference decision → User。
+   若 Browser 需要 local fact，应向 IDE 发出**窄范围 Fact Probe**，而不是让 User 自己回答工程事实。这是 routing heuristic，不要建立 Fact Ownership Registry。
+7. **极简演进与防过度设计 (Avoid Overdesign)**：
    - 坚持"先正确，再通用；先验证，再扩展；先解决当前阻塞"；
    - 严禁为尚未发生的场景预先引入复杂的代理抽象、多余文件或重型流程。
 
@@ -119,3 +134,30 @@
 ## 9. 仓库级前置条件 (Repository-Level Prerequisites)
 
 Matt engineering workflow 的仓库级配置前置条件（如 `/setup-matt-pocock-skills` 所生成的 `docs/agents/*` 及 `AGENTS.md` 规则块）应严格遵循 pinned `MAT_REF` 的官方 Skill 原生规范，而非由本项目另行复制一套实现。此类必要的工程配置不计入核心交付文件，亦不属于过度设计。
+
+---
+
+## 10. Relationship-First 协作关系感知 (Relationship-First Routing)
+
+在设计工作路由或做出协作决策前，先判断当前协作关系的实际状态：
+
+1. **User** 在当前工作中的角色是什么（decision maker / trust boundary / relay / observer）；
+2. **Browser** 当前持有什么 reasoning / remote authority；
+3. **IDE** 当前持有什么 working-tree / runtime facts；
+4. **authoritative artifact** 在哪里（Issue / CONTEXT.md / branch / test evidence）；
+5. 下一阶段需要保留哪个 context 作为 primary source。
+
+不得为了机械保持 Browser → IDE 的固定流程而无意义地切断连续认知链条。**Canonical artifacts**（Issue / Map / Spec / CONTEXT.md / ADR / branch / diff / test evidence）是 Browser 与 IDE 跨 context 的稳定共享状态，跨 Agent 通信优先传递 pointer 与 execution delta，而不是复制另一份可能漂移的内容。
+
+### Skill 执行位置启发规则
+
+Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**。Skill 的实际执行位置应根据以下因素就近判断，不建立固定 Skill → Host 静态 registry：
+
+- **primary-source continuity**：若当前 primary reasoning 在 Browser 且下一阶段仍需要该推理链，优先 Continue；
+- **feedback locality**：working-tree / runtime / test 反馈密集的工作倾向 IDE context 连续运行；remote / tracker / decision 密集的工作倾向 Browser-hosted cognition；
+- **authoritative artifact locality**：artifact 在哪里，相关 Agent 就应倾向就近操作；
+- **信息损耗成本**：不必要的跨端传递会引入漂移和误差，应最小化。
+
+以下为参考性启发（非硬编码规则）：
+- Small / well-scoped / local-feedback-heavy work → 倾向让相关 Matt flow 在 IDE context 连续运行；
+- Huge / foggy / tracker-native / decision-heavy work → 倾向 Browser-hosted cognition。
