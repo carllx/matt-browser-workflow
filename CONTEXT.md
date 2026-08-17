@@ -72,3 +72,7 @@ IDE 本地环境中实际安装并执行的 Matt Skills 状态（包含安装方
 
 ### 22. Durable Insight Promotion（持久洞见升格纪律）
 维护者在人机协作中沉淀知识的纪律：对话中的洞见必须经过语义分类（Fact/Preference/Decision/Pattern/Invariant）与 5 问过滤，遵循“升格至最窄正确权威、不创建第二 SSOT”并经过减法检查后，方可写入仓库。详见 `AGENTS.md` → 核心执行守则 → 持久洞见升格纪律。
+
+### 23. Formal Release Gate（正式发布门禁）
+上游 `main` 分支变动、普通 commit 及未发布 Changeset 仅作为调研与漂移证据，只有上游正式、非预发布的 Release（Formal non-prerelease Release）才具备进入正式 Upgrade Review 的候选资格；正式 Release 是启动评审的前置资格，而非自动升级授权（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。详见 `browser-agent-playbook.md` → Matt 技能路由与演进治理协议 与 `project-instructions.md` → Release Dependency Lock。
+

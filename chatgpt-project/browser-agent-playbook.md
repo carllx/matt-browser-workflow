@@ -246,7 +246,7 @@ Browser 可以：
 - **Release 级基准锁定**：本工作流发布版由 Project Instructions 中的 `Release Dependency Lock` 统一定义 Matt 依赖坐标；
 - **项目显式适配与边界**：目标项目在 `AGENTS.md` 或文档中明确声明的有意覆盖点，仅优先适用该声明点，绝对不得静默替换整个 Release 的 `MAT_REF`；
 - **本地 IDE 对齐探测 (Fact Probe)**：在关键 Matt 技能执行前若对齐状态未知，向 IDE 下发窄范围 Fact Probe，探测安装机制、版本与关键技能可用性。状态分为 `ALIGNED` / `UNKNOWN` / `DRIFTED NON-MATERIAL` / `DRIFTED MATERIAL`。仅实质性漂移阻断当前流程；
-- **上游演进检测与候选冻结**：若启动导向与 Matt 相关，执行轻量检测 `MAT_REF...UPSTREAM_HEAD`，绝不自动升级。若需深入分析，必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支；
+- **Formal Release Gate 与候选冻结**：upstream `main`、普通 commit 及未发布 Changeset 仅属于 research / drift evidence，不能直接作为 `MAT_REF` 升级依据；只有 Matt 上游的**正式、non-prerelease Release** 才具备进入正式 Upgrade Review 的候选资格（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。正式 Release 不是自动升级开关；进入评审必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支，且 `MAT_REF` 的实际修改仍由 User 显式裁决，绝对不得自动完成；
 - **10 维关系兼容性评审**：对变动技能通过 Identity、Flow Role、Invocation Authority、Decision Ownership、Primary-Source Continuity、Feedback Locality、Artifact Contract、Relay、Dependencies、Adaptation Result（KEEP/MODIFY/DELETE/ADD）进行评审，并评估横切性语义影响（Cross-Cutting Semantic Impact）；
 - **适配精简原则 (Adaptation Subtraction)**：上游原生支持时主动精简或删除本地冗余适配。
 
@@ -276,8 +276,9 @@ Browser 可以：
 
 ### 用户分级通知与更新决策协议 (User Notification & Update Decision)
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。
-- **非实质性上游漂移 (Non-Material Drift)**：检测到上游演进但判定对当前工作无实质影响时，Browser 仅需简短通报上游存在新 commit 且当前发布锁定有效；**严禁**打断正常工作，**严禁**向用户索要升级决策。
-- **实质性更新候选 (Material Update Candidate)**：发现实质价值或影响的候选时，Browser 必须先产出基于证据的升级简报（Upgrade Brief，包含当前/候选坐标、commit 与技能清单变动、实质语义与关系影响、适配调整建议及 `NO UPGRADE` / `DEFER` / `UPGRADE CANDIDATE` 分类），主动呈现给用户，由用户决定是否进入升级排期。
+- **外部事件监控边界 (Monitoring Boundary)**：当实质性更新候选被未来外部事件阻塞（如等待上游正式 Release）时，由 Browser 在产品能力允许且收益明确时负责建立状态监听（condition watch）或定时提醒（schedule monitoring），避免用户反复手工检查。**监控仅负责触发提醒与重新进入审查，绝不构成升级授权（Monitoring != Authorization）**；IDE 不负责创建 ChatGPT schedule 或外部监控。
+- **非实质性上游漂移 (Non-Material Drift)**：检测到上游演进（如 main 上的普通 commit / 未发布变更）但判定对当前工作无实质影响时，Browser 仅需简短通报上游存在新 commit 且当前发布锁定有效；**严禁**打断正常工作，**严禁**向用户索要升级决策。
+- **正式发布与实质性升级候选 (Formal Release & Material Update Candidate)**：仅当上游发布正式 non-prerelease Release 且存在实质价值或影响时，Browser 方出具基于证据的升级简报（Upgrade Brief，包含当前/候选坐标、commit 与技能清单变动、实质语义与关系影响、适配调整建议及 `NO UPGRADE` / `DEFER` / `UPGRADE CANDIDATE` 分类），由用户最终决定是否进入升级排期。
 - **运行时完整性问题 (Runtime Integrity Problem)**：发现锁定源不可用、当前关键技能缺失或本地存在影响流程的 `DRIFTED MATERIAL` 时，Browser 必须将其作为**阻塞性兼容问题**立即呈现，提供具体事实与恢复方案。
 
 ### 冲突裁决规则 (Conflict Resolution A-F)

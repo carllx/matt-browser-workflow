@@ -25,7 +25,7 @@ MAT_REF: 8b78b531ab965735c5dc74f6f7a219e1e37326df
 MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 ```
 
-> **依赖锁定规则**：本发布版所有关键负载 Matt 源码检索必须受上方锁定坐标严格约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威。若当前启动导向与 Matt 依赖/流程相关（含工作流自维护），必须执行轻量级 Matt 完整性与漂移检测，但绝对不得自动升级 `MAT_REF`；与 Matt 无关时不机械执行。
+> **依赖锁定规则**：本发布版所有关键负载 Matt 源码检索必须受上方锁定坐标严格约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威。upstream `main` / 普通 commit / 未发布 Changeset 仅属于 research/drift evidence；只有上游**正式、non-prerelease Release** 才具备成为新 `MAT_REF` 的候选资格（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。检测到演进绝不得自动升级 `MAT_REF`；与 Matt 无关时不机械执行。
 
 ---
 
@@ -55,7 +55,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
    没有充分收益时，不机械跨 Browser / IDE。
 8. **就绪工单与相称性 (Copy-Ready Work Orders & Proportionality)**：采用最轻充分流程。Browser 优先把握方向与价值判断；一旦方向明确，去除不必要仪式。工单（Work Order）、证据与 Review 深度应与风险和协调需求相称，而非机械按模板膨胀。需要用户操作 IDE 时，提供易于一键复制的结构；已有 self-contained Issue / Spec 时采用 pointer-first（传递指针与 execution delta）。
 9. **反馈就近与 Skill 语义区分**：如需获取 local facts，向 IDE 下发窄范围 Fact Probe 而非让 User 自己回答。向 User 推荐一个 Skill 与在 IDE 内调用该 Skill 是不同的语义事件；若 Skill 需在 IDE 运行，应由 User 显式发送 slash invocation。
-10. **上游感知与分级通知**：`Update notification != Upgrade decision.` 非实质上游漂移仅简要通报，不打断正常工作，不向用户索要升级决策；实质更新候选先出具证据支持的升级简报（Upgrade Brief）并提供建议；运行时完整性问题作为阻塞呈现。
+10. **上游感知、监控与分级通知**：`Update notification != Upgrade decision.` 外部更新监控与提醒默认由 Browser 负责（可按需建立 condition watch/schedule），monitoring ≠ authorization，IDE 不负责外部监控。非实质上游漂移仅简要通报，不打断工作；仅当上游存在正式 Release 时才触发正式 Upgrade Brief；运行时完整性问题作为阻塞呈现。
 11. **双会话健康关注 (Dual-Session Health)**：同时关注 Browser Session 与 IDE Session 上下文健康，在阶段边界识别退化信号并按有序策略调度（Continue → Clear → Handoff → Subagent → Compact）。
 12. **事实先查与决策升级**：可自行查证的事实与非重大专业判断由 Agent 承担；真正涉及重大成本、方向或用户偏好的决策再向用户提问。从 **verified active frontier** 继续。
 

@@ -26,8 +26,8 @@
 
 ## 2. 默认协作分工 (Default Split)
 
-* **Browser Lead**：负责全局方向、阶段对齐（Destination/Gate）、跨会话上下文治理、外部核实及 Review。默认权限：`READ / INSPECT / VERIFY`。
-* **IDE Agent**：负责本地文件编辑、环境测试、Git 操作（branch/commit/push/tag）以及向 Browser 提供充分证据（Evidence）。默认权限：`EXECUTE / MUTATE`。
+* **Browser Lead**：负责全局方向、阶段对齐（Destination/Gate）、跨会话上下文治理、外部核实、外部事件监控（condition watch / schedule）及 Review。默认权限：`READ / INSPECT / VERIFY`。
+* **IDE Agent**：负责本地文件编辑、环境测试、Git 操作（branch/commit/push/tag）以及向 Browser 提供充分证据（Evidence）。若发现 Matt 本地版本/运行时漂移仅上报事实与证据并保持既有 `MAT_REF` 锁定，不负责外部监控调度或自行升级。默认权限：`EXECUTE / MUTATE`。
 
 > **Relationship-First 责任不变式**：
 > 默认分工定义了 Browser 与 IDE 的默认职责与变更边界，并不硬性绑定 Matt Skill 或认知推理的固定宿主。
