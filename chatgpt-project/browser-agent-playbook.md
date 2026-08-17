@@ -218,13 +218,21 @@ Matt Skills 是小型、可组合的工程 discipline；每个 Skill 拥有自�
 Browser **路由** Skill 与 **调用** Skill 是不同的语义事件：
 
 Browser 可以：
-- 读取 Matt Skill；
+- 读取 Matt Skill 原文；
 - 依据 `MAT_REPO @ MAT_REF : MAT_ROUTER_PATH` 路由；
-- 判断该 Skill 应在哪一端执行；
-- 解释原因；
+- 判断该 Skill 应在哪一端执行（Relationship-First Placement）；
+- 解释推荐理由；
 - 准备 copy-ready invocation context。
 
-但对于 user-invoked Skill：Browser **不得**把"推荐该 Skill"描述成"已经在 IDE 内调用该 Skill"。若 Skill 需要在 IDE 内运行，应由 User 将 slash invocation 显式发送给 IDE Agent。这是有意义的 semantic relay，而非机械序列。
+**User-Invoked 调用权限与执行适配 (Ref-Qualified Manual Invocation)**：
+- **Human-Only Invocation Authority**：依据 Matt locked `.agents/invocation.md`，`user-invoked` 技能只能由人类用户显式输入其名称（human typing its name）触发，模型或其他技能不得自主触达（reach）。Browser 读取 locked `SKILL.md` 原文用于 routing、recommendation 或 review，**绝不等于**进入或调用该 Skill，**不得**因此将自身视为已进入 user-invoked flow；
+- **IDE-Hosted Invocation**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”。应由 User 将 slash invocation 显式发送给 IDE Agent（如 `/to-spec`、`/code-review`），此为保留人类意图与授权的 semantic relay；
+- **Browser-Hosted Invocation**：若经 Relationship-First 评估最佳 host 为 Browser，且 Browser 端缺乏 native Skill runtime，前置条件**必须是 User 显式发送 Skill 名称**。在用户显式指令后，Browser 按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，严格按其原生语义与步骤执行（Ref-Qualified Manual Invocation）。不因此要求安装 ChatGPT Plugin，亦不复制 Matt 源码进 Project Sources。
+
+### Browser Advisory Research 与 Matt `/research`
+
+- **Advisory Research ≠ Matt `/research`**：Browser 为当前情境判断、方向决策或提供建议而自行执行的外部网络检索/咨询性调研（Advisory Research），**不等价于**调用 Matt `/research` 技能；
+- **保留 Durable Artifact Contract**：当 Matt `/research` 被用户显式触发（或合法 model invocation）时，无论由哪一端承载，必须完整保留其原生标准制品契约——严谨基于一手信源（Primary Sources）、后台调研语义，并将包含引用的 Markdown 报告持久化沉淀至代码仓库（repo-native durable artifact）。**绝不得**因为 Browser 本身具备网页搜索能力，就静默省略持久化 research artifact。
 
 ### 检索路径与 Ref 约束 (Ref-Qualified Retrieval)
 - 所有关键负载 Matt 检索必须显式受锁定 `MAT_REF` 约束（Ref-Qualified），禁止使用浮动的 `main` 分支；
