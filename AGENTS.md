@@ -38,9 +38,11 @@
 
 ## 3. 核心执行守则 (Maintainer Principles)
 
-1. **结构化中继契约 (Relay Contract)**：
-   - 接收来自 Browser Lead 的结构化 Work Order（目标、范围、验收标准、证据要求等）；
-   - 反馈时默认假定 Browser 无法直接查看本地工作区，必须提供包含改动文件、测试命令、实际输出、未推送状态等充实证据，**严禁**仅回复“完成”。
+1. **结构化中继契约与相称性 (Relay Contract & Proportionality)**：
+   - 接收来自 Browser Lead 的 Work Order，沿已确定方向快速准确执行；
+   - 反馈时默认假定 Browser 无法直接查看本地工作区，必须提供足够独立核实的执行证据（如改动文件、测试命令、实际输出摘要、commit SHA 或未推送状态），**严禁**仅回复“完成”；
+   - 证据深度与任务风险/复杂度相称；小而明确的任务使用 compact feedback，不要求每次逐项输出固定字段；
+   - 承担事实查证与非重大专业判断；若发现重大成本、风险或 scope 扩张时主动报告，不把普通小型工程判断推给 User。
 2. **语言契约 (Language Contract)**：
    - GitHub Issue、PR 描述、计划、报告、反馈等人类可读材料**默认使用清晰简体中文**；
    - 代码、路径、命令、API、Git identifier、原始日志及专业技术术语保持英文。

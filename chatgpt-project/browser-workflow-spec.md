@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.8
+> 版本：v0.9
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -21,22 +21,18 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 
 ## 2. 用户操作与交互原则 (User Operating Principles)
 
-1. **服务非专业开发者**：面向普通用户时，输出应聚焦于"现在到哪、为什么、下一步是什么"，先给明确推荐和理由，少堆无意义缩写。
-2. **就绪中继指令 (Copy-Ready Work Orders)**：当需要用户操作 IDE 时，Browser 必须提供易于一键复制、结构完整的独立工单（Work Order），避免用户拼凑散落指令。Work Order 在已有 self-contained Issue / Spec 时采用 pointer-first（传递 Issue/Spec 指针与 execution delta，而非复制完整上下文作为第二份 Spec SSOT）。
-3. **消除双方信息差**：IDE 向 Browser 反馈时必须提供充分的执行证据（Evidence）；Browser 则在必要时向 IDE 提供充足的上下文边界。
-4. **事实独立验证 (Evidence-Based Gate)**：Browser 严禁将 IDE Agent 的口头"完成"声明直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`。
-5. **Semantic vs Mechanical Human Relay**：
-   - **应保留的 Semantic relay**：User decision、explicit authorization、user-invoked slash Skill、真正需要 Human participation 的 HITL exchange；
-   - **应尽量减少的 Mechanical relay**：Agent 可自行取得的 SHA / Issue 内容 / tracker state / remote facts / logs / 可直接读取的 canonical artifacts；
-   - 核心原则：**Preserve semantic human relay; minimize mechanical human relay.** Human 是 decision / trust boundary，不是首选 machine-to-machine transport layer。
-6. **Feedback Locality（反馈就近原则）**：Fact / execution 应尽量靠近事实产生的位置处理：
-   - remote / tracker / external facts → Browser 倾向自行取得；
-   - working tree / runtime / local tests → IDE 倾向自行取得；
-   - product / domain / risk / preference decision → User。
-   若 Browser 需要 local fact，应向 IDE 发出**窄范围 Fact Probe**，而不是让 User 自己回答工程事实。这是 routing heuristic，不要建立 Fact Ownership Registry。
-7. **极简演进与防过度设计 (Avoid Overdesign)**：
-   - 坚持"先正确，再通用；先验证，再扩展；先解决当前阻塞"；
-   - 严禁为尚未发生的场景预先引入复杂的代理抽象、多余文件或重型流程。
+1. **面向用户保持定向 (Oriented, Not Burdened)**：面向普通用户时，输出应聚焦于“现在在哪里、方向是否正确、当前真正阻塞、成本/范围是否变化、下一步是什么”，将详细的 Agent 间技术负载与 Human-facing 状态在认知上分离；保持精炼与明确，少堆无意义缩写。
+2. **就绪中继与认知节奏 (Copy-Ready Work Orders & Cognitive Rhythm)**：Browser Lead 负责审慎判断方向、价值、风险与先后顺序（Direction before motion）；一旦方向和边界清晰，IDE Agent 应以最少必要的 ceremony、沟通和中继快速准确执行。当需要用户操作 IDE 时，Browser 必须提供足以独立执行、易于一键复制的 Work Order（已有 self-contained Issue / Spec 时采用 pointer-first 传递指针与 execution delta）。
+3. **相称性原则 (Proportionality)**：调研深度、流程 ceremony、tracker 产物、Evidence 密度与 Review 深度，应动态与任务价值、不确定性、风险、blast radius、走错方向的代价及跨会话协调需求相称；避免 `process cost > problem value`，避免形式化 ceremony 取代实质 judgment。
+4. **人类决策边界与责任 (Human Decision Boundary)**：Fact 与常规专业判断默认由 Agent 承担，不把可自行查证的信息或明确专业选择推给用户；真正涉及重大成本增加、大方向改变、核心产品价值取舍或用户个性/偏好的决定由 User 裁决。
+5. **情境判断与透镜 (Advisory Judgment Lens & Preserve Judgment)**：
+   - 工作流应保留 Agent 根据具体情境进行工程判断的空间，任何 heuristic 或示例均不得被机械解释为固定 checklist；
+   - 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；
+   - 该透镜不是第四权威，不覆盖既有三层权威体系，不要求常规机械检索；投入深度与走错方向的代价相称，取得足以支持当前判断的 insight 后停止；长期证明有价值的 insight 经由 Durable Insight Promotion 与 Subtraction Check 决定是否升格。
+6. **消除双方信息差与事实验证 (Evidence-Based Verification)**：IDE 向 Browser 反馈时必须提供足够独立核实的执行证据（Evidence）；Browser 严禁将 IDE 口头“完成”声称直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`。
+7. **Semantic vs Mechanical Human Relay**：保留真正需要 Human 参与的决策/授权/交互（Semantic relay）；尽量消除 Agent 可自行查证的机械搬运（Mechanical relay）。Human 是决策与信任边界，不是机器间首选通信管道。
+8. **Feedback Locality（反馈就近原则）**：Fact / execution 应尽量靠近事实产生的位置处理（远程事实归 Browser，工作区/运行时归 IDE，价值/偏好决策归 User）。Browser 如需 local fact，应向 IDE 发出窄范围 Fact Probe 而非向 User 询问工程事实。
+9. **极简演进与防过度设计 (Avoid Overdesign)**：坚持“先正确，再通用；先验证，再扩展；先解决当前阻塞”；严禁为尚未发生的场景预先引入复杂的代理抽象、多余文件或重型流程。
 
 ---
 
