@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.9
+> 版本：v0.10
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -22,7 +22,10 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 ## 2. 用户操作与交互原则 (User Operating Principles)
 
 1. **面向用户保持定向 (Oriented, Not Burdened)**：面向普通用户时，输出应聚焦于“现在在哪里、方向是否正确、当前真正阻塞、成本/范围是否变化、下一步是什么”，将详细的 Agent 间技术负载与 Human-facing 状态在认知上分离；保持精炼与明确，少堆无意义缩写。
-2. **就绪中继与认知节奏 (Copy-Ready Work Orders & Cognitive Rhythm)**：Browser Lead 负责审慎判断方向、价值、风险与先后顺序（Direction before motion）；一旦方向和边界清晰，IDE Agent 应以最少必要的 ceremony、沟通和中继快速准确执行。当需要用户操作 IDE 时，Browser 必须提供足以独立执行、易于一键复制的 Work Order（已有 self-contained Issue / Spec 时采用 pointer-first 传递指针与 execution delta）。
+2. **任务契约与委托优先 (Mission Contract & Delegation-First)**：
+   - Browser Lead 负责统筹方向、真实外部依赖、范围与非目标、决策边界及验收/门禁标准（Direction before motion）；
+   - 在已明确的 Mission 边界内，IDE Agent 拥有内部任务分解（Internal Decomposition）与执行拓扑（Execution Topology）的所有权，以自治方式推进至门禁（Run-to-Gate），避免微观机械调度；
+   - 当需要用户操作 IDE 时，Browser 提供足以独立执行、易于一键复制的 Work Order（已有 self-contained Issue / Spec 时采用 pointer-first 传递指针与 execution delta）。
 3. **相称性原则 (Proportionality)**：调研深度、流程 ceremony、tracker 产物、Evidence 密度与 Review 深度，应动态与任务价值、不确定性、风险、blast radius、走错方向的代价及跨会话协调需求相称；避免 `process cost > problem value`，避免形式化 ceremony 取代实质 judgment。
 4. **人类决策边界与责任 (Human Decision Boundary)**：Fact 与常规专业判断默认由 Agent 承担，不把可自行查证的信息或明确专业选择推给用户；真正涉及重大成本增加、大方向改变、核心产品价值取舍或用户个性/偏好的决定由 User 裁决。
 5. **情境判断与透镜 (Advisory Judgment Lens & Preserve Judgment)**：
@@ -33,7 +36,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - IDE 向 Browser 反馈时必须提供足够独立核实的执行证据（Evidence）；Browser 严禁将 IDE 口头“完成”声称直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`；
    - **Code Evidence 远程可核实**：GitHub 上已推送的 ref / commit / PR / diff 是代码事实（Code Evidence），Browser 应尽可能直接远程读取，消除 IDE 机械搬运大段代码或 diff；
    - **Execution / Local Evidence 职责分工**：CI / Checks（若已配置）属于远程 execution evidence；本地测试输出、运行时状态及未提交/未推送的本地变更，由 IDE 反馈最小必要 evidence；
-   - **Pushed-Ref Review Gate**：依赖代码实现的 Browser Review 若要形成 `Verified` 结论，必须基于不可变的推送引用（fixed pushed commit SHA 或 PR head SHA）；分支名（branch name）仅为动态 locator，不能作为审查证据锚点；
+   - **Pushed-Ref Review Gate**：依赖代码实现的 Browser Review 若要形成 `Verified` 结论，必须基于不可变的推送引用（fixed pushed commit SHA 或 PR head SHA）；分支名（branch name）仅为动态 locator，不能作为审查证据锚点（Review Anchor）；
    - **相称的 Review 形式**：小型、低风险、单次改动可采用 commit-based review；常规、多提交、重迭代或需讨论的工作倾向 PR-based review；不机械强制所有 Review 都建 PR；
    - **Review 绑定与 Final Merge Gate**：Review 结论严格绑定已审阅的具体 SHA，新 commit 会使旧审查对新 head 失效；最终 merge / release Gate 要求：`latest merge candidate == latest reviewed SHA` + 无未披露 local-only state + required checks（若配置）。
 7. **Semantic vs Mechanical Human Relay**：保留真正需要 Human 参与的决策/授权/交互（Semantic relay）；尽量消除 Agent 可自行查证的机械搬运（Mechanical relay）。Human 是决策与信任边界，不是机器间首选通信管道。
@@ -96,30 +99,36 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 1. **记忆边界 (Memory Boundary)**：
    - ChatGPT Project Memory 或聊天摘要是辅助性的检索参考（Useful Context），**不具备规范性权威（Normative SSOT）**；
    - 长期约束和工程事实必须沉淀在仓库文档（Repository Docs）及 Project Instructions 中，以仓库权威为准。
-2. **自维护基线 (Self-Maintenance Boundary)**：
-   - 在对本 workflow 自身进行维护与迭代时，必须以**最后一个已接受并冻结的版本/引用（Last Accepted Ref，如 `v0.7`）**作为维护基准；
-   - 正在编辑的工作区规则在未获 Review 与合并前，不得反向支配维护过程。
+2. **自维护基线与发布接受边界 (Self-Maintenance & Release Acceptance Boundary)**：
+   - 在对本工作流自身进行维护与演进时，必须以**最后一个已接受并冻结的发布引用（Last Accepted Release Ref，如 `v0.9`）**作为维护基准；
+   - 开发中的分支或候选 `main` 上的新增规则，在通过完整 Release Gate 并获发布接受前，属于可变产品（Mutable Product），**不得**反向支配当前维护会话；
+   - 工作流自维护遵守发布接受边界，而非单个 Issue 的合并边界。
 
 ---
 
 ## 7. 项目绑定与权威层级 (Project Binding & Authority Layers)
 
-1. **持久仓库绑定 (Project Repository Binding)**：
+1. **持久仓库绑定与工作流发布身份 (Project Binding & Workflow Release Identity)**：
    - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为定位该 Project 权威事实的稳定实体标识指针（Project Identity Pointer）；
+   - Project Instructions 同时携带明确的 **Workflow Release Identity**（`WORKFLOW_REPO` 与不可变的 `WORKFLOW_REF`），明确当前部署所运行的工作流发布版本；
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
-   - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 定义跨端协作契约；
+   - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 及 Project Instructions 中锁定的 `WORKFLOW_REF` 定义跨端协作契约；
    - **Matt Process Authority**：由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范。所有关键负载 Matt 源码检索必须经过 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；冲突处理见下方 MAT_REF 权威边界规则；
    - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
-3. **MAT_REF 权威边界 (MAT Authority Precedence)**：
+3. **工作流发布完整性门禁 (Workflow Release Completeness Gate)**：
+   - `Issue done != Release done`；
+   - `Merged != Published != Deployed`；
+   - 合并到默认分支（`main`）的代码在通过版本级审查并打上不可变发布 tag 前，仍属于候选可变产物（Mutable Product），不得静默视为已发布的 Workflow Authority，亦不得提前将未发布产物作为正式版本部署。
+4. **MAT_REF 权威边界 (MAT Authority Precedence)**：
    区分两种情形：
    - **Accidental / undeclared divergence（无意漂移）**：若 IDE 本地 Skill 行为与 Release Dependency Lock 不一致，但目标项目的权威文档（`AGENTS.md` / `docs/agents/*`）没有明确声明这是有意定制，视为版本漂移（version drift）；Browser Review 以 locked `MAT_REF` 为准。
    - **Explicit project-local adaptation（明确适配）**：若目标项目的权威文档明确声明了某个 Matt 行为是有意覆盖/适配，则该**具体声明点**由 Project Authority 优先；但仅覆盖声明的具体行为，绝对不得静默替换整个工作流 Release 的 `MAT_REF`。若目标项目确实需要另一个完全不同的 Matt ref，将其归类为依赖分歧/兼容性决策并显式处理，严禁静默重定义 Matt Process Authority。
    **不使用**笼统的 `Project Authority > Matt Authority`；不引入 MAT_MODE、override registry 或额外配置体系。
-4. **历史版本可复现性 (Old Release Reproducibility)**：
+5. **历史版本可复现性 (Old Release Reproducibility)**：
    - 后续 Matt 上游演进绝对不得修改已经发布的 `matt-browser-workflow` 版本的语义；
    - 历史 release 持续使用其不可变的发布锁定 `MAT_REF`；新工作流版本仅通过显式、经过完整 Review 的 Release 流程采纳新的 `MAT_REF`；严禁重写历史 tag 或 release。
-5. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
+6. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
 
 ---
 
@@ -155,19 +164,32 @@ Matt engineering workflow 的仓库级配置前置条件（如 `/setup-matt-poco
 
 不得为了机械保持 Browser → IDE 的固定流程而无意义地切断连续认知链条。**Canonical artifacts**（Issue / Map / Spec / CONTEXT.md / ADR / branch / diff / test evidence）是 Browser 与 IDE 跨 context 的稳定共享状态，跨 Agent 通信优先传递 pointer 与 execution delta，而不是复制另一份可能漂移的内容。
 
-### Skill 执行位置启发规则
+### Skill 执行位置与能力感知放置 (Capability-Aware Placement)
 
 Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**。Skill 的实际执行位置应根据以下因素就近判断，不建立固定 Skill → Host 静态 registry：
 
 - **primary-source continuity**：若当前 primary reasoning 在 Browser 且下一阶段仍需要该推理链，优先 Continue；
 - **feedback locality**：working-tree / runtime / test 反馈密集的工作倾向 IDE context 连续运行；remote / tracker / decision 密集的工作倾向 Browser-hosted cognition；
-- **authoritative artifact locality**：Artifact 的位置用于判断 reading / reasoning 就近、feedback loop 充满度以及 Skill 执行放置；它本身 **不授予 mutation authority**。任何 mutation 仍必须遵循既有的 Browser / IDE Default Split、user authorization 和 Browser narrow/auditable mutation exceptions。
-  > `Location informs placement; it does not grant authority.`
+- **authoritative artifact locality 与能力感知原则**：Artifact 的位置与 Harness 环境工具能力可用于推导最优的读取、推理、拓扑结构与放置就近性，但位置或能力本身 **绝不授予 mutation authority**，亦不改变证据标准与完成门禁（*Location or capability informs placement and topology; it does not grant authority, nor does it change evidence or completion requirements.*）；
 - **信息损耗成本**：不必要的跨端传递会引入漂移和误差，应最小化。
 
 以下为参考性启发（非硬编码规则）：
 - Small / well-scoped / local-feedback-heavy work → 倾向让相关 Matt flow 在 IDE context 连续运行；
 - Huge / foggy / tracker-native / decision-heavy work → 倾向 Browser-hosted cognition。
+
+### 依赖优先并行与汇聚不变式 (Dependency-First Parallelism & Join Invariant)
+
+1. **依赖优先原则**：
+   - 存在独立工作项且各自拥有隔离的可变状态时，方为并行候选（Parallel Candidate）；
+   - 存在共享可变状态（Shared Mutable State）、有序全局门禁（Ordered Gate）或真实跨 Agent 依赖时，必须串行推进或显式定义 Join 汇聚。
+2. **写并行的文件系统隔离要求**：
+   - 涉及文件写入与代码变更的并行执行（Write Parallelism），必须建立在真实的文件系统/工作区隔离（如 Git Worktrees 或独立 Workspace 分支）基础之上；
+   - 仅有会话隔离（Conversation Isolation / Multi-Session）而共享同一底层工作区时，**严禁**进行并发写入。
+3. **汇聚不变式 (Join Invariant)**：
+   - 所有内部并行分流（Parallel Lanes）必须在完成门禁前汇聚（Join）为**单一规范实现/审查状态**（One Canonical Implementation/Review State）；
+   - 向 Browser 反馈时必须输出**单一整合证据包**（One Consolidated Evidence Bundle），严禁未汇聚的碎片化状态逃逸至门禁外。
+4. **人类唯一调用权限不变式 (Human-Only Invocation Invariant)**：
+   - Harness 的自治执行能力（如自主循环或自动推进）可在人类合法调用后延续执行，但**绝不得**自主合成、越权伪造或绕过 `user-invoked` 技能的人类显式授权边界。
 
 ### 演进审查的 Relationship-First 不变量 (Relationship-First Invariant)
 
@@ -230,7 +252,7 @@ Browser 端的 `MAT_REF` 不能直接保证本地 IDE 执行完全相同的版�
 - **B. MAT_REF vs IDE Local Matt**：非实质漂移报告证据不改权威；实质漂移严禁静默执行本地差异语义，必须显式对齐或升级。
 - **C. Pinned Matt vs Project Authority**：延续既有规则，仅在项目明确声明的具体点由项目优先；未声明的差异仍视作漂移，以 Pinned Matt 为准。
 - **D. New Matt Semantics vs Relationship-First Adaptation**：优先保全 Matt 语义意图并适配到三端拓扑。若存在真冲突，向用户呈现权衡决策（保持当前 vs 采纳升级并调整适配）。
-- **E. Last Accepted Workflow vs In-Progress New Workflow**：以最后接受的冻结 release（如 `v0.7`）作为自维护基准；正在开发的分支不能反向支配当前开发。
+- **E. Last Accepted Workflow vs In-Progress New Workflow**：以最后接受并冻结的发布引用（如 `v0.9`）作为自维护基准；开发中或候选 `main` 上的新增规则在通过发布门禁前不能反向支配当前开发。
 - **F. Workflow Adaptation vs Upstream-Native Solution**：优先精简/移除冗余的本地适配，避免累积影子规范。
 
 ### 7. 用户分级通知与升级决策协议 (User Notification & Update Decision)

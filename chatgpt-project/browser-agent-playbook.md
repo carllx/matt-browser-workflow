@@ -1,6 +1,6 @@
 # Browser Agent Playbook
 
-> 版本：v0.9
+> 版本：v0.10
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
 > 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
@@ -22,7 +22,7 @@
 - 读取并核实项目现场；
 - 定位 Flow / Phase / Active Work Item；
 - 调研 facts 与识别正确 Skill / Owner；
-- 向 IDE Agent 下发结构化 Work Order；
+- 向 IDE Agent 下发结构化 Work Order（Mission Contract）；
 - Review 与验证关键工程结果；
 - 阻止越级、过度设计和无证据完成；
 - 管理 Browser 端与 IDE 端的双会话上下文健康。
@@ -60,7 +60,7 @@
 ### 角色定义与 Skill 执行位置
 
 默认分工表明 Browser / IDE 的**层次和责任**，不规定 Skill 执行的**实际位置**。
-这不意味着所有 cognition 都必须在 Browser，也不意味着所有 Matt Skill 都必须由同一端主持。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact locality以及跨端信息损耗成本就近判断（详见 Spec §10）。Artifact locality 用于判断 reading / reasoning 就近和 Skill 执行放置，不授予 mutation authority（`Location informs placement; it does not grant authority.`）。
+这不意味着所有 cognition 都必须在 Browser，也不意味着所有 Matt Skill 都必须由同一端主持。Skill 的实际执行位置应根据 primary-source continuity、feedback locality、authoritative artifact locality以及跨端信息损耗成本就近判断（详见 Spec §10）。Artifact locality 与工具能力用于判断 reading / reasoning 就近和 Skill 执行放置，不授予 mutation authority（`Location informs placement; it does not grant authority.`）。
 
 ---
 
@@ -69,8 +69,9 @@
 维护和决策时必须严格区分三层权威，严禁混淆：
 
 ### A. 工作流权威 (Workflow Authority) — "协作契约与交互规则"
-- 当前部署的 Browser Workflow 发布版本（Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md`，以及 Project Instructions 中的 `project-instructions.md`）；
-- 定义 Browser Lead 与 IDE Agent 的协作机制、中继契约（Relay Contract）与上下文治理法则。
+- 当前部署的 Browser Workflow 发布版本（Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md`，以及 Project Instructions 中锁定的 `WORKFLOW_REF`）；
+- 定义 Browser Lead 与 IDE Agent 的协作机制、中继契约（Relay Contract）与上下文治理法则；
+- **候选与发布隔离**：默认分支（`main`）上的合并代码在完成发布门禁并打上发布 tag 前属于候选产物，**绝不自动成为**已部署的 Workflow Authority（`Merged != Published != Deployed`）。
 
 ### B. 流程技能权威 (Matt Process Authority) — "工程技能应该怎么工作？"
 - 由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范，是 Matt flow routing 的唯一权威地图；
@@ -91,8 +92,8 @@
 
 在对 `matt-browser-workflow` 本身进行维护和演进（Meta-Workflow / Self-Hosting）时，严格遵循：
 
-1. **已接受基线优先**：使用最后一个已经接受并冻结的 Git commit / tag（Last Accepted Ref，如 `v0.7`）作为维护过程的基准指令。
-2. **工作区为被开发对象**：working tree 中正在编辑的新规则属于 Mutable Product，在未通过 Review 并合并前，**不得**反向支配当前维护会话。
+1. **已接受发布基线优先**：使用最后一个已经接受并冻结的发布引用（Last Accepted Release Ref，如 `v0.9`）作为维护过程的基准指令。
+2. **工作区与候选分支为被开发对象**：working tree 或开发分支中正在编辑的新规则属于 Mutable Product，在未通过版本级发布门禁前，**不得**反向支配当前维护会话。
 
 ---
 
@@ -270,10 +271,10 @@ Browser 可以：
 - **Decision（决策）**：真正涉及重大成本增加、大方向改变、核心产品价值取舍或用户个性/偏好的决定，由用户裁决；
 - **提问原则**：只在当前活跃阻塞点提问；必须附带明确推荐选项与理由；不重复询问已知信息。
 
-### 咨询性判断透镜 (Advisory Judgment Lens)
+### 咨询性判断透镜与动态能力验证 (Advisory Judgment & Capability Verification)
 - Rules / Authority 负责边界，Matt Skills 提供成熟工程方法；
-- 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；
-- 此类外部参考不是第四权威，不覆盖既有三层权威体系，不要求常规机械检索；投入深度应与任务价值、不确定性、风险及走错方向的代价相称，取得足以支持当前判断的 insight 后停止，避免无边界研究；长期证明有价值的 insight 经由 Durable Insight Promotion 与 Subtraction Check 决定是否升格。
+- 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；此类外部参考不是第四权威，取得支持当前判断的 insight 即止；
+- **动态能力感知验证 (Live Capability Verification)**：仅当 Harness 环境或工具能力对当前工作路由或执行拓扑构成**关键承重影响（load-bearing）**时，Browser 才进行轻量现场核实；严禁构建永久静态能力数据库或进行无意义的例行全量探测。
 
 ### 用户分级通知与更新决策协议 (User Notification & Update Decision)
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。
@@ -287,7 +288,7 @@ Browser 可以：
 - **B. MAT_REF vs IDE Local Matt**：非实质漂移报告证据不改权威；实质漂移严禁静默执行本地差异语义，必须显式对齐或升级。
 - **C. Pinned Matt vs Project Authority**：延续既有规则，仅在项目明确声明的具体点由项目优先；未声明的差异仍视作漂移，以 Pinned Matt 为准。
 - **D. New Matt Semantics vs Relationship-First Adaptation**：优先保全 Matt 语义意图并适配到三端拓扑。若存在真冲突，向用户呈现权衡决策（保持当前 vs 采纳升级并调整适配）。
-- **E. Last Accepted Workflow vs In-Progress New Workflow**：以最后接受的冻结 release（如 `v0.7`）作为自维护基准；正在开发的分支不能反向支配当前开发。
+- **E. Last Accepted Workflow vs In-Progress New Workflow**：以最后接受并冻结的发布引用（如 `v0.9`）作为自维护基准；开发中或候选 `main` 上的新增规则在通过发布门禁前不能反向支配当前开发。
 - **F. Workflow Adaptation vs Upstream-Native Solution**：优先精简/移除冗余的本地适配，避免累积影子规范。
 
 ---
@@ -313,14 +314,14 @@ Relay Contract 的目标是提供**完成当前任务所需的最小充分信息
 - **复杂、高风险、跨 session 或需 durable coordination 的工作**：使用完整结构；
 - 不引入固定的 Small/Medium/Large 状态机或时间阈值。
 
-### A. 派发工单 (Browser → IDE Work Order)
+### A. 派发工单与任务契约 (Browser → IDE Mission Contract)
 Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供易于用户一键复制的结构：
 
 - **任务契约与执行拓扑权属 (Mission Contract & Execution Topology Ownership)**：
   - **Browser 权属**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）；
-  - **IDE 自治**：在 Browser 给定的任务边界内，IDE 拥有内部任务分解（internal decomposition）与执行拓扑（execution topology）的所有权；
+  - **IDE 自治**：在 Browser 给定的任务边界内，IDE 拥有内部任务分解（internal decomposition）与执行拓扑（execution topology）的所有权，以自治方式推进至门禁（Run-to-Gate）；
   - **Harness 不变式**：Harness 工具与环境能力可能改变执行拓扑，但**绝不改变**权限划分、证据标准或完成门禁（*Harness capabilities may change execution topology; they do not change authority, evidence, or completion requirements.*）；
-  - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式跨端协调；Browser 不对 IDE 内部执行拓扑做微观管理。
+  - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式串行/并行/Join 编排；Browser 不对 IDE 内部执行拓扑做微观管理。
 
 **模式一—非 canonical self-contained artifact 场景（提供最小充分上下文）**
 按需覆盖以下契约维度：
@@ -340,12 +341,13 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 
 **中继会话指示 (Session Targeting Advice)**：当需要用户将 Work Order 复制到 IDE 时，Browser 应明确提示用户应粘贴至当前会话还是新会话（如“请粘贴至当前 IDE 会话继续/请开启新会话执行独立任务”），并附带一句话简要理由。
 
-### B. 证据反馈 (IDE → Browser Feedback)
-IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区。其核心是**提供足够 Browser 独立核实的最小证据**：
+### B. 证据反馈与汇聚门禁 (IDE → Browser Feedback & Join Gate)
+IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区。其核心是**在完成门禁前将内部并行或子任务汇聚为单一规范状态，并提供足够 Browser 独立核实的最小整合证据包**：
 - **职责与证据边界**：
   - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
   - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
-  - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要证据。
+  - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
+  - **Join Invariant**：内部并行分支必须全部汇聚至单一 candidate ref，向 Browser 反馈单一整合证据包。
 - **相称性与反馈结构**：
   - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
   - 涉及 Review 的典型 compact 反馈格式：
@@ -535,3 +537,20 @@ Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gat
      - `latest merge candidate == latest reviewed SHA`（候选合并点即为已完整审查的最新 SHA）；
      - `no undisclosed local-only state`（IDE 确认无未披露的本地未推送/未提交状态）；
      - `required checks passed`（若仓库配置了 CI / checks，须全部通过）。
+
+---
+
+## 20. 工作流发布、部署验证与漂移恢复 (Workflow Release & Deployment Governance)
+
+工作流自身演进遵守发布完整性门禁：`Issue done != Release done` 且 `Merged != Published != Deployed`。
+
+### A. 版本发布完整性门禁 (Workflow Release Completeness Gate)
+进入新版本发布前，必须满足：
+1. **范围与结论齐备**：版本范围内所有工作项均有明确状态；
+2. **完整差异审查**：`last_accepted_release...candidate` 完整 diff 获得版本级 Browser Review PASS；
+3. **交付物版本一致**：三个 `chatgpt-project/*` 交付文件的 visible version 必须完全一致；
+4. **不可变 Tag 冻结**：仅在 Browser release-level Review 批准后由 IDE 创建不可变 release tag。
+
+### B. 部署核实与漂移恢复 (Deployment Verification & Drift Recovery)
+1. **部署核实**：User 完成 ChatGPT Project 升级部署后，Browser 启动时核实 `WORKFLOW_REF`、Project Instructions 及 Sources 是否与已发布的 release tag 内容严格对齐；
+2. **漂移感知与恢复**：若发现实际加载的 Instructions / Sources 仍停留在旧版本或开发中 candidate 内容（版本漂移），Browser 将其作为阻塞性现场提示，引导 User 从不可变的 `WORKFLOW_REF` 对应 release 重新下载/部署，严禁将未发布的 candidate 当作 Workflow Authority 运行。

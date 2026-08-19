@@ -76,3 +76,21 @@ IDE 本地环境中实际安装并执行的 Matt Skills 状态（包含安装方
 ### 23. Formal Release Gate（正式发布门禁）
 上游 `main` 分支变动、普通 commit 及未发布 Changeset 仅作为调研与漂移证据，只有上游正式、非预发布的 Release（Formal non-prerelease Release）才具备进入正式 Upgrade Review 的候选资格；正式 Release 是启动评审的前置资格，而非自动升级授权（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。详见 `browser-agent-playbook.md` → Matt 技能路由与演进治理协议 与 `project-instructions.md` → Release Dependency Lock。
 
+### 24. Mission Contract（任务契约）
+Browser Lead 向 IDE Agent 派发的有界任务委托契约，统筹定义目标方向（Destination/Goal）、真实外部依赖、变更范围与非目标（Scope / Non-goals）、决策边界以及验收/门禁证据要求（Acceptance Criteria & Gate），而非微观机械式执行步骤。详见 `browser-agent-playbook.md` → Browser ↔ IDE 中继契约 与 `browser-workflow-spec.md` → 用户操作与交互原则。
+
+### 25. Execution Topology Ownership（执行拓扑权属）
+在 Browser 给定的 Mission Contract 边界内，IDE 拥有内部任务分解与执行拓扑（串行/并行子代理、执行模式、后台任务等）的自治决定权，以自治方式推进至门禁（Run-to-Gate）。详见 `browser-workflow-spec.md` → 用户操作与交互原则 与 `AGENTS.md` → 核心执行守则。
+
+### 26. Capability-Aware Placement（能力感知放置）
+根据环境与 Harness 工具能力推导最优的任务执行放置与拓扑结构，但位置或工具能力本身绝不授予变更权限，亦不改变证据标准与完成门禁（*Location or capability informs placement and topology; it does not grant authority, nor does it change evidence or completion requirements.*）。详见 `browser-workflow-spec.md` → Relationship-First 协作关系感知。
+
+### 27. Review Anchor vs Locator（审查证据锚点与定位符）
+分支名（Branch name）是随提交动态移动的定位符（Locator），用于追踪活跃开发线；依赖代码实现的 Browser Review 必须基于不可变、已推送的具体提交引用（fixed pushed commit SHA 或 PR head SHA），称为审查证据锚点（Review Anchor）。详见 `browser-agent-playbook.md` → 权威引用与新鲜度。
+
+### 28. Workflow Release Authority & WORKFLOW_REF（工作流发布权威）
+由 Project Instructions 中的 `WORKFLOW_REPO` 与不可变 `WORKFLOW_REF` 所标识的工作流发布权威，定义当前部署所运行的协作规范。开发中或候选 `main` 上的新增规则在通过发布门禁前属于 Mutable Product，不得静默取代 `WORKFLOW_REF`。详见 `browser-workflow-spec.md` → 项目绑定与权威层级。
+
+### 29. Workflow Release Completeness Gate（工作流发布完整性门禁）
+工作流自身版本发布的核心不变式：`Issue done != Release done` 且 `Merged != Published != Deployed`。要求版本范围所有项归档、完整 diff 经版本级审查、三交付物版本一致且打上不可变发布 tag，部署后核实验证。详见 `browser-workflow-spec.md` → 项目绑定与权威层级 与 `browser-agent-playbook.md` → 工作流发布、部署验证与漂移恢复。
+

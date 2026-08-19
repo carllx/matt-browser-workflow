@@ -74,19 +74,22 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 打开 ChatGPT，点击创建或配置一个专用 **Project**：
 
-1. **配置 Project Instructions（核心启动入口、依赖锁定与仓库绑定）**：
-   - 复制本仓库 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的**全部文本内容**，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
+1. **配置 Project Instructions（核心启动入口、发布身份、依赖锁定与仓库绑定）**：
+   - 从本工作流**对应不可变发布版本（如 `v0.10` Release Tag）**中获取 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的全部文本内容，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
    - 将文本顶部 `## Project Binding` 中的 `PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>` 替换为该 Project 对应的**目标仓库 URL**（例如 `https://github.com/<owner>/<repo>`）并保存。
 
 2. **上传 Project Sources（核心知识库）**：
-   将以下 **2 个交付文件** 上传至该 ChatGPT Project 的 **Files / Sources** 中：
+   从对应**不可变发布版本**下载以下 **2 个交付文件**，上传至该 ChatGPT Project 的 **Files / Sources** 中：
    * [`chatgpt-project/browser-agent-playbook.md`](./chatgpt-project/browser-agent-playbook.md)（执行手册）
    * [`chatgpt-project/browser-workflow-spec.md`](./chatgpt-project/browser-workflow-spec.md)（规范性需求 SSOT）
+
+> [!IMPORTANT]
+> **部署来源不可变原则**：
+> 部署或升级 ChatGPT Project 时，**必须**使用特定不可变发布 Tag（如 `v0.10`）下的文件，**严禁**直接从未发布的 `main` 默认分支下载部署。未发布的 `main` 分支属于开发中候选产物（Mutable Product），`Merged != Published != Deployed`。
 
 > [!NOTE]
 > **关于无需上传文件的说明**
 > 根目录的 `README.md`、`AGENTS.md` 以及 `docs/agents/*` 属于仓库自维护或 IDE 端本地配置，正常安装时**无需上传**到 ChatGPT Project Sources。
-> *(若 Browser 暂时无法直接访问 live project authority，可在明确 snapshot freshness 的前提下提供相关文件作为临时证据。)*
 
 ---
 
@@ -99,41 +102,41 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 - 目标：<你现在想完成什么>
 ```
 
-> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则：`MAT_REPO` / `MAT_REF` / `MAT_ROUTER_PATH` 从 Instructions 的 Release Dependency Lock 读取；Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`（现场事实）；`MAT_UPSTREAM_HEAD` 为现场观察信号；若需获取本地环境的 `LOCAL_MAT_STATE`，Browser 会向 IDE 发出窄范围 Fact Probe，而不会要求你自己回答工程事实。
+> **自动化事实解析**：遵循“不要求非专业用户填写 Browser 可以自行查证的工程事实”原则：`WORKFLOW_REF` 从 Instructions 的 Workflow Release Identity 读取；`MAT_REPO` / `MAT_REF` / `MAT_ROUTER_PATH` 从 Release Dependency Lock 读取；Browser Lead 会基于绑定的 `PROJECT_REPO` 自动核实并解析 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`（现场事实）；`MAT_UPSTREAM_HEAD` 为现场观察信号；若需获取本地环境的 `LOCAL_MAT_STATE`，Browser 会向 IDE 发出窄范围 Fact Probe，而不会要求你自己回答工程事实。
 
 随后，Browser Lead 将会自动完成小范围现场同步（Bounded Project Sync），并向你输出极简的启动定位反馈：
 > **现在在哪里 → 本次判断依据的现场/ref → 当前真正的阻塞 → 推荐下一步 → 当前还不应该做什么。**
 
 ---
 
-## 4. 默认开发协作循环 (Default Relay Contract Loop)
+## 4. 默认开发协作循环 (Default Relay & Autonomous Execution Loop)
 
-默认开发协作循环遵循严密、闭环的中继契约（Relay Contract）：
+v0.10 默认开发协作循环采用**任务契约与自治推进至门禁（Mission Contract & Run-to-Gate）**模型：
 
 ```text
   [Browser Lead]
         │
-   (下发结构化 Copy-Ready Work Order)
+   (下发 Mission Contract / 目标、范围、依赖与门禁)
         ▼
-   [人类用户] ──(一键复制粘贴)──► [本地 IDE Agent]
-                                        │
-                                  (执行编辑、测试与 Git 操作)
-                                        ▼
-   [人类用户] ◄──(返回充足 Evidence)─── [IDE Agent]
+   [人类用户] ──(一键语义中继 / 授权或触发)──► [本地 IDE Agent]
+                                                  │
+                                            (拥有执行拓扑自治权：
+                                             内部任务分解、子代理/
+                                             工作区隔离、自治推进至门禁)
+                                                  │
+                                            (Git commit / push / 测试)
+                                                  ▼
+   [人类用户] ◄──(返回整合证据包 / Pushed SHA)─── [IDE Agent]
         │
-   (粘贴反馈报告)
+   (中继完成信号)
         ▼
-  [Browser Lead] ──(独立核实验证 / Gate 判定)──► [下一阶段]
+  [Browser Lead] ──(基于推送固定 SHA 独立 Review / Gate)──► [下一阶段]
 ```
 
-1. **Browser 派发工单**：Browser Lead 会生成一个结构清晰、易于一键复制的 Markdown 代码块，包含唯一目标（Goal）、范围（Scope）、验收标准（Acceptance Criteria）和所需证据（Evidence Required）。
-2. **用户中继传递**：你只需将该代码块一键复制发送给本地 IDE Agent。
-3. **IDE 本地执行与反馈**：IDE Agent 执行操作后，必须返回包含具体改动文件、命令输出、commit SHA 及未推送状态的完整报告，**严禁仅回复“已完成”**。
-4. **Browser 独立评审**：Browser Lead 核验证据与线上事实后，批准通过并进入下一个工作流节点。
-
-> **默认循环说明**：上图是当前跨端协作的默认传输路径，不是所有协作都必须经由人工 copy/paste。**保留 semantic relay**（User decision、explicit authorization、user-invoked slash Skill、真正需要 Human 参与的 HITL exchange）；**减少 mechanical relay**（Agent 可自行取得的 SHA / Issue 内容 / tracker state / remote facts）。Browser 能直接核实和读取的事实，不得为了保持图形循环而要求 User 搬运。
-
-> **窄范围例外**：当 Browser 拥有用户明确授权与可审计的 remote write capability 时，允许进行窄范围、可审计的 tracker-native coordination 或 domain-modeling persistence 写入，无需人工复制粘贴。详见 Playbook §1。
+1. **Browser 派发任务契约 (Mission Contract)**：Browser Lead 统筹把握方向、依赖、范围与门禁标准，生成结构清晰的 Mission Contract（或基于 Issue 指针传递 execution delta），不微观调度 IDE 的内部执行拓扑。
+2. **用户语义中继 (Semantic Relay)**：用户仅需将任务指令一键传递给 IDE，保留决策、授权与 slash 技能调用的控制边界；无需充当机械数据搬运工。
+3. **IDE 自治执行与汇聚 (Autonomous Execution & Join Gate)**：IDE Agent 在任务边界内拥有内部任务分解与拓扑权属（按需使用子代理、后台任务或工作区隔离），自治推进至门禁，并在完成时将所有分支汇聚为单一规范状态，提交并推送到远程仓库。
+4. **固定引用审查 (Fixed-Ref Browser Review Gate)**：IDE 返回包含测试结果摘要与已推送固定引用（fixed pushed commit SHA 或 PR head SHA）的单一整合证据包；Browser Lead 直接远程比对代码事实进行独立审查。
 
 ---
 
@@ -147,16 +150,23 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 ---
 
-## 6. 版本升级指引 (Upgrading)
+## 6. 版本升级与部署核实 (Upgrading & Deployment)
 
-当 `matt-browser-workflow` 发布新版本时，遵循以下步骤更新你的 ChatGPT Project（确保保留已有的项目绑定）：
+工作流遵循发布完整性原则：**`Issue done != Release done`** 且 **`Merged != Published != Deployed`**。
 
-1. **记录现有仓库绑定**：在更新前，先记下当前 ChatGPT Project Instructions 顶部绑定的 `PROJECT_REPO` URL；
-2. **更新 Project Instructions**：将本仓库最新版 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 文本复制并粘贴到 Instructions 中；
-3. **恢复 Project Binding**：将第 1 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符；
-4. **更新 Project Sources**：将最新版 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
-5. **按需检查 Skills 与仓库配置**：
-   - **Skill 版本更新**：若新版本更新了 `MAT_REF` 基准，应先确认 IDE 本地 Matt Skills 的实际安装方式并使用对应的官方更新机制；对于通过 skills CLI 复制安装的 Skills，Matt 当前文档给出的更新命令为 `npx skills update`。不得假定更新后的本地版本已经与 canonical `MAT_REF` 完全一致，Browser Review 仍以 pinned source 为准；
-   - **仓库级配置**：`/setup-matt-pocock-skills` 是单仓库一次性初始化命令（并非技能版本更新器），仅在仓库配置缺失或新版本对仓库前置产生实际不兼容变更时才需重新评估执行。
+当 `matt-browser-workflow` 发布正式新版本（如 `v0.10`）时，遵循以下步骤更新你的 ChatGPT Project：
 
-> **核心原则**：工作流通用指令（Workflow Instructions）可随版本随时升级，但项目独有的仓库绑定（Project-Specific Binding）必须始终保留。
+1. **获取正式发布文件 (Exact Release Ref)**：
+   - 访问 GitHub 对应**不可变发布 Tag**（例如 `https://github.com/carllx/matt-browser-workflow/tree/v0.10`），**绝不要**使用 `main` 分支的浮动文件；
+2. **记录现有仓库绑定**：在更新前，先记下当前 ChatGPT Project Instructions 顶部绑定的 `PROJECT_REPO` URL；
+3. **更新 Project Instructions**：将发布 Tag 下的 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 文本复制并粘贴到 Instructions 中；
+4. **恢复 Project Binding**：将第 2 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符；
+5. **更新 Project Sources**：将发布 Tag 下的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
+6. **部署后完整性核实 (Post-Deployment Verification)**：
+   - 在 ChatGPT Project 开启新对话，确认 Browser Lead 成功识别新的 `WORKFLOW_REF`（如 `v0.10`）及绑定的 `PROJECT_REPO`；
+   - 确认加载的 Instructions 与 Sources 内容与发布版本完全一致。若发现版本漂移，重新从发布 Tag 覆盖上传；
+7. **按需检查本地 Skills 与仓库配置**：
+   - **Skill 版本更新**：若新工作流发布版本更新了 `MAT_REF` 锁定，使用官方 `npx skills update` 进行 IDE 本地更新；
+   - **仓库级配置**：`/setup-matt-pocock-skills` 仅在目标仓库配置缺失或新版本对前置产生不兼容变更时才需重新执行。
+
+> **核心原则**：工作流通用指令可随版本升级，但目标项目的仓库绑定（`PROJECT_REPO`）必须始终保留；且部署来源必须来自不可变的发布 Tag。
