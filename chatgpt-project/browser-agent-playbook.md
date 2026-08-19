@@ -316,6 +316,12 @@ Relay Contract 的目标是提供**完成当前任务所需的最小充分信息
 ### A. 派发工单 (Browser → IDE Work Order)
 Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供易于用户一键复制的结构：
 
+- **任务契约与执行拓扑权属 (Mission Contract & Execution Topology Ownership)**：
+  - **Browser 权属**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）；
+  - **IDE 自治**：在 Browser 给定的任务边界内，IDE 拥有内部任务分解（internal decomposition）与执行拓扑（execution topology）的所有权；
+  - **Harness 不变式**：Harness 工具与环境能力可能改变执行拓扑，但**绝不改变**权限划分、证据标准或完成门禁（*Harness capabilities may change execution topology; they do not change authority, evidence, or completion requirements.*）；
+  - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式跨端协调；Browser 不对 IDE 内部执行拓扑做微观管理。
+
 **模式一—非 canonical self-contained artifact 场景（提供最小充分上下文）**
 按需覆盖以下契约维度：
 - **Goal**：本轮明确的核心目标；
