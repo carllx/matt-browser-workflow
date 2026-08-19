@@ -29,7 +29,13 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - 工作流应保留 Agent 根据具体情境进行工程判断的空间，任何 heuristic 或示例均不得被机械解释为固定 checklist；
    - 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；
    - 该透镜不是第四权威，不覆盖既有三层权威体系，不要求常规机械检索；投入深度与走错方向的代价相称，取得足以支持当前判断的 insight 后停止；长期证明有价值的 insight 经由 Durable Insight Promotion 与 Subtraction Check 决定是否升格。
-6. **消除双方信息差与事实验证 (Evidence-Based Verification)**：IDE 向 Browser 反馈时必须提供足够独立核实的执行证据（Evidence）；Browser 严禁将 IDE 口头“完成”声称直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`。
+6. **消除信息差与事实验证 (Evidence-Based Verification & Review Gate)**：
+   - IDE 向 Browser 反馈时必须提供足够独立核实的执行证据（Evidence）；Browser 严禁将 IDE 口头“完成”声称直接当作既定事实，必须区分 `Verified`、`Reported` 与 `Inferred`；
+   - **Code Evidence 远程可核实**：GitHub 上已推送的 ref / commit / PR / diff 是代码事实（Code Evidence），Browser 应尽可能直接远程读取，消除 IDE 机械搬运大段代码或 diff；
+   - **Execution / Local Evidence 职责分工**：CI / Checks（若已配置）属于远程 execution evidence；本地测试输出、运行时状态及未提交/未推送的本地变更，由 IDE 反馈最小必要 evidence；
+   - **Pushed-Ref Review Gate**：依赖代码实现的 Browser Review 若要形成 `Verified` 结论，必须基于不可变的推送引用（fixed pushed commit SHA 或 PR head SHA）；分支名（branch name）仅为动态 locator，不能作为审查证据锚点；
+   - **相称的 Review 形式**：小型、低风险、单次改动可采用 commit-based review；常规、多提交、重迭代或需讨论的工作倾向 PR-based review；不机械强制所有 Review 都建 PR；
+   - **Review 绑定与 Final Merge Gate**：Review 结论严格绑定已审阅的具体 SHA，新 commit 会使旧审查对新 head 失效；最终 merge / release Gate 要求：`latest merge candidate == latest reviewed SHA` + 无未披露 local-only state + required checks（若配置）。
 7. **Semantic vs Mechanical Human Relay**：保留真正需要 Human 参与的决策/授权/交互（Semantic relay）；尽量消除 Agent 可自行查证的机械搬运（Mechanical relay）。Human 是决策与信任边界，不是机器间首选通信管道。
 8. **Feedback Locality（反馈就近原则）**：Fact / execution 应尽量靠近事实产生的位置处理（远程事实归 Browser，工作区/运行时归 IDE，价值/偏好决策归 User）。Browser 如需 local fact，应向 IDE 发出窄范围 Fact Probe 而非向 User 询问工程事实。
 9. **极简演进与防过度设计 (Avoid Overdesign)**：坚持“先正确，再通用；先验证，再扩展；先解决当前阻塞”；严禁为尚未发生的场景预先引入复杂的代理抽象、多余文件或重型流程。
