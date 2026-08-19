@@ -167,6 +167,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 - **Canonical Merged State**：以 default branch + live tracker 为准。
 - **In-flight Implementation**：以活跃 branch / PR / commit 为准，并与 base 分支比对。
+- **Locator vs Review Anchor**：分支名（Branch name）是动态定位符（Locator），用于追踪活跃开发线；但由于 branch head 会随提交移动，**不能**作为审查证据锚点。依赖代码实现的 Browser Review 必须基于固定的推送引用（fixed pushed commit SHA 或 PR head SHA）。
 - **Pinned Question**：若用户指定 commit/tag，使用该固定引用，不擅自替换为最新 main。
 - **Local Unpushed Work**：远程仓库可能落后。IDE 对本地未 push 状态先记录为 **Reported**，直到取得 pushed ref 或独立测试证据。
 - **Uploaded Repo Snapshots**：作为辅助上下文（Secondary Context），冲突时以 Authoritative Ref 为准。
@@ -335,9 +336,20 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 
 ### B. 证据反馈 (IDE → Browser Feedback)
 IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区。其核心是**提供足够 Browser 独立核实的最小证据**：
-- **常规/复杂任务**：按需覆盖变动文件列表、关键设计变更、实测命令及输出摘要、commit SHA、未提交/未推送状态、阻塞/范围情况及验收核对等契约维度；
-- **小而明确任务**：无需逐项输出完整列表，只需返回清晰说明与足够独立核实的最小证据；
-- **相称性与范围变化**：
+- **职责与证据边界**：
+  - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
+  - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
+  - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要证据。
+- **相称性与反馈结构**：
+  - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
+  - 涉及 Review 的典型 compact 反馈格式：
+    ```text
+    Review ref: <fixed pushed commit SHA 或 PR head SHA / PR URL>
+    Base: <base SHA>
+    Tests / Verification: <command + result summary>
+    Local-only state: none | <description>
+    ```
+- **范围变化与决策边界**：
   - 极小、确定、低风险且不改方向的相邻修正，可就近处理并简短报告；
   - 若发现任务成本、风险或范围发生实质扩大，应停步重新评估；若跨越用户决策边界（重大成本增加、大方向改变或关键价值取舍），应主动报告并由用户裁决。
 
@@ -499,3 +511,21 @@ Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gat
   - 发布 Gate 的递进条件是否就绪。
 
 两者是正交的 Gate，各自负责不同的轴。具体顺序服从当前 workflow phase：Matt `/implement` 自身的 `/code-review` 语义保持不变；Browser Review 在获得适当 evidence / ref 后执行独立 Gate。不应因已运行其中一种而跳过另一种。
+
+### Browser Review 的 Pushed-Ref Evidence Gate
+
+1. **Pushed-Ref 前置要求**：
+   - 凡涉及代码实现细节、需要得出 `Verified` 结论的 Browser Review，必须基于已推送到远程仓库的不可变引用（fixed pushed commit SHA 或 PR head SHA）；
+   - Branch name 仅作为 locator，不得作为 review anchor。
+
+2. **相称的 Review 形式选择**：
+   - **Commit-based Review**：适用于小范围、低风险、单次改动任务。Browser 直接比对 `base SHA...head SHA`；
+   - **PR-based Review**：适用于常规、多提交、需多轮迭代或需在 PR 中讨论/关联 Issue 的工作。以 PR head SHA 为审查锚点；
+   - 不机械强制所有任务一律开 PR，也不要求无需核实代码的协调任务必须先 push。
+
+3. **避免 Stale Review 与 Final Merge Gate**：
+   - **结论绑定具体 SHA**：Browser 的 Review 结论严格与当时审查的具体 SHA 绑定。若 IDE 在 Review 后追加了新 commit，原有 Review 仅覆盖旧 SHA，对新 head 自动失效（需针对新 head 补充审查）；
+   - **Final Merge Gate**：合并或放行进入 release 时必须同时满足：
+     - `latest merge candidate == latest reviewed SHA`（候选合并点即为已完整审查的最新 SHA）；
+     - `no undisclosed local-only state`（IDE 确认无未披露的本地未推送/未提交状态）；
+     - `required checks passed`（若仓库配置了 CI / checks，须全部通过）。
