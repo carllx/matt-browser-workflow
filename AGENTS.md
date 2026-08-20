@@ -14,7 +14,8 @@
 
 ### A. 自维护边界与发布接受边界 (Self-Maintenance & Release Acceptance Boundary)
 * **维护基准 (Maintenance Authority)**：使用最后一个已经接受并冻结的发布引用（即 last accepted workflow release ref / tag，如 `v0.9`）作为维护过程的基准指令。
-* **开发对象与候选产物 (Mutable Product)**：当前分支或合并到默认分支（`main`）的候选规则在完成版本发布门禁并打上发布 tag 前仍是“被开发对象 / 候选产物”（`Merged != Published != Deployed`），**不得**反向支配当前维护会话，**严禁**将未发布 `main` 上的 ChatGPT Project 产物当作已发布版本部署。
+* **开发对象与候选产物 (Mutable Product)**：当前分支或合并到默认分支（`main`）的候选规则在完成版本发布门禁并打上发布 tag 前仍是“被开发对象 / 候选产物”（`Merged != Published != Deployed`），**不得**仅凭文件头或 `WORKFLOW_REF` 字段填写的目标版本号自我提升为已发布权威，**不得**反向支配当前维护会话，**严禁**将未发布 `main` 上的 ChatGPT Project 产物当作已发布版本部署。
+* **发布门禁完整性**：发布版本时必须完成 MAT_REF 来源完整性核实（未变则记录 unchanged carry-forward，变更则核实严格等于上游正式 release commit）与不可变 release tag 冻结。
 
 ### B. 规则层级边界
 * 本文件（`AGENTS.md`）仅规范**维护者行为**；

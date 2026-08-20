@@ -111,6 +111,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 1. **持久仓库绑定与工作流发布身份 (Project Binding & Workflow Release Identity)**：
    - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为定位该 Project 权威事实的稳定实体标识指针（Project Identity Pointer）；
    - Project Instructions 同时携带明确的 **Workflow Release Identity**（`WORKFLOW_REPO` 与不可变的 `WORKFLOW_REF`），明确当前部署所运行的工作流发布版本；
+   - **Fail-Closed 身份门禁**：`WORKFLOW_REF` 必须实际存在且可解析为已发布的不可变 release ref（如 Git release tag）。在 Startup 或部署验证时，若 `WORKFLOW_REF` 不存在/不可解析，或当前 Instructions / Sources 内容与该 release ref 不一致，必须判定为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 阻断并提示从不可变 release ref 重新部署；严禁将未发布的 candidate 内容作为已发布 Workflow Authority 执行；
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 及 Project Instructions 中锁定的 `WORKFLOW_REF` 定义跨端协作契约；
@@ -119,16 +120,23 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 3. **工作流发布完整性门禁 (Workflow Release Completeness Gate)**：
    - `Issue done != Release done`；
    - `Merged != Published != Deployed`；
-   - 合并到默认分支（`main`）的代码在通过版本级审查并打上不可变发布 tag 前，仍属于候选可变产物（Mutable Product），不得静默视为已发布的 Workflow Authority，亦不得提前将未发布产物作为正式版本部署。
-4. **MAT_REF 权威边界 (MAT Authority Precedence)**：
+   - 合并到默认分支（`main`）的代码即使已在文件头填写目标版本号，在通过版本级审查并打上不可变发布 tag 前仍属于候选可变产物（Mutable Product），不得仅凭版本字段自我提升为已发布的 Workflow Authority，亦不得提前将未发布产物作为正式版本部署；
+   - 发布门禁必须验证：`WORKFLOW_REF` candidate identity 与即将创建的 release tag 一致；MAT lock provenance 满足来源完整性（未变更则记录 unchanged carry-forward，变更则核实严格等于正式 release commit）；版本级审查通过后方可打 tag 并部署。
+4. **MAT_REF 来源完整性与引入门禁 (MAT_REF Provenance & Introduction Gate)**：
+   - **历史已发布版本不变式**：历史 release 的 `MAT_REF` 永不被后来规则追溯改写；
+   - **Legacy Carry-Forward Lock**：当前 `8b78b531...` 因已存在于 last accepted v0.9，可作为 legacy carry-forward lock 继续沿用；它仍是当前 Matt Process Authority，但不得被描述为“来自正式 v1.2.3 release commit”；新 release 若 `MAT_REF` 未变化，显式 carry-forward 既有 lock 并在 release review 中记录 "unchanged carry-forward"；
+   - **New MAT_REF Introduction Gate**：新 workflow release 若变更 `MAT_REF`，新值必须来自 upstream 正式、non-prerelease Release，且必须严格等于该正式 release tag/ref 解析出的固定 commit SHA（不得选择 release 之前/之后的任意普通 main commit 作为新的 lock）；必须完成 candidate freeze、10 维关系兼容性审查与用户授权；
+   - `Formal Release = eligibility for Upgrade Review, not authorization to upgrade` 保持不变；
+   - 不新增 MAT_MODE、dependency registry、lockfile 子系统，在现有 Release Dependency Lock 与 release Gate 中闭环。
+5. **MAT_REF 权威边界 (MAT Authority Precedence)**：
    区分两种情形：
    - **Accidental / undeclared divergence（无意漂移）**：若 IDE 本地 Skill 行为与 Release Dependency Lock 不一致，但目标项目的权威文档（`AGENTS.md` / `docs/agents/*`）没有明确声明这是有意定制，视为版本漂移（version drift）；Browser Review 以 locked `MAT_REF` 为准。
    - **Explicit project-local adaptation（明确适配）**：若目标项目的权威文档明确声明了某个 Matt 行为是有意覆盖/适配，则该**具体声明点**由 Project Authority 优先；但仅覆盖声明的具体行为，绝对不得静默替换整个工作流 Release 的 `MAT_REF`。若目标项目确实需要另一个完全不同的 Matt ref，将其归类为依赖分歧/兼容性决策并显式处理，严禁静默重定义 Matt Process Authority。
-   **不使用**笼统的 `Project Authority > Matt Authority`；不引入 MAT_MODE、override registry 或额外配置体系。
-5. **历史版本可复现性 (Old Release Reproducibility)**：
+   **不使用**笼统的 `Project Authority > Matt Authority`；不引入 override registry 或额外配置体系。
+6. **历史版本可复现性 (Old Release Reproducibility)**：
    - 后续 Matt 上游演进绝对不得修改已经发布的 `matt-browser-workflow` 版本的语义；
    - 历史 release 持续使用其不可变的发布锁定 `MAT_REF`；新工作流版本仅通过显式、经过完整 Review 的 Release 流程采纳新的 `MAT_REF`；严禁重写历史 tag 或 release。
-6. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
+7. **单项目优先**：当前工作流专注于单仓库主权绑定，暂不针对多仓库（Multi-repo）图谱做前置复杂抽象，待出现真实需求再行演进。
 
 ---
 
@@ -259,4 +267,4 @@ Browser 端的 `MAT_REF` 不能直接保证本地 IDE 执行完全相同的版�
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。
 - **非实质性上游漂移 (Non-Material Drift)**：检测到上游变动但判定无实质影响时，Browser 仅需简要提示上游存在新 commit 且当前锁定版本有效；**严禁**打断正常工作，**严禁**向用户索要升级决策。
 - **实质性更新候选 (Material Update Candidate)**：发现实质价值或影响的候选时，Browser 必须先产出基于证据的升级简报（Upgrade Brief，包含当前/候选坐标、commit 与技能清单变动、实质语义与关系影响、适配调整建议及 `NO UPGRADE` / `DEFER` / `UPGRADE CANDIDATE` 分类），主动呈现给用户，由用户决定是否进入升级排期。
-- **运行时完整性问题 (Runtime Integrity Problem)**：发现锁定源不可用、当前关键技能缺失或本地存在影响流程的 `DRIFTED MATERIAL` 时，Browser 必须将其作为**阻塞性兼容问题**立即呈现，提供具体事实与恢复方案。
+- **运行时完整性问题 (Runtime Integrity Problem)**：发现锁定源不可用、当前关键技能缺失、本地存在影响流程的 `DRIFTED MATERIAL`，或在启动/部署核实中发现 `WORKFLOW_REF` 不存在/不可解析、当前加载的 Instructions / Sources 与发布引用内容不一致时，Browser 必须将其作为**阻塞性运行时完整性问题**立即呈现并 Fail-Closed 阻断，提供具体事实与从已发布不可变 release 重新部署的恢复方案。

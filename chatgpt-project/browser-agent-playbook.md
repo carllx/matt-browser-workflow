@@ -71,11 +71,17 @@
 ### A. 工作流权威 (Workflow Authority) — "协作契约与交互规则"
 - 当前部署的 Browser Workflow 发布版本（Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md`，以及 Project Instructions 中锁定的 `WORKFLOW_REF`）；
 - 定义 Browser Lead 与 IDE Agent 的协作机制、中继契约（Relay Contract）与上下文治理法则；
-- **候选与发布隔离**：默认分支（`main`）上的合并代码在完成发布门禁并打上发布 tag 前属于候选产物，**绝不自动成为**已部署的 Workflow Authority（`Merged != Published != Deployed`）。
+- **Fail-Closed 身份门禁**：`WORKFLOW_REF` 必须实际存在且可解析为已发布的不可变 release ref（如 Git release tag）；若不存在/不可解析或当前 Instructions 与 Sources 内容与其不一致，视为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 阻断并提示重新部署；
+- **候选与发布隔离**：默认分支（`main`）上的合并代码即使已填写目标版本号，在完成发布门禁并打上发布 tag 前仍属于候选产物，**绝不自动成为**已部署的 Workflow Authority（`Merged != Published != Deployed`）。
 
 ### B. 流程技能权威 (Matt Process Authority) — "工程技能应该怎么工作？"
 - 由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范，是 Matt flow routing 的唯一权威地图；
 - 所有关键负载 Matt 源码检索必须受 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；
+- **来源完整性与引入门禁 (Provenance & Introduction Gate)**：
+  - 历史已发布 workflow 的 `MAT_REF` 永不追溯改写；
+  - 当前 `8b78b531...` 作为继承自已接受发布版（v0.9）的 **legacy carry-forward lock** 继续沿用，仍是当前 Matt Process Authority，但不得被描述为“来自正式 v1.2.3 release commit”；新 release 若 `MAT_REF` 未变化，显式 carry-forward 既有 lock 并在 release review 中记录 "unchanged carry-forward"；
+  - 未来新引入或变更的 `MAT_REF` 必须严格等于 upstream **正式、non-prerelease Release** tag/ref 所解析出的固定 commit SHA（不得选择 release 之前/之后的任意普通 main commit 作为新 lock），并完成 candidate freeze + 10 维关系兼容性审查 + 用户显式授权；
+  - `Formal Release = eligibility for Upgrade Review, not authorization to upgrade` 保持不变；不新增 MAT_MODE 或 dependency registry 等复杂子系统；
 - 版本对齐与冲突处理见下方 MAT_REF 权威边界规则。
 
 ### C. 目标项目权威 (Project Authority) — "项目实际上发生了什么？"
@@ -125,6 +131,7 @@
 在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
 ```text
 Read Workflow Sources (Playbook + browser-workflow-spec.md)
+→ Verify Workflow Release Identity (Fail-Closed if unresolvable or mismatched)
 → Read Session Checkpoint / Snapshot (if any)
 → Resolve Coordinates (PROJECT_* from binding & MAT_* from Release Dependency Lock)
 → Bounded Project Sync
@@ -133,7 +140,7 @@ Read Workflow Sources (Playbook + browser-workflow-spec.md)
 → Route / Dispatch Work Order
 ```
 
-**核心原则**：先取足够证据再定位，严禁直接根据 Project Memory 或旧聊天假定当前状态。
+**核心原则**：先核实 Workflow Release Identity（若 `WORKFLOW_REF` 不存在、不可解析或加载的 Instructions/Sources 存在内容漂移，立即作为阻塞性运行时完整性问题 Fail-Closed 并提示从不可变发布 ref 重新部署）；先取足够现场证据再定位，严禁直接根据 Project Memory 或旧聊天假定当前状态。
 
 ---
 
@@ -245,10 +252,10 @@ Browser 可以：
 权威优先级：`Target SKILL.md` > `明确引用的材料` > `MAT_ROUTER_PATH` > `解释性文档` > `旧记忆/摘要`。
 
 ### MAT_REF 版本策略与上游治理 (Upstream Governance)
-- **Release 级基准锁定**：本工作流发布版由 Project Instructions 中的 `Release Dependency Lock` 统一定义 Matt 依赖坐标；
+- **Release 级基准锁定与来源完整性**：本工作流发布版由 Project Instructions 中的 `Release Dependency Lock` 统一定义 Matt 依赖坐标。历史已发布版本不可追溯修改；当前 `8b78b531...` 为继承自 v0.9 的 legacy carry-forward lock（继续作为当前流程权威，但不表述为正式 release commit）；未来变更 `MAT_REF` 必须严格等于正式 release tag 解析出的固定 commit；
 - **项目显式适配与边界**：目标项目在 `AGENTS.md` 或文档中明确声明的有意覆盖点，仅优先适用该声明点，绝对不得静默替换整个 Release 的 `MAT_REF`；
 - **本地 IDE 对齐探测 (Fact Probe)**：在关键 Matt 技能执行前若对齐状态未知，向 IDE 下发窄范围 Fact Probe，探测安装机制、版本与关键技能可用性。状态分为 `ALIGNED` / `UNKNOWN` / `DRIFTED NON-MATERIAL` / `DRIFTED MATERIAL`。仅实质性漂移阻断当前流程；
-- **Formal Release Gate 与候选冻结**：upstream `main`、普通 commit 及未发布 Changeset 仅属于 research / drift evidence，不能直接作为 `MAT_REF` 升级依据；只有 Matt 上游的**正式、non-prerelease Release** 才具备进入正式 Upgrade Review 的候选资格（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。正式 Release 不是自动升级开关；进入评审必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支，且 `MAT_REF` 的实际修改仍由 User 显式裁决，绝对不得自动完成；
+- **Formal Release Gate 与候选冻结**：upstream `main`、普通 commit 及未发布 Changeset 仅属于 research / drift evidence，不能直接作为 `MAT_REF` 升级依据；只有 Matt 上游的**正式、non-prerelease Release** 才具备进入正式 Upgrade Review 的候选资格（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*），且新 lock 必须等于该正式 release tag 解析出的 commit（不得选取 release 之后/之前的任意普通 commit）。进入评审必须冻结不可变的 `CURRENT_MAT_REF` 与 `CANDIDATE_MAT_REF`，停止分析浮动分支，且 `MAT_REF` 的实际修改仍由 User 显式裁决，绝对不得自动完成；
 - **10 维关系兼容性评审**：对变动技能通过 Identity、Flow Role、Invocation Authority、Decision Ownership、Primary-Source Continuity、Feedback Locality、Artifact Contract、Relay、Dependencies、Adaptation Result（KEEP/MODIFY/DELETE/ADD）进行评审，并评估横切性语义影响（Cross-Cutting Semantic Impact）；
 - **适配精简原则 (Adaptation Subtraction)**：上游原生支持时主动精简或删除本地冗余适配。
 
@@ -549,8 +556,9 @@ Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gat
 1. **范围与结论齐备**：版本范围内所有工作项均有明确状态；
 2. **完整差异审查**：`last_accepted_release...candidate` 完整 diff 获得版本级 Browser Review PASS；
 3. **交付物版本一致**：三个 `chatgpt-project/*` 交付文件的 visible version 必须完全一致；
-4. **不可变 Tag 冻结**：仅在 Browser release-level Review 批准后由 IDE 创建不可变 release tag。
+4. **MAT 来源完整性核实 (MAT Provenance Check)**：若 `MAT_REF` 未变化，记录 "unchanged carry-forward"；若 `MAT_REF` 发生变化，核实其严格等于 upstream 正式 non-prerelease release tag/ref 所解析出的固定 commit SHA（不得使用普通 commit）；
+5. **发布身份与不可变 Tag 冻结**：核实 `WORKFLOW_REF` candidate identity 与即将创建的 release tag 一致；仅在 Browser release-level Review 批准后由 IDE 创建不可变 release tag；tag 创建完成后方可进行部署。
 
 ### B. 部署核实与漂移恢复 (Deployment Verification & Drift Recovery)
-1. **部署核实**：User 完成 ChatGPT Project 升级部署后，Browser 启动时核实 `WORKFLOW_REF`、Project Instructions 及 Sources 是否与已发布的 release tag 内容严格对齐；
+1. **部署核实与 Fail-Closed**：User 完成 ChatGPT Project 升级部署后，Browser 启动时核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且 Project Instructions 及 Sources 是否与已发布的 release tag 内容严格对齐；若 ref 不存在/不可解析或内容不一致，立即判定为 **Workflow Runtime Integrity Problem** 并 Fail-Closed 阻断；
 2. **漂移感知与恢复**：若发现实际加载的 Instructions / Sources 仍停留在旧版本或开发中 candidate 内容（版本漂移），Browser 将其作为阻塞性现场提示，引导 User 从不可变的 `WORKFLOW_REF` 对应 release 重新下载/部署，严禁将未发布的 candidate 当作 Workflow Authority 运行。

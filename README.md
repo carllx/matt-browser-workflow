@@ -21,8 +21,8 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 本工作流融合了 **Matt Pocock's Engineering Skills**（`mattpocock/skills`）的工程 discipline：这些 Skill 是小型、可组合的工具，各自拥有明确的 Gate 和边界。Browser 根据当前真正的 blocker 选择合适的 Skill，而非驱动所有项目顺序走完固定的全量流程。Well-scoped work 不应被迫走完整条大型流程。
 
 ### 依赖锁定与演进治理 (Dependency Integrity & Upstream Governance)
-- **发布级依赖锁定 (Release Lock)**：每个工作流版本通过不可变的 `MAT_REPO @ MAT_REF` 锁定 Matt 流程技能权威，源码检索受 Ref 严格约束，保证历史已发布版本的确定性与可复现性；
-- **感知演进与分级通知**：`Update notification != Upgrade decision.` 启动时可轻量感知上游演进，但绝不自动升级；非实质漂移不打扰，实质更新候选出具升级简报（Upgrade Brief），运行时完整性问题作为阻塞呈现；
+- **发布级依赖锁定与来源完整性 (Release Lock & Provenance)**：每个工作流版本通过不可变的 `MAT_REPO @ MAT_REF` 锁定 Matt 流程技能权威。历史已发布版本不可追溯修改，当前 `MAT_REF` 作为继承自 v0.9 的 legacy carry-forward lock 继续沿用，未来更新必须严格等于上游正式 non-prerelease release tag 解析的不可变 commit；源码检索受 Ref 严格约束，保证确定性与可复现性；
+- **感知演进与分级通知**：`Update notification != Upgrade decision.` 启动时可轻量感知上游演进，但绝不自动升级；非实质漂移不打扰，实质更新候选出具升级简报（Upgrade Brief），运行时完整性问题（如 ref 不存在或内容不一致）作为阻塞呈现并 Fail-Closed；
 - **Relationship-First 演进审查**：升级评估不依赖静态矩阵，而是通过 10 维关系透镜审视对 User / Browser / IDE 三端拓扑及横切性语义的影响，并遵循适配精简（Adaptation Subtraction）原则。
 
 ---
@@ -84,8 +84,8 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
    * [`chatgpt-project/browser-workflow-spec.md`](./chatgpt-project/browser-workflow-spec.md)（规范性需求 SSOT）
 
 > [!IMPORTANT]
-> **部署来源不可变原则**：
-> 部署或升级 ChatGPT Project 时，**必须**使用特定不可变发布 Tag（如 `v0.10`）下的文件，**严禁**直接从未发布的 `main` 默认分支下载部署。未发布的 `main` 分支属于开发中候选产物（Mutable Product），`Merged != Published != Deployed`。
+> **部署来源不可变与 Fail-Closed 原则**：
+> 部署或升级 ChatGPT Project 时，**必须**使用特定不可变发布 Tag（如 `v0.10`）下的文件，**严禁**直接从未发布的 `main` 默认分支下载部署。未发布的 `main` 分支属于开发中候选产物（Mutable Product），`Merged != Published != Deployed`。若在 Project 中误填了尚未发布或不存在的 `WORKFLOW_REF`，工作流在启动与接手时将作为 **Workflow Runtime Integrity Problem** 立即 Fail-Closed 阻断并提示重新部署。
 
 > [!NOTE]
 > **关于无需上传文件的说明**
@@ -164,7 +164,7 @@ v0.10 默认开发协作循环采用**任务契约与自治推进至门禁（Mis
 5. **更新 Project Sources**：将发布 Tag 下的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
 6. **部署后完整性核实 (Post-Deployment Verification)**：
    - 在 ChatGPT Project 开启新对话，确认 Browser Lead 成功识别新的 `WORKFLOW_REF`（如 `v0.10`）及绑定的 `PROJECT_REPO`；
-   - 确认加载的 Instructions 与 Sources 内容与发布版本完全一致。若发现版本漂移，重新从发布 Tag 覆盖上传；
+   - 确认加载的 Instructions 与 Sources 内容与发布版本完全一致。若 ref 不可解析或发现版本漂移，Browser 会立即 Fail-Closed 阻断并提示重新从发布 Tag 覆盖上传；
 7. **按需检查本地 Skills 与仓库配置**：
    - **Skill 版本更新**：若新工作流发布版本更新了 `MAT_REF` 锁定，使用官方 `npx skills update` 进行 IDE 本地更新；
    - **仓库级配置**：`/setup-matt-pocock-skills` 仅在目标仓库配置缺失或新版本对前置产生不兼容变更时才需重新执行。

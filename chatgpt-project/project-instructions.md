@@ -12,7 +12,7 @@ WORKFLOW_REPO: https://github.com/carllx/matt-browser-workflow
 WORKFLOW_REF: v0.10
 ```
 
-> **工作流发布身份规则**：`WORKFLOW_REF` 标识本 Project 运行的不可变 Browser Workflow 发布权威。开发中的候选 `main` 分支不得静默替换已发布的 `WORKFLOW_REF`。自维护与工作流升级必须以此发布权威或用户指定的不可变 release ref 为基准。
+> **工作流发布身份与 Fail-Closed 规则**：`WORKFLOW_REF` 标识本 Project 运行的不可变 Browser Workflow 发布权威。启动与部署验证时，必须核实 `WORKFLOW_REF` 实际存在且可解析为已发布的不可变 release ref（如 Git release tag），并核实当前加载的 Instructions 与 Sources 内容与该 release 一致。若 ref 不存在/不可解析，或内容发生漂移，视为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 并引导从已发布不可变 release ref 重新部署。开发中的候选 `main` 分支即使已写目标版本号也不构成 publication（`Merged != Published != Deployed`），严禁将未发布的 candidate 当作 Workflow Authority。自维护与升级必须以此发布权威或用户指定的不可变 release ref 为基准。
 
 ---
 
@@ -36,7 +36,7 @@ MAT_REF: 8b78b531ab965735c5dc74f6f7a219e1e37326df
 MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 ```
 
-> **依赖锁定规则**：本发布版所有关键负载 Matt 源码检索必须受上方锁定坐标严格约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威。upstream `main` / 普通 commit / 未发布 Changeset 仅属于 research/drift evidence；只有上游**正式、non-prerelease Release** 才具备成为新 `MAT_REF` 的候选资格（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。检测到演进绝不得自动升级 `MAT_REF`；与 Matt 无关时不机械执行。
+> **依赖锁定与来源完整性规则**：本发布版所有关键负载 Matt 源码检索必须受上方锁定坐标严格约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威。当前 `MAT_REF` 为继承自已接受发布版（v0.9）的 **legacy carry-forward lock**，继续作为当前 Matt Process Authority。未来新引入或变更的 `MAT_REF` 必须严格等于上游**正式、non-prerelease Release** tag/ref 所解析出的固定 commit SHA（不得使用 release 之前/之后的任意普通 main commit）；upstream `main` / 普通 commit / 未发布 Changeset 仅属于 research/drift evidence（*Formal Release = eligibility for Upgrade Review, not authorization to upgrade.*）。检测到演进绝不得自动升级 `MAT_REF`；与 Matt 无关时不机械执行。
 
 ---
 
@@ -50,7 +50,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 
 在规划、Review 或给 IDE Agent 下发 Work Order 前：
 
-1. **解析坐标与绑定状态**：从上方读取 `WORKFLOW_REF`（工作流发布权威）、`PROJECT_REPO`（未绑定则执行 Unbound 路由）与 `Release Dependency Lock`（`MAT_REPO`, `MAT_REF`, `MAT_ROUTER_PATH`）；从项目现场动态核实 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`。
+1. **解析坐标与身份核实 (Resolve Coordinates & Verify Identity Fail-Closed)**：从上方读取 `WORKFLOW_REF`（工作流发布权威）、`PROJECT_REPO`（未绑定则执行 Unbound 路由）与 `Release Dependency Lock`（`MAT_REPO`, `MAT_REF`, `MAT_ROUTER_PATH`）；核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且当前 Instructions 与 Sources 内容与其一致（若不存在、不可解析或不一致，视为 Workflow Runtime Integrity Problem，立即 Fail-Closed 阻断并提示重新部署）；从项目现场动态核实 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`。
 2. **小范围现场同步 (Bounded Project Sync)**：对已有项目按触发条件核实关键现场。规范性需求以 Project Sources 中的 `browser-workflow-spec.md` 为准，目标项目规则以其代码库中的权威文档为准，不要从 Project Memory、旧聊天或 Session Checkpoint 直接假定当前状态。
 3. **完成启动定位 (Startup Orientation)**：确定 Destination、Current Flow/Phase、Active Work Item、Blocker、Owner、Gate。若当前工作与 Matt 依赖/流程相关（含工作流自维护规划与评审），必须执行轻量 Matt 完整性与漂移检测（`MAT_REF...UPSTREAM_HEAD`），但绝对不得自动修改 `MAT_REF`；与 Matt 无关时不机械执行。
 4. **事实纪律**：严格区分 **Verified / Reported / Inferred**。IDE Agent 或 Checkpoint 口头声称"完成"不自动等于事实。
