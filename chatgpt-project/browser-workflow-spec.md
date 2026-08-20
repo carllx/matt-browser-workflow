@@ -198,6 +198,11 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
    - 向 Browser 反馈时必须输出**单一整合证据包**（One Consolidated Evidence Bundle），严禁未汇聚的碎片化状态逃逸至门禁外。
 4. **人类唯一调用权限不变式 (Human-Only Invocation Invariant)**：
    - Harness 的自治执行能力（如自主循环或自动推进）可在人类合法调用后延续执行，但**绝不得**自主合成、越权伪造或绕过 `user-invoked` 技能的人类显式授权边界。
+5. **必要技能门禁保真度不变式 (Required Skill Gate Fidelity Invariant)**：
+   - 当任务契约（Mission Contract）、验收标准或合法执行态中的 Matt 流程明确将某 named Skill 定义为完成门禁（Required / Mandatory Gate）时，该 Skill 的真实调用（Actual Invocation）构成门禁达成的必要条件；
+   - IDE 的内部拓扑与分解自治权（Execution Topology Autonomy）仅统辖执行实现方式（How to do），**绝不授予**静默弱化、删除或用内联推理/通用 self-review / 手工模仿输出替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；
+   - 仅当权威任务契约**明确注明允许等效替代（equivalent allowed）**时，IDE 方可采用等效方案并在完成证据中说明；
+   - 技能路由、阅读或推荐不等于技能调用（Reading / Routing != Invocation）；未执行且无合法替代时不得声明门禁通过；无需新增 Skill registry 或 state machine 等冗余子系统。
 
 ### 演进审查的 Relationship-First 不变量 (Relationship-First Invariant)
 

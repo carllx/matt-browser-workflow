@@ -327,6 +327,7 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 - **任务契约与执行拓扑权属 (Mission Contract & Execution Topology Ownership)**：
   - **Browser 权属**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）；
   - **IDE 自治**：在 Browser 给定的任务边界内，IDE 拥有内部任务分解（internal decomposition）与执行拓扑（execution topology）的所有权，以自治方式推进至门禁（Run-to-Gate）；
+  - **门禁保真度与工单纪律 (Required Skill Gate Fidelity & Work Order Discipline)**：IDE 的执行拓扑自治权绝不等于可以自主删除、替换或弱化明确的完成门禁（Completion Gate）；当任务契约明确将某 named Skill 规定为 required gate 时，IDE 必须真实触发该 Skill，不得用内联推理、通用 self-review 或手工模仿输出静默替代。Browser 派发工单时若真实需要 Skill 原生门禁，应写成明确的 mandatory Skill，避免随手使用 `or equivalent` 造成门禁弱化；仅当等效实现确实满足目标且不依赖 Skill 原生机制/制品时，方可显式注明 `equivalent allowed`；
   - **Harness 不变式**：Harness 工具与环境能力可能改变执行拓扑，但**绝不改变**权限划分、证据标准或完成门禁（*Harness capabilities may change execution topology; they do not change authority, evidence, or completion requirements.*）；
   - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式串行/并行/Join 编排；Browser 不对 IDE 内部执行拓扑做微观管理。
 
@@ -354,6 +355,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
   - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
   - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
   - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
+  - **Required Skill Invocation Evidence**：仅当任务包含 mandatory named Skill 时，IDE 必须在 evidence 中包含最小真实调用声明（如 `code-review: invoked — PASS`）；若未执行，报告 `NOT INVOKED — <reason>` 且不得宣称 Gate 通过。Browser 不要求完整 transcript，仅核实最小证据；
   - **Join Invariant**：内部并行分支必须全部汇聚至单一 candidate ref，向 Browser 反馈单一整合证据包。
 - **相称性与反馈结构**：
   - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
@@ -362,6 +364,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
     Review ref: <fixed pushed commit SHA 或 PR head SHA / PR URL>
     Base: <base SHA>
     Tests / Verification: <command + result summary>
+    Required Skill gates: <skill>: invoked — PASS | FAIL (按需)
     Local-only state: none | <description>
     ```
 - **范围变化与决策边界**：

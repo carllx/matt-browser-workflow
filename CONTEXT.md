@@ -94,3 +94,5 @@ Browser Lead 向 IDE Agent 派发的有界任务委托契约，统筹定义目�
 ### 29. Workflow Release Completeness Gate（工作流发布完整性门禁）
 工作流自身版本发布的核心不变式：`Issue done != Release done` 且 `Merged != Published != Deployed`。要求版本范围所有项归档、完整 diff 经版本级审查、三交付物版本一致且打上不可变发布 tag，部署后核实验证。详见 `browser-workflow-spec.md` → 项目绑定与权威层级 与 `browser-agent-playbook.md` → 工作流发布、部署验证与漂移恢复。
 
+### 30. Required Skill Gate Fidelity（必要技能门禁保真度）
+当任务契约、验收标准或合法执行态中的 Matt 流程明确将某 named Skill 定义为完成门禁时，该 Skill 的真实调用（Actual Invocation）构成门禁达成的必要条件。IDE 的执行拓扑自治权绝不授予静默弱化、绕过或用内联推理/通用 self-review 替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；仅在权威契约明确允许等效（equivalent allowed）时方可替代，并在证据中如实声明。详见 `browser-workflow-spec.md` → Harness 拓扑与并发约束 与 `AGENTS.md` → 核心执行守则。

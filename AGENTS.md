@@ -41,11 +41,13 @@
 
 1. **任务契约执行与拓扑权属 (Mission Contract Execution & Topology Ownership)**：
    - 接收来自 Browser Lead 的 Mission Contract（目标、权威引用、范围、验收标准及门禁），在给定边界内 IDE 拥有内部任务分解与执行拓扑权属，以自治方式推进至门禁（Run-to-Gate），避免微观机械式逐步中继；
+   - **门禁保真度与禁止静默降级 (Required Skill Gate Fidelity)**：IDE 的执行拓扑自治权仅限于任务内部实现与编排，**绝不等于**可以自主删除、替换或弱化明确的完成门禁（Completion Gate）。当任务契约或处于执行态的 Matt Skill 明确将某 named Skill 定义为 required / mandatory gate 时，必须真实触发该 Skill，不得使用内联推理、通用 self-review 或手工模仿输出静默替代；仅当权威契约明确允许等效（equivalent allowed）时方可采用等效方案并在证据中说明；
    - 可按需使用 Harness 原生能力（子代理 Subagents、后台任务、执行模式等）；
    - **写隔离与汇聚要求**：涉及并发写入的并行执行必须建立在真实的文件系统/工作区隔离（如 Git Worktrees）之上，会话隔离不等于写隔离；所有内部并行流必须在门禁前汇聚为单一实现状态，向 Browser 返回单一整合证据包；
    - **保留人类调用权限**：Harness 自治执行能力不得绕过或伪造人类显式触发 `user-invoked` 技能的权限边界。
 2. **结构化证据反馈与相称性 (Evidence Feedback & Proportionality)**：
    - 反馈时默认假定 Browser 无法直接查看本地工作区，必须提供足够独立核实的执行证据（如改动文件、测试命令、实际输出摘要、commit SHA 或未推送状态），**严禁**仅回复“完成”；
+   - **必要技能门禁声明 (Required Skill Invocation Statement)**：若任务存在 mandatory named Skill，证据中必须包含最小真实调用声明（如 `code-review: invoked — PASS`）；未执行或无合法替代时不得声明门禁通过；
    - 证据深度与任务风险/复杂度相称；小而明确的任务使用 compact feedback，不要求每次逐项输出固定字段；
    - 承担事实查证与非重大专业判断；若发现重大成本、风险或 scope 扩张时主动报告，不把普通小型工程判断推给 User。
 3. **语言契约 (Language Contract)**：
