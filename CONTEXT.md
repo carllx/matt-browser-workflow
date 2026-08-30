@@ -96,3 +96,15 @@ Browser Lead 向 IDE Agent 派发的有界任务委托契约，统筹定义目�
 
 ### 30. Required Skill Gate Fidelity（必要技能门禁保真度）
 当任务契约、验收标准或合法执行态中的 Matt 流程明确将某 named Skill 定义为完成门禁时，该 Skill 的真实调用（Actual Invocation）构成门禁达成的必要条件。IDE 的执行拓扑自治权绝不授予静默弱化、绕过或用内联推理/通用 self-review 替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；仅在权威契约明确允许等效（equivalent allowed）时方可替代，并在证据中如实声明。详见 `browser-workflow-spec.md` → Harness 拓扑与并发约束 与 `AGENTS.md` → 核心执行守则。
+
+### 31. Project-Declared External Capability（项目声明的外部能力）
+由目标项目在自身代码库（Project Authority，如 `docs/agents/capabilities.md`）中轻量声明的项目专属外部知识源、模型服务或工具能力（包含 purpose、scope、known host 提示及 non-secret locator）。工作流核心保持通用与无状态，升级不覆盖能力绑定。详见 `browser-workflow-spec.md` → Relationship-First 协作关系感知。
+
+### 32. Capability Boundary Invariants（能力边界四分离不变式）
+外部能力协同中必须遵循的四个核心解耦边界：
+1. `Declaration != Runtime Availability`（声明不等于运行时可用）；
+2. `Discovery != Invocation`（轻量发现不等于自动调用）；
+3. `Locator != Browser-Readable Resource`（逻辑定位符不等于 Browser 可直接读取资源）；
+4. `Location Informs Placement; Does Not Grant Authority`（能力所在位置指导探测放置，但不授予修改权限，亦不改变证据与权威层级）。
+详见 `browser-workflow-spec.md` → Relationship-First 协作关系感知。
+

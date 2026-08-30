@@ -66,7 +66,8 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
    * 追踪器（Issue Tracker）推荐选择：`GitHub`（或其他实际使用的系统）；
    * 领域文档（Domain Layout）推荐选择：`single-context`；
    * 若安装了 `triage` 技能，确认采用默认 canonical labels 并在 GitHub 中存在对应标签；
-   * 该 Skill 会在目标仓库下自动生成 `docs/agents/*` 并在 `AGENTS.md` 中注入规则块。
+   * 该 Skill 会在目标仓库下自动生成 `docs/agents/*` 并在 `AGENTS.md` 中注入规则块；
+   * 若目标项目拥有特定的外部知识库、领域模型或工具能力（如 NotebookLM、OpenBB 等），可按需在目标仓库中创建 `docs/agents/capabilities.md` 进行轻量声明（属于 Project Authority，供 Browser 发现并按需路由）。
 
 ---
 
@@ -172,4 +173,4 @@ v0.10.1 默认开发协作循环采用**任务契约与自治推进至门禁（M
    - **Skill 版本更新**：若新工作流发布版本更新了 `MAT_REF` 锁定，使用官方 `npx skills update` 进行 IDE 本地更新；
    - **仓库级配置**：`/setup-matt-pocock-skills` 仅在目标仓库配置缺失或新版本对前置产生不兼容变更时才需重新执行。
 
-> **核心原则**：工作流通用指令可随版本升级，但目标项目的仓库绑定（`PROJECT_REPO`）必须始终保留；且部署来源必须来自不可变的发布 Tag。
+> **核心原则**：工作流通用指令可随版本升级，但目标项目的仓库绑定（`PROJECT_REPO`）必须始终保留；且部署来源必须来自不可变的发布 Tag。项目专属的能力声明（`docs/agents/capabilities.md`）保存在目标仓库自身（Project Authority），工作流升级无需重新录入。

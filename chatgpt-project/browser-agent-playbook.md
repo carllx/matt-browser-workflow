@@ -161,7 +161,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 最小必要证据 (Minimal Evidence)
 - **Coordinates / Freshness**：仓库与 tracker 可访问性、default branch、active ref、当前观察时间/版本。
-- **Target Project Rules / Domain**：目标代码库 authoritative ref 上的 `AGENTS.md` / `CLAUDE.md`、`docs/agents/*`、`CONTEXT.md`、关键 ADR。（注：工作流契约直接读取 Project Sources 中的 `browser-workflow-spec.md`，严禁去目标项目代码库中寻找该文件）。
+- **Target Project Rules / Domain**：目标代码库 authoritative ref 上的 `AGENTS.md` / `CLAUDE.md`、`docs/agents/*`（含可选的 `docs/agents/capabilities.md` 声明）、`CONTEXT.md`、关键 ADR。（注：工作流契约直接读取 Project Sources 中的 `browser-workflow-spec.md`，严禁去目标项目代码库中寻找该文件；若存在 `docs/agents/capabilities.md`，仅作极低成本的声明感知，严禁在启动阶段机械调用外部工具或全量读取外部知识）。
 - **Current Work**：Active Issue / Map / Spec、状态、labels、comments、blockers。
 - **Implementation（相关时才读）**：活跃 branch / PR / commits、diff、测试及 CI 状态。
 
@@ -209,7 +209,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 事实可信度三级区分
 - **Verified**：已通过直接读取权威现场或测试证据独立核实；
-- **Reported**：由 Agent、用户口头或 Snapshot 声称，尚未经独立查证；
+- **Reported**：由 Agent、用户口头、Snapshot 声称或外部能力（如 NotebookLM 等）返回的合成内容（即便附带 source locator / citation 等 provenance，在 Browser 无法独立直接阅读一手源时亦保持 Reported 纪律，不自动标记为 Verified）；
 - **Inferred**：基于已知证据进行的合理推断。
 
 ---
@@ -281,7 +281,8 @@ Browser 可以：
 ### 咨询性判断透镜与动态能力验证 (Advisory Judgment & Capability Verification)
 - Rules / Authority 负责边界，Matt Skills 提供成熟工程方法；
 - 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；此类外部参考不是第四权威，取得支持当前判断的 insight 即止；
-- **动态能力感知验证 (Live Capability Verification)**：仅当 Harness 环境或工具能力对当前工作路由或执行拓扑构成**关键承重影响（load-bearing）**时，Browser 才进行轻量现场核实；严禁构建永久静态能力数据库或进行无意义的例行全量探测。
+- **动态能力感知验证 (Live Capability Verification)**：仅当 Harness 环境或工具能力对当前工作路由或执行拓扑构成**关键承重影响（load-bearing）**时，Browser 才进行轻量现场核实；严禁构建永久静态能力数据库或进行无意义的例行全量探测；
+- **项目声明外部能力路由 (Project Capability Routing)**：当任务与项目在 `docs/agents/capabilities.md` 中声明的外部能力实质相关时，Browser 依据 Relationship-First 与实际运行时可用性下发窄范围 Knowledge / Fact Probe；严禁建立静态 Provider → Host 映射表，严禁在启动时全量抓取。
 
 ### 用户分级通知与更新决策协议 (User Notification & Update Decision)
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。
@@ -347,6 +348,12 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 - **Evidence Required & Gate**：必要证据与下一步门禁。
 不得重新抄写一份 canonical artifact 已包含的内容，Work Order 不是第二份 Spec SSOT。
 
+**模式三—项目外部能力探测场景（Knowledge / Fact Probe）**
+当任务依赖目标项目在 `docs/agents/capabilities.md` 中声明的外部知识或工具且由 IDE 承载时，派发窄范围 Probe：
+- **Target Capability & Locator**：能力标识、known host 与 non-secret locator；
+- **Query & Scope**：具体查询要点、检索范围与非目标；
+- **Evidence Required**：要求返回合成摘要及来源依据（source title、locator/citation 及限制说明）。
+
 **中继会话指示 (Session Targeting Advice)**：当需要用户将 Work Order 复制到 IDE 时，Browser 应明确提示用户应粘贴至当前会话还是新会话（如“请粘贴至当前 IDE 会话继续/请开启新会话执行独立任务”），并附带一句话简要理由。
 
 ### B. 证据反馈与汇聚门禁 (IDE → Browser Feedback & Join Gate)
@@ -355,6 +362,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
   - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
   - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
   - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
+  - **External Capability Evidence**：外部能力返回的内容属于 `Reported`，应包含合成摘要及来源依据（source title、locator/citation、限制或冲突证据）；采纳后的结论需沉淀到项目权威制品；
   - **Required Skill Invocation Evidence**：仅当任务包含 mandatory named Skill 时，IDE 必须在 evidence 中包含最小真实调用声明（如 `code-review: invoked — PASS`）；若未执行，报告 `NOT INVOKED — <reason>` 且不得宣称 Gate 通过。Browser 不要求完整 transcript，仅核实最小证据；
   - **Join Invariant**：内部并行分支必须全部汇聚至单一 candidate ref，向 Browser 反馈单一整合证据包。
 - **相称性与反馈结构**：
