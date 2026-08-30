@@ -90,8 +90,3 @@ Default canonical label mapping. See `docs/agents/triage-labels.md`.
 ### Domain docs
 
 Single-context. See `docs/agents/domain.md`.
-
-### External capabilities
-
-Project-declared capabilities (optional). See `docs/agents/capabilities.md`.
-

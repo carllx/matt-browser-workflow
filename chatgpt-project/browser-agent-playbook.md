@@ -209,7 +209,7 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 
 ### 事实可信度三级区分
 - **Verified**：已通过直接读取权威现场或测试证据独立核实；
-- **Reported**：由 Agent、用户口头、Snapshot 声称或外部能力（如 NotebookLM 等）返回的合成内容（即便附带 source locator / citation 等 provenance，在 Browser 无法独立直接阅读一手源时亦保持 Reported 纪律，不自动标记为 Verified）；
+- **Reported**：由 Agent、用户口头、Snapshot 声称，或当 Browser 无法独立核实一手源时由外部能力返回的合成内容（即便附带适用 provenance，在 Browser 无法独立直接核实一手源时亦保持 Reported 纪律，不自动标记为 Verified）；
 - **Inferred**：基于已知证据进行的合理推断。
 
 ---
@@ -352,7 +352,7 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 当任务依赖目标项目在 `docs/agents/capabilities.md` 中声明的外部知识或工具且由 IDE 承载时，派发窄范围 Probe：
 - **Target Capability & Locator**：能力标识、known host 与 non-secret locator；
 - **Query & Scope**：具体查询要点、检索范围与非目标；
-- **Evidence Required**：要求返回合成摘要及来源依据（source title、locator/citation 及限制说明）。
+- **Evidence Required**：要求返回合成摘要及适用来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable 及限制说明）。
 
 **中继会话指示 (Session Targeting Advice)**：当需要用户将 Work Order 复制到 IDE 时，Browser 应明确提示用户应粘贴至当前会话还是新会话（如“请粘贴至当前 IDE 会话继续/请开启新会话执行独立任务”），并附带一句话简要理由。
 
@@ -362,7 +362,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
   - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
   - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
   - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
-  - **External Capability Evidence**：外部能力返回的内容属于 `Reported`，应包含合成摘要及来源依据（source title、locator/citation、限制或冲突证据）；采纳后的结论需沉淀到项目权威制品；
+  - **External Capability Evidence**：当 Browser 无法独立核实一手源时，外部能力返回的内容属于 `Reported with provenance`，应包含合成摘要及适用的来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；采纳后的结论需沉淀到项目权威制品；
   - **Required Skill Invocation Evidence**：仅当任务包含 mandatory named Skill 时，IDE 必须在 evidence 中包含最小真实调用声明（如 `code-review: invoked — PASS`）；若未执行，报告 `NOT INVOKED — <reason>` 且不得宣称 Gate 通过。Browser 不要求完整 transcript，仅核实最小证据；
   - **Join Invariant**：内部并行分支必须全部汇聚至单一 candidate ref，向 Browser 反馈单一整合证据包。
 - **相称性与反馈结构**：

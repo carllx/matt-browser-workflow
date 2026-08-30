@@ -216,7 +216,8 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
    - **`Location informs placement; it does not grant authority`**：能力或宿主所在位置仅用于推导最窄 Knowledge / Fact Probe 的执行放置，绝不自动赋予外部工具或执行端修改权限，亦不改变代码审查与完成门禁。
 3. **外部能力不构成第四权威 (External Capabilities != Fourth Authority)**：
    - 外部能力仅为检索、合成与调研手段（Retrieval / Synthesis / Research），不构成工作流的第四权威；
-   - 外部能力产出的合成结论因 Browser 无法独立直接阅读一手源，统一保持 `Reported with provenance`（标明来源标题、定位符、引用或限制）；采纳后的设计决策或事实必须沉淀回 Project Authority（`CONTEXT.md`、ADR、Spec 或代码）成为标准共享制品。
+   - 当 Browser 无法独立核实一手源时，外部能力返回的合成与证据保持 `Reported with provenance`（按能力特性附带适用的 provenance 依据，如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；若 Browser 能直接访问权威一手源、执行可独立验证的查询或取得独立测试证据，仍适用现有 `Verified` 判定；
+   - 采纳后的设计决策或事实必须沉淀回 Project Authority（`CONTEXT.md`、ADR、Spec 或代码）成为标准共享制品。
 4. **机密与凭证绝对隔离不变式 (Credential & Secret Isolation Invariant)**：
    - 严禁将认证文件（如 `storage_state.json`）、Session cookies、API Token、密码、OAuth 凭证或带有用户私密信息的本地绝对路径写入 Git 仓库、Project Sources、Instructions、Issue 或跨端 Relay 中；
    - 仓库仅保存公开或逻辑定位符（Logical Locator），认证状态与凭据完全由宿主在本地私有环境中独立管理。
