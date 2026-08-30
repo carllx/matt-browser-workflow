@@ -116,7 +116,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 及 Project Instructions 中锁定的 `WORKFLOW_REF` 定义跨端协作契约；
    - **Matt Process Authority**：由 Project Instructions 中的 `Release Dependency Lock`（`MAT_REPO @ MAT_REF : MAT_ROUTER_PATH`）定义技能原生行为规范。所有关键负载 Matt 源码检索必须经过 Ref 约束（Ref-Qualified），禁止使用浮动的 `main` 分支内容作为权威；冲突处理见下方 MAT_REF 权威边界规则；
-   - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*` 定义项目自身事实与规则。
+   - **Project Authority**：由 `PROJECT_REPO` 坐标所指向的 live repo、tracker 与 `AGENTS.md` / `docs/agents/*`（含可选的 `docs/agents/capabilities.md` 项目能力声明）定义项目自身事实、规则与专属外部能力绑定。
 3. **工作流发布完整性门禁 (Workflow Release Completeness Gate)**：
    - `Issue done != Release done`；
    - `Merged != Published != Deployed`；
@@ -203,6 +203,24 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
    - IDE 的内部拓扑与分解自治权（Execution Topology Autonomy）仅统辖执行实现方式（How to do），**绝不授予**静默弱化、删除或用内联推理/通用 self-review / 手工模仿输出替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；
    - 仅当权威任务契约**明确注明允许等效替代（equivalent allowed）**时，IDE 方可采用等效方案并在完成证据中说明；
    - 技能路由、阅读或推荐不等于技能调用（Reading / Routing != Invocation）；未执行且无合法替代时不得声明门禁通过；无需新增 Skill registry 或 state machine 等冗余子系统。
+
+### 项目声明外部能力与边界不变式 (Project-Declared External Capabilities & Boundary Invariants)
+
+1. **项目仓库单一事实源 (Project Authority Canonical Binding)**：
+   - 目标项目所需的外部能力（外部知识库、特定模型服务、领域工具等）的项目级声明（能力类型、目的、适用范围、known host 提示、非机密逻辑定位符），其权威定义仅归属于目标代码仓库（如 `docs/agents/capabilities.md`，即 Project Authority）；
+   - ChatGPT Project Sources 仅承载通用的工作流发布制品，不新增也不维护项目专属能力清单；工作流升级与项目能力生命周期彻底解耦，升级工作流不要求重新录入项目能力绑定。
+2. **能力边界四分离不变式 (Boundary Invariants)**：
+   - **`Capability declaration != runtime availability`**：能力声明仅表明项目在语义上存在该能力与已知属性，不保证当前运行时环境即刻可用或认证已就绪；
+   - **`Capability discovery != capability invocation`**：启动或规划阶段通过 Bounded Sync 进行的轻量声明发现（Metadata Discovery）绝不等于调用能力；严禁在启动阶段机械调用外部工具、枚举知识源或全量读取外部内容；
+   - **`Locator != Browser-readable resource`**：逻辑定位符（如 Notebook ID、数据库逻辑名、MCP 资源标识）仅作为具备能力的宿主在本地执行检索的定位线索，不代表 Browser 可直接读取或解析；
+   - **`Location informs placement; it does not grant authority`**：能力或宿主所在位置仅用于推导最窄 Knowledge / Fact Probe 的执行放置，绝不自动赋予外部工具或执行端修改权限，亦不改变代码审查与完成门禁。
+3. **外部能力不构成第四权威 (External Capabilities != Fourth Authority)**：
+   - 外部能力仅为检索、合成与调研手段（Retrieval / Synthesis / Research），不构成工作流的第四权威；
+   - 当 Browser 无法独立核实一手源时，外部能力返回的合成与证据保持 `Reported with provenance`（按能力特性附带适用的 provenance 依据，如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；若 Browser 能直接访问权威一手源、执行可独立验证的查询或取得独立测试证据，仍适用现有 `Verified` 判定；
+   - 采纳后的设计决策或事实必须沉淀回 Project Authority（`CONTEXT.md`、ADR、Spec 或代码）成为标准共享制品。
+4. **机密与凭证绝对隔离不变式 (Credential & Secret Isolation Invariant)**：
+   - 严禁将认证文件（如 `storage_state.json`）、Session cookies、API Token、密码、OAuth 凭证或带有用户私密信息的本地绝对路径写入 Git 仓库、Project Sources、Instructions、Issue 或跨端 Relay 中；
+   - 仓库仅保存公开或逻辑定位符（Logical Locator），认证状态与凭据完全由宿主在本地私有环境中独立管理。
 
 ### 演进审查的 Relationship-First 不变量 (Relationship-First Invariant)
 
