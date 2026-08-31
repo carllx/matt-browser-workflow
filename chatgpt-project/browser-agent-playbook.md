@@ -125,7 +125,7 @@
    - 明确询问用户：是绑定一个已有的代码仓库，还是为本项目创建全新仓库？
 3. **已有仓库分支**：获取具体 repo URL → Browser 校验可访问性 → 引导用户将该 URL 写入 Project Instructions 顶部的 Project Binding。
 4. **新建仓库分支**：将 repository creation / selection 作为当前首要 Gate。按 Browser READ / IDE EXECUTE 默认分工，向 IDE 下发创建仓库的 Work Order（除非用户明确授权 Browser 远程创建）。
-5. **仓库就绪并绑定后**：执行 Matt per-repo setup check → Bounded Project Sync → 进入正常工作流。若用户在启动中提供了外部资源线索（名称/URL/ID/用途）或项目缺少外部能力声明，Browser 主动按需引导零 Schema 能力接入（见 §10 能力接入与迁移）。
+5. **仓库就绪并绑定后**：执行 Matt per-repo setup check → Bounded Project Sync → 进入正常工作流。只有当出现明确正向信号（如用户主动提供外部资源线索、明确请求接入/迁移、旧 Project Sources 暴露候选资源，或当前任务确实暴露出未规范化的项目资源）时，Browser 才按需引导零 Schema 能力接入（见 §10 能力接入与迁移）；缺少 `capabilities.md` 声明本身绝不是触发条件，无外部资源的项目保持正常简洁流转。
 
 ### B. 已有项目接手流程 (Existing-Project Startup)
 在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
@@ -285,9 +285,13 @@ Browser 可以：
 
 ### 项目外部能力接入、路由与迁移 (Project Capabilities Onboarding, Routing & Migration)
 
-1. **零 Schema 能力接入 (Zero-Schema Capability Onboarding)**：
+1. **零 Schema 能力接入与语义分类 (Zero-Schema Capability Onboarding & Categorization)**：
    - **用户仅提供原始事实 (Raw Facts)**：资源名称或描述、URL/ID/现有文件、大致用途（知道多少说多少），不要求用户手写 schema、字段名、ID 命名规则或仓库路径；
-   - **Browser 负责语义规范化 (Normalization)**：Browser 判断其属于 executable capability（外部 API/模型服务/Notebook 等）/ external knowledge / methodology（工作流或方法说明）/ project knowledge（普通项目事实），自动生成规范声明（Kind/Purpose/Scope/Known host/Locator），向 IDE 下发 Mission Contract 落地 `docs/agents/capabilities.md`（或 `docs/capabilities/*` / `docs/methods/*`）；
+   - **分类归属与真实验证 (Categorization & Fact Derivation)**：Browser 依据内容进行语义分类，不把所有资源强塞进 capability schema：
+     - **可执行能力 / 外部知识库 (Executable Capability / External Knowledge)**：按需生成规范能力声明（写入 `docs/agents/capabilities.md`）。其中 `Known host` 与 `Locator` **必须**从用户输入、项目证据或可验证运行时事实派生，未知时保持 unknown/omit，**绝不得猜测或虚构**；
+     - **方法论 / 工作流说明 (Methodology)**：落入自然的 methodology/project doc（如 `docs/methods/*`），不强制套用 capability 字段；
+     - **普通项目知识 / 决策事实 (Ordinary Project Knowledge)**：落入最自然的 Project Authority（`CONTEXT.md`、ADR 或文档），不伪装成 capability；
+     - 确定分类后，向 IDE 下发对应 Mission Contract 落地仓库持久化；
    - **多实例资源规范化 (Multi-Instance Normalization)**：同一 Provider 存在多个实例（如多个 NotebookLM 知识库）时，由 Agent 根据用途/scope/上下文自动生成清晰稳定的 entry 命名与边界，不要求用户写 schema，不创建 provider registry。
 2. **遗留项目资源非破坏性惰性迁移 (Non-Destructive Lazy Migration)**：
    - 旧 ChatGPT Project Sources（如 `openbb.md`、`qlib.md`、`tradingagents.md` 等）采用按需、惰性迁移，不要求一次性迁移全部项目；

@@ -222,9 +222,9 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 4. **机密与凭证绝对隔离不变式 (Credential & Secret Isolation Invariant)**：
    - 严禁将认证文件（如 `storage_state.json`）、Session cookies、API Token、密码、OAuth 凭证或带有用户私密信息的本地绝对路径写入 Git 仓库、Project Sources、Instructions、Issue 或跨端 Relay 中；
    - 仓库仅保存公开或逻辑定位符（Logical Locator），认证状态与凭据完全由宿主在本地私有环境中独立管理。
-5. **零 Schema 输入与 Agent 规范化归属 (User Supplies Raw Facts; Agent Owns Normalization)**：
+5. **零 Schema 输入与语义分类归属 (User Supplies Raw Facts; Agent Owns Normalization)**：
    - 用户仅需提供原始事实（资源名称/描述、URL/ID/文件、大致用途），不要求用户记忆或手写能力 schema、字段名称、ID 命名规则或仓库路径；
-   - Browser 负责理解、语义分类（区分 executable capability / external knowledge / methodology / project knowledge）与规范化声明设计；IDE 负责按 Mission Contract 落地目标仓库；
+   - **语义分类与严禁虚构事实**：Browser 负责理解与语义分类：可执行能力/外部知识库按需生成 capability 声明，方法论与项目知识分别落入最自然的 Project Authority（不强行套入 capability schema）；`Known host` 与 `Locator` 必须从用户提供的事实、项目证据或可验证运行时派生，未知时保持 unknown/omit，**严禁猜测或虚构**；IDE 负责按 Mission Contract 落地目标仓库；
    - **多实例资源规范化 (Multi-Instance Normalization)**：同一 Provider 存在多个实例时，由 Agent 根据用途/scope/上下文自动区分并赋予清晰稳定的标识与用途边界，不要求用户写 schema，不引入 provider registry。
 6. **遗留项目资源非破坏性惰性迁移 (Non-Destructive Lazy Migration Invariant)**：
    - 旧 ChatGPT Project Sources（如 OpenBB、Qlib 等）的迁移遵循按需、惰性原则，不要求用户一次性迁移所有旧项目；
