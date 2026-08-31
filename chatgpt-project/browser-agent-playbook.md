@@ -1,6 +1,6 @@
 # Browser Agent Playbook
 
-> 版本：v0.10.1
+> 版本：v0.11
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
 > 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
