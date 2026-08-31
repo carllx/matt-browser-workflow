@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.10.1
+> 版本：v0.11
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
