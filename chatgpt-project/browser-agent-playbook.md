@@ -125,7 +125,7 @@
    - 明确询问用户：是绑定一个已有的代码仓库，还是为本项目创建全新仓库？
 3. **已有仓库分支**：获取具体 repo URL → Browser 校验可访问性 → 引导用户将该 URL 写入 Project Instructions 顶部的 Project Binding。
 4. **新建仓库分支**：将 repository creation / selection 作为当前首要 Gate。按 Browser READ / IDE EXECUTE 默认分工，向 IDE 下发创建仓库的 Work Order（除非用户明确授权 Browser 远程创建）。
-5. **仓库就绪并绑定后**：执行 Matt per-repo setup check → Bounded Project Sync → 进入正常工作流。
+5. **仓库就绪并绑定后**：执行 Matt per-repo setup check → Bounded Project Sync → 进入正常工作流。只有当出现明确正向信号（如用户主动提供外部资源线索、明确请求接入/迁移、旧 Project Sources 暴露候选资源，或当前任务确实暴露出未规范化的项目资源）时，Browser 才按需引导零 Schema 能力接入（见 §10 能力接入与迁移）；缺少 `capabilities.md` 声明本身绝不是触发条件，无外部资源的项目保持正常简洁流转。
 
 ### B. 已有项目接手流程 (Existing-Project Startup)
 在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
@@ -233,9 +233,9 @@ Browser 可以：
 - 解释推荐理由；
 - 准备 copy-ready invocation context。
 
-**User-Invoked 调用权限与执行适配 (Ref-Qualified Manual Invocation)**：
+**User-Invoked 调用权限与宿主调用保真度 (Ref-Qualified Manual Invocation & Host Fidelity)**：
 - **Human-Only Invocation Authority**：依据 Matt locked `.agents/invocation.md`，`user-invoked` 技能只能由人类用户显式输入其名称（human typing its name）触发，模型或其他技能不得自主触达（reach）。Browser 读取 locked `SKILL.md` 原文用于 routing、recommendation 或 review，**绝不等于**进入或调用该 Skill，**不得**因此将自身视为已进入 user-invoked flow；
-- **IDE-Hosted Invocation**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”。应由 User 将 slash invocation 显式发送给 IDE Agent（如 `/to-spec`、`/code-review`），此为保留人类意图与授权的 semantic relay；
+- **IDE-Hosted Invocation 与宿主隔离**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”，亦**绝不得**将用户在 Browser 会话中输入的 slash 文本（如 `/notebooklm`）记为 IDE 端已调用（`Browser-side /skill request != actual-host Skill invocation`）。Browser 应生成 copy-ready Probe 并明确指引用户在目标 IDE 会话中显式发送调用指令，IDE 实际执行并返回证据后方可确认门禁通过；此为保留人类意图与授权的 semantic relay；
 - **Browser-Hosted Invocation**：若经 Relationship-First 评估最佳 host 为 Browser，且 Browser 端缺乏 native Skill runtime，前置条件**必须是 User 显式发送 Skill 名称**。在用户显式指令后，Browser 按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，严格按其原生语义与步骤执行（Ref-Qualified Manual Invocation）。不因此要求安装 ChatGPT Plugin，亦不复制 Matt 源码进 Project Sources。
 
 ### Browser Advisory Research 与 Matt `/research`
@@ -281,8 +281,23 @@ Browser 可以：
 ### 咨询性判断透镜与动态能力验证 (Advisory Judgment & Capability Verification)
 - Rules / Authority 负责边界，Matt Skills 提供成熟工程方法；
 - 当额外的一手、非规范性思想能够实质提高重要情境判断的质量时，Browser 可按需参考（尤其适用于方向、价值、边界、投入或停止时机等无法仅靠硬规则解决的判断）；此类外部参考不是第四权威，取得支持当前判断的 insight 即止；
-- **动态能力感知验证 (Live Capability Verification)**：仅当 Harness 环境或工具能力对当前工作路由或执行拓扑构成**关键承重影响（load-bearing）**时，Browser 才进行轻量现场核实；严禁构建永久静态能力数据库或进行无意义的例行全量探测；
-- **项目声明外部能力路由 (Project Capability Routing)**：当任务与项目在 `docs/agents/capabilities.md` 中声明的外部能力实质相关时，Browser 依据 Relationship-First 与实际运行时可用性下发窄范围 Knowledge / Fact Probe；严禁建立静态 Provider → Host 映射表，严禁在启动时全量抓取。
+- **动态能力感知验证 (Live Capability Verification)**：仅当 Harness 环境或工具能力对当前工作路由或执行拓扑构成**关键承重影响（load-bearing）**时，Browser 才进行轻量现场核实；严禁构建永久静态能力数据库或进行无意义的例行全量探测。
+
+### 项目外部能力接入、路由与迁移 (Project Capabilities Onboarding, Routing & Migration)
+
+1. **零 Schema 能力接入与语义分类 (Zero-Schema Capability Onboarding & Categorization)**：
+   - **用户仅提供原始事实 (Raw Facts)**：资源名称或描述、URL/ID/现有文件、大致用途（知道多少说多少），不要求用户手写 schema、字段名、ID 命名规则或仓库路径；
+   - **分类归属与真实验证 (Categorization & Fact Derivation)**：Browser 依据内容进行语义分类，不把所有资源强塞进 capability schema：
+     - **可执行能力 / 外部知识库 (Executable Capability / External Knowledge)**：按需生成规范能力声明（写入 `docs/agents/capabilities.md`）。其中 `Known host` 与 `Locator` **必须**从用户输入、项目证据或可验证运行时事实派生，未知时保持 unknown/omit，**绝不得猜测或虚构**；
+     - **方法论 / 工作流说明 (Methodology)**：落入自然的 methodology/project doc（如 `docs/methods/*`），不强制套用 capability 字段；
+     - **普通项目知识 / 决策事实 (Ordinary Project Knowledge)**：落入最自然的 Project Authority（`CONTEXT.md`、ADR 或文档），不伪装成 capability；
+     - 确定分类后，向 IDE 下发对应 Mission Contract 落地仓库持久化；
+   - **多实例资源规范化 (Multi-Instance Normalization)**：同一 Provider 存在多个实例（如多个 NotebookLM 知识库）时，由 Agent 根据用途/scope/上下文自动生成清晰稳定的 entry 命名与边界，不要求用户写 schema，不创建 provider registry。
+2. **遗留项目资源非破坏性惰性迁移 (Non-Destructive Lazy Migration)**：
+   - 旧 ChatGPT Project Sources（如 `openbb.md`、`qlib.md`、`tradingagents.md` 等）采用按需、惰性迁移，不要求一次性迁移全部项目；
+   - 迁移路径：保留旧 Sources → Browser 按内容区分能力/方法论/项目知识 → 设计 Project Authority 落地位置 → IDE 落地持久化 → Browser 基于推送引用 Review PASS → 审查通过后才告知用户哪些旧 Sources 可安全移除。
+3. **能力路由与探针派发 (Capability Routing & Knowledge Probe)**：
+   - 当任务与项目在 `docs/agents/capabilities.md` 中声明的外部能力实质相关时，Browser 依据 Relationship-First 与实际运行时可用性下发窄范围 Knowledge / Fact Probe；严禁建立静态 Provider → Host 映射表，严禁在启动时全量抓取。
 
 ### 用户分级通知与更新决策协议 (User Notification & Update Decision)
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。

@@ -196,8 +196,9 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 3. **汇聚不变式 (Join Invariant)**：
    - 所有内部并行分流（Parallel Lanes）必须在完成门禁前汇聚（Join）为**单一规范实现/审查状态**（One Canonical Implementation/Review State）；
    - 向 Browser 反馈时必须输出**单一整合证据包**（One Consolidated Evidence Bundle），严禁未汇聚的碎片化状态逃逸至门禁外。
-4. **人类唯一调用权限不变式 (Human-Only Invocation Invariant)**：
-   - Harness 的自治执行能力（如自主循环或自动推进）可在人类合法调用后延续执行，但**绝不得**自主合成、越权伪造或绕过 `user-invoked` 技能的人类显式授权边界。
+4. **人类唯一调用权限与宿主调用保真度不变式 (Human-Only & Host-Scoped Invocation Invariants)**：
+   - Harness 的自治执行能力（如自主循环或自动推进）可在人类合法调用后延续执行，但**绝不得**自主合成、越权伪造或绕过 `user-invoked` 技能的人类显式授权边界；
+   - **`Browser-side /skill request != actual-host Skill invocation`**：用户在 Browser 会话中输入 `/skill`（如 `/notebooklm`）仅表达意图或作为路由线索，绝不构成在实际承载端（如 IDE）的真实调用；只有用户在实际承载该 `user-invoked` 技能的 host/session 中显式发送调用指令，才满足 invocation gate；Browser 不得将 Browser 端收到的 slash 文本直接记为 IDE 端已调用。
 5. **必要技能门禁保真度不变式 (Required Skill Gate Fidelity Invariant)**：
    - 当任务契约（Mission Contract）、验收标准或合法执行态中的 Matt 流程明确将某 named Skill 定义为完成门禁（Required / Mandatory Gate）时，该 Skill 的真实调用（Actual Invocation）构成门禁达成的必要条件；
    - IDE 的内部拓扑与分解自治权（Execution Topology Autonomy）仅统辖执行实现方式（How to do），**绝不授予**静默弱化、删除或用内联推理/通用 self-review / 手工模仿输出替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；
@@ -221,6 +222,13 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 4. **机密与凭证绝对隔离不变式 (Credential & Secret Isolation Invariant)**：
    - 严禁将认证文件（如 `storage_state.json`）、Session cookies、API Token、密码、OAuth 凭证或带有用户私密信息的本地绝对路径写入 Git 仓库、Project Sources、Instructions、Issue 或跨端 Relay 中；
    - 仓库仅保存公开或逻辑定位符（Logical Locator），认证状态与凭据完全由宿主在本地私有环境中独立管理。
+5. **零 Schema 输入与语义分类归属 (User Supplies Raw Facts; Agent Owns Normalization)**：
+   - 用户仅需提供原始事实（资源名称/描述、URL/ID/文件、大致用途），不要求用户记忆或手写能力 schema、字段名称、ID 命名规则或仓库路径；
+   - **语义分类与严禁虚构事实**：Browser 负责理解与语义分类：可执行能力/外部知识库按需生成 capability 声明，方法论与项目知识分别落入最自然的 Project Authority（不强行套入 capability schema）；`Known host` 与 `Locator` 必须从用户提供的事实、项目证据或可验证运行时派生，未知时保持 unknown/omit，**严禁猜测或虚构**；IDE 负责按 Mission Contract 落地目标仓库；
+   - **多实例资源规范化 (Multi-Instance Normalization)**：同一 Provider 存在多个实例时，由 Agent 根据用途/scope/上下文自动区分并赋予清晰稳定的标识与用途边界，不要求用户写 schema，不引入 provider registry。
+6. **遗留项目资源非破坏性惰性迁移 (Non-Destructive Lazy Migration Invariant)**：
+   - 旧 ChatGPT Project Sources（如 OpenBB、Qlib 等）的迁移遵循按需、惰性原则，不要求用户一次性迁移所有旧项目；
+   - 迁移过程严格保证非破坏性与可用性连续：先保留旧 Sources → Browser 语义分类 → 设计 Project Authority 落地路径 → IDE 落地持久化 → Browser 基于推送引用 Review PASS → 仅在审查通过后告知用户可安全移除旧 Project Sources。
 
 ### 演进审查的 Relationship-First 不变量 (Relationship-First Invariant)
 
