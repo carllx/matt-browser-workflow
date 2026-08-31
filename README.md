@@ -67,7 +67,9 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
    * 领域文档（Domain Layout）推荐选择：`single-context`；
    * 若安装了 `triage` 技能，确认采用默认 canonical labels 并在 GitHub 中存在对应标签；
    * 该 Skill 会在目标仓库下自动生成 `docs/agents/*` 并在 `AGENTS.md` 中注入规则块；
-   * 若目标项目拥有特定的外部知识库、领域模型或工具能力（如 NotebookLM、OpenBB 等），可按需在目标仓库中创建 `docs/agents/capabilities.md` 进行轻量声明（属于 Project Authority，供 Browser 发现并按需路由）。
+   * **外部能力与资源接入 (Capabilities Onboarding)**：用户**无需**学习或手写 `capabilities.md` schema：
+     - **新资源接入**：在 Browser 中直接说明即可（如 *“我有这个资源：`<URL/ID/file>`，大概用于 `...`，请帮我接入项目”*），Browser 会自动归类、规范化并派发工单由 IDE 写入仓库；
+     - **旧项目迁移**：若旧 ChatGPT Project Sources 中包含 `openbb.md`、`qlib.md` 等混合文件，只需告诉 Browser *“这是旧项目，请按当前架构帮我迁移，确认成功前不要删除旧 Sources”*。Browser 将执行非破坏性惰性迁移，经 Review 验证后再指引移除旧 Sources。
 
 ---
 
