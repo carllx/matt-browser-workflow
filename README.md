@@ -156,7 +156,7 @@ v0.11 默认开发协作循环采用**任务契约与自治推进至门禁（Mis
 工作流遵循发布完整性原则：**`Issue done != Release done`** 且 **`Merged != Published != Deployed`**。
 
 > [!NOTE]
-> **版本说明 (Superseded v0.10)**：旧 `v0.10` tag 包含部署前已修复的正确性缺陷，已被 `v0.10.1` 完整取代（superseded），请直接部署 `v0.10.1`，不应部署旧 `v0.10`。
+> **版本说明 (Superseded v0.10)**：旧 `v0.10` tag 包含部署前已修复的正确性缺陷，已被 `v0.10.1` 完整取代（superseded），旧 `v0.10` 不应部署。
 
 当 `matt-browser-workflow` 发布正式新版本（如 `v0.11`）时，遵循以下步骤更新你的 ChatGPT Project：
 
