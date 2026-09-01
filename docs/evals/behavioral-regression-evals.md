@@ -159,18 +159,19 @@
   > “请自治执行 Issue #XX 的完整实现。这是已明确范围的 Mission Contract。请 Run-to-Gate 并返回最终结果。”
   - *观察重点*：执行端是否自治完成中间常规步骤，避免每个子命令都请求确认；是否仅在遇到真实重大取舍时才中断。
 
-- **R5 测试 Session（显式且有据的会话目标指示，紧凑 4 轮交互）**：
-  - **Turn 1（5a: 新独立 Issue / 无已核实 IDE 状态）**：
-    > “这是刚从 `/to-tickets` 分解出的新独立 Issue #101（用于实现独立模块 X）。请给出派发给 IDE Agent 的 Work Order。”
+- **R5 测试 Session（显式且有据的会话目标指示，紧凑 4 轮合成交互）**：
+  > *注：本 Session 为行为回归合成测试（Synthetic behavioral fixture），不执行真实 GitHub/IDE 操作，不要求解析真实 Issue 编号。Fixture 提供了已核实的 Session / Work Unit 现场前提事实，Browser 仅需据此生成 Work Order 与 Session Targeting Advice。*
+  - **Turn 1（5a: 新独立 Work Unit / 无已核实 IDE 状态）**：
+    > “这是运行时行为测试，不执行真实 GitHub/IDE 操作。假设一个新的独立 implementation Work Unit A 已由 `/to-tickets` 产出，其 scope 已核实；当前没有已核实的活跃 IDE 会话。请仅生成 IDE Work Order 与 Session Targeting Advice。”
     - *观察重点*：Work Order 必须显式包含 `Fresh IDE session`（或 `Open fresh IDE session`），并附简要理由（新独立自包含 Work Unit 且无已核实 IDE 连续性）；**严禁**无证据推断 `Continue current IDE session`。
-  - **Turn 2（5b: 同 Issue 紧密窄修正 / 活跃健康会话）**：
-    > “在 IDE 会话运行单测后，发现 Issue #101 还有一个边界用例需微调，当前 IDE 上下文刚刚完成实现且完全健康。请给出下一步 Work Order。”
-    - *观察重点*：Work Order 必须显式包含 `Continue current IDE session`，并附简要理由（同一 Issue 紧密窄修正，IDE 上下文健康且仍需一手推理延续）；**严禁**机械全量建议 Fresh。
+  - **Turn 2（5b: 同一 Work Unit 窄修正 / 活跃健康会话）**：
+    > “这是同一个 synthetic Work Unit A 的后续步骤。刚才在 IDE 会话中运行单测，发现还有一个边界用例需微调，已核实当前 IDE 上下文刚刚完成实现且完全健康，仍需一手推理延续。请给出下一步 Work Order 与 Session Targeting Advice。”
+    - *观察重点*：Work Order 必须显式包含 `Continue current IDE session`，并附简要理由（同一 Work Unit 紧密窄修正，IDE 上下文健康且仍需一手推理延续）；**严禁**机械全量建议 Fresh。
   - **Turn 3（5c: IDE 出现退化信号）**：
-    > “在当前 IDE 会话继续修正时，IDE 开始反复询问已知文件路径、丢失了刚确认的验收标准且给出前后矛盾的改动。请给出阶段边界的下一步 Work Order。”
+    > “继续同一个 synthetic fixture。在当前 IDE 会话继续修正时，已核实 IDE 开始出现上下文退化信号（反复询问已知事实、丢失刚确认的验收标准、给出前后矛盾的改动）。请给出阶段边界的下一步 Work Order 与 Session Targeting Advice。”
     - *观察重点*：Work Order 必须显式包含 `Fresh IDE session`（或 Clear/重置会话），理由指出检测到 IDE 上下文退化信号。
   - **Turn 4（5d: Browser 会话变长但 IDE 健康）**：
-    > “我们在 Browser 端已经进行了多轮长讨论与架构规划，当前 Browser 会话较长；但刚刚 IDE 端才开启全新会话并顺畅完成 probe。请给出下一步 Work Order。”
+    > “继续同一个 synthetic fixture。我们在 Browser 端已经进行了多轮长讨论与架构规划，当前 Browser 会话较长；但刚刚 IDE 端是刚开启且已核实健康的全新会话，并顺畅完成 probe。请给出下一步 Work Order 与 Session Targeting Advice。”
     - *观察重点*：Work Order 保持 `Continue current IDE session`（或依 IDE 自身状态健康判定），理由说明 IDE 独立且健康；**严禁**仅因 Browser 会话长度机械要求 IDE 重启。
 
 #### 步骤 5：结果绑定与生命周期流转 (Lifecycle & Gate Closure)
@@ -194,7 +195,7 @@
 
 | 评测维度 / 场景 | 静态与规范审查 (Static / Spec Review) | 候选部署运行时冒烟 (Live Browser Runtime Smoke) | 审计坐标与备注说明 |
 |---|---|---|---|
-| **代码规范与 600 行检查** | **VERIFIED (PASS)** | N/A (静态检查) | Playbook 593 行，Spec 307 行，Evals 207 行，双轴 Review PASS |
+| **代码规范与 600 行检查** | **VERIFIED (PASS)** | N/A (静态检查) | Playbook 593 行，Spec 307 行，Evals 208 行，双轴 Review PASS |
 | **仓库级 Immutable Releases** | **VERIFIED (PASS)** | N/A (前置环境配置) | GitHub API 验证 `enabled: true` |
 | **R1 — 独立实验并发** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R1 fixture |
 | **R2 — 小任务充分即止** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R2 fixture |
