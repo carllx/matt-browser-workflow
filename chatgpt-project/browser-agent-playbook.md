@@ -369,7 +369,10 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 - **Query & Scope**：具体查询要点、检索范围与非目标；
 - **Evidence Required**：要求返回合成摘要及适用来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable 及限制说明）。
 
-**中继会话指示 (Session Targeting Advice)**：当需要用户将 Work Order 复制到 IDE 时，Browser 应明确提示用户应粘贴至当前会话还是新会话（如“请粘贴至当前 IDE 会话继续/请开启新会话执行独立任务”），并附带一句话简要理由。
+**中继会话指示 (Session Targeting Advice)**：每次需要用户将 Work Order 复制到 IDE 时，Browser 必须在 Work Order 中显式输出会话目标指示与一句话简要理由：
+- `Continue current IDE session`：仅当在同一 implementation Issue 进行紧密窄修正、已知 IDE 上下文健康且仍需一手推理延续时推荐；
+- `Fresh IDE session`（或 `Open fresh IDE session`）：当进入新的独立 implementation Issue（自包含 Work Unit）、IDE 出现上下文退化信号，或在 Fresh Browser 会话中缺乏已核实的健康活跃 IDE 会话时推荐；
+- **禁止无依据连续性推断 (No Ungrounded Continuity Inference)**：严禁在缺乏已核实事实依据时凭空推测既有 IDE 会话处于活动或健康状态；Browser 与 IDE 生命周期相互独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然。
 
 ### B. 证据反馈与汇聚门禁 (IDE → Browser Feedback & Join Gate)
 IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区。其核心是**在完成门禁前将内部并行或子任务汇聚为单一规范状态，并提供足够 Browser 独立核实的最小整合证据包**：

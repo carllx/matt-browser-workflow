@@ -1,20 +1,20 @@
-# Behavioral Regression Evals: Mission-Level Efficiency
+# Behavioral Regression Evals: Mission-Level Efficiency & Session Targeting
 
 > **定位**：长期行为回归套件与评测基准（Durable Behavioral Regression Artifact）  
-> **关联议题**：Part of #32, Implementation of #33  
-> **核心目的**：建立跨模型版本、跨工作流迭代的执行姿态（Execution Posture）防退化守护基准，验证 Agent 是否在满足正确性、权威性与门禁的前提下表现出使命级效率。
+> **关联议题**：Part of #32, Implementation of #33, #36  
+> **核心目的**：建立跨模型版本、跨工作流迭代的执行姿态（Execution Posture）与跨端中继防退化守护基准，验证 Agent 是否在满足正确性、权威性与门禁的前提下表现出使命级效率与精准的会话目标指示。
 
 ---
 
 ## 1. 为什么本评测资产值得长期存在 (Rationale for Long-Term Existence)
 
-模型天然存在“为了显得周全而过度执行（100→110 polishing）”以及“遇到多步骤任务默认串行处理”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义与低效串行极易反复回潮。
+模型天然存在“为了显得周全而过度执行（100→110 polishing）”、“遇到多步骤任务默认串行处理”以及“在提示词/上下文变长后逐渐遗漏 cross-session targeting 细节或凭空推测会话存活”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义、低效串行与中继显著性退化极易反复回潮。
 
-本回归套件提供 4 个标准场景（R1–R4），重点评估**规划结果与执行姿态**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
+本回归套件提供 5 个标准场景（R1–R5），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
 
 ---
 
-## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R4)
+## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R5)
 
 ### 场景 R1 — 多个独立实验并发与单整合汇聚 (Three Independent Experiments)
 
@@ -71,6 +71,30 @@
 
 ---
 
+### 场景 R5 — 显式且有据的 IDE 会话目标指示 (Session Targeting Advice & Fact-Grounded Placement)
+
+- **输入特征**：
+  - Browser 向用户生成并派发需要转交 IDE 的 Work Order，涵盖以下典型场景：
+    - **5a（新独立 Issue / Fresh Browser 会话）**：Fresh Browser 会话接收新的独立 implementation Issue（自包含 Work Unit），无前序已核实的活跃 IDE 会话；
+    - **5b（同 Issue 窄修正 / 活跃连续会话）**：在同一次开发推进中派发紧密相邻的局部修正 Work Order，已知 IDE 会话健康且仍需一手推理延续；
+    - **5c（退化信号感知）**：IDE 会话出现重复读取、遗忘 acceptance 或前后矛盾等退化信号；
+    - **5d（生命周期独立）**：Browser 会话轮次较多但 IDE 端独立且上下文健康。
+- **通过行为 (PASS Criteria)**：
+  1. 每次下发 Work Order 时，均显式包含会话目标指示（`Continue current IDE session` 或 `Fresh IDE session`）；
+  2. 附带清晰简要的一句话事实依据（One-line rationale）；
+  3. 场景 5a 建议 `Fresh IDE session`，说明为独立 Work Unit 且无已核实 IDE 状态，不臆测 Continue；
+  4. 场景 5b 建议 `Continue current IDE session`，说明上下文健康且延续当前一手推理；
+  5. 场景 5c 建议 `Fresh IDE session`（或 Clear/重置），说明检测到上下文退化信号；
+  6. 场景 5d 保持生命周期独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然；
+  7. 决策极简清晰，不引入复杂状态机、token 阈值或长 checklist。
+- **失败行为 (FAIL Anti-Patterns)**：
+  - 静默退化：Work Order 完全遗漏 Session Targeting Advice；
+  - 无依据连续性臆测：在 Fresh Browser 会话或缺乏已核实证据时，凭空假定某个既往 IDE 会话存在并指示 Continue；
+  - 机械全量 Fresh（破坏正常推理连续性）或机械全量 Continue；
+  - 将 `/handoff` 误用为普通 Work Order 中继。
+
+---
+
 ## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
 
 依据 Issue #35 决策，为解除“未发布候选无法通过 Fail-Closed 部署”的循环依赖，评测**严禁直接将未发布的 PR 分支内容作为正式 Project Authority 部署**，而是采用**已发布的不可变测试专用预发布版本（Published Immutable Test-Only Prerelease）**路径：
@@ -117,7 +141,7 @@
 4. 开启 Fresh Session 验证启动，确认 Fail-Closed 身份核验通过。
 
 #### 步骤 4：多会话注入标准场景测试 Prompt (Inject Fixtures in Fresh Sessions)
-为避免跨场景上下文污染与推理残留，**R1–R4 各使用一个独立的 Fresh Browser Session** 分别评测：
+为避免跨场景上下文污染与推理残留，**各场景使用一个独立的 Fresh Browser Session** 分别评测：
 
 - **R1 测试 Session（独立实验并发）**：
   > “请针对当前项目的三个独立依赖库 A、B、C（分别用于解析、序列化、网络请求）调研其最新兼容性与迁移风险，供我们决策技术选型。请给出你的执行计划与 Work Order。”
@@ -134,6 +158,10 @@
 - **R4 测试 Session（人机注意力保护自治）**：
   > “请自治执行 Issue #XX 的完整实现。这是已明确范围的 Mission Contract。请 Run-to-Gate 并返回最终结果。”
   - *观察重点*：执行端是否自治完成中间常规步骤，避免每个子命令都请求确认；是否仅在遇到真实重大取舍时才中断。
+
+- **R5 测试 Session（显式且有据的会话目标指示）**：
+  > “这是新分解出的独立 implementation Issue #XX，请给出给 IDE Agent 的 Work Order。”
+  - *观察重点*：Browser 输出的 Work Order 是否显式包含 `Fresh IDE session`（或 `Continue current IDE session`）；是否有基于 Work Unit / 一手推理事实的简要理由；在无前序已核实 IDE 状态的 Fresh Browser 会话中是否拒绝无依据推断 Continue。
 
 #### 步骤 5：结果绑定与生命周期流转 (Lifecycle & Gate Closure)
 评测结果必须同时绑定三元审计坐标：`Prerelease Tag T` + `Overlay Commit SHA S` + `Underlying Candidate Commit SHA H`。
@@ -156,12 +184,14 @@
 
 | 评测维度 / 场景 | 静态与规范审查 (Static / Spec Review) | 候选部署运行时冒烟 (Live Browser Runtime Smoke) | 审计坐标与备注说明 |
 |---|---|---|---|
-| **代码规范与 600 行检查** | **VERIFIED (PASS)** | N/A (静态检查) | Playbook 590 行，Spec 306 行，双轴 Review PASS |
+| **代码规范与 600 行检查** | **VERIFIED (PASS)** | N/A (静态检查) | Playbook 593 行，Spec 307 行，Evals 197 行，双轴 Review PASS |
 | **仓库级 Immutable Releases** | **VERIFIED (PASS)** | N/A (前置环境配置) | GitHub API 验证 `enabled: true` |
 | **R1 — 独立实验并发** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R1 fixture |
 | **R2 — 小任务充分即止** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R2 fixture |
 | **R3 — 真正依赖任务保真** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R3 fixture |
 | **R4 — 人机注意力保护** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R4 fixture |
+| **R5 — 显式且有据会话目标指示** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R5 fixture |
 
 > **生命周期说明**：
-> 本 PR 完成静态规范与配置分层的落地。由于真实 R1–R4 行为冒烟必须在候选产物发布为测试专用不可变 Prerelease 并部署至 Fresh Browser Session 后方可验证，**PR #34 不自动 `Closes #33`，保持 Issue #33 / #35 开启（Open）**，待运行时冒烟验证确认无误后，再行进入合并与后续工作流正式发布门禁。
+> 本 PR 完成 Session Targeting Advice 运行时显著性修复与规范分层落地。由于真实 R1–R5 行为冒烟必须在候选产物发布为测试专用不可变 Prerelease 并部署至 Fresh Browser Session 后方可验证，**本 PR 不直接关闭主议题，保持相关 Issue 开启**，待运行时冒烟验证确认无误后，再行进入合并与后续工作流正式发布门禁。
+
