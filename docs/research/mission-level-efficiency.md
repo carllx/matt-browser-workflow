@@ -39,10 +39,28 @@
 - **GitHub Issue #32** `[Verified]`：根本原因溯源：分析为何已有 Proportionality 仍无法阻止 100→110 形式主义，推导关键路径与边际价值公理；
 - **GitHub Issue #33** `[Verified]`：本项实现工单：落实 Mission-Level Efficiency 默认值、配置分层与长期回归守护。
 
-### C. 外部理论与工程方法依据（咨询性参考，非规范权威）
-- **关键路径法 (Critical Path Method, CPM)** `[Reported]`：在拓扑图的所有合法路径中，总工期由关键路径决定；非关键路径上的局部过度优化无法缩短整体交付周期。
-- **阿姆达尔定律与并发加速 (Amdahl's Law)** `[Reported]`：系统整体加速比受限于无法并行的串行部分；应将串行范围严格收敛至真实因果依赖与共享可变状态。
-- **边际价值定理与有限理性元推理 (Marginal Value Theorem & Metareasoning)** `[Reported]`：理性智能体在信息搜集与中间处理中，当额外步骤的预期边际效用低于时间/注意力/协调开销时，应立即停止（Sufficiency Stop）。
+### C. 外部研究一手来源与理论依据 (External Research Provenance)
+本底册吸收以下多智能体编排、工程系统与元推理的一手研究成果，作为非规范性设计支撑：
+
+1. **Anthropic — How we built our multi-agent research system** (2025-06-13) `[Reported]`  
+   - 引用：https://www.anthropic.com/engineering/multi-agent-research-system  
+   - **承重结论**：良好的启发式导向（Heuristics）优于死板规则；并行化多 Agent 调研系统在复杂研究场景中将耗时缩短最高达 ~90%；揭示了多 Agent 间的 Token/成本权衡，证明并非所有任务都能从并发中获益。
+2. **Anthropic — Building a C compiler with a team of parallel Claudes** (2026-02-05) `[Reported]`  
+   - 引用：https://www.anthropic.com/engineering/building-c-compiler  
+   - **承重结论**：识别出大模型的“时间盲区”（Time Blindness，对等待与串行耗时缺乏内生感知）；主张通过清晰的任务与环境隔离结构使并行变得低摩擦；证明当所有 Agent 阻塞在同一个依赖上时，盲目增加 Agent 数量无法带来任何加速。
+3. **OpenAI — An open-source spec for Codex orchestration: Symphony** (2026-04-27) `[Reported]`  
+   - 引用：https://openai.com/index/open-source-codex-orchestration-symphony/  
+   - **承重结论**：优化最终交付物（Deliverables）而非优化单个会话；利用依赖有向无环图（Dependency DAG）让无阻塞任务自然并发推进；目标导向优于死板的状态机流转。
+4. **OpenAI — Harness engineering: leveraging Codex in an agent-first world** (2026-02-11) `[Reported]`  
+   - 引用：https://openai.com/index/harness-engineering/  
+   - **承重结论**：人类时间与注意力是高度稀缺资源；Agent 失败通常指向环境能力或反馈回路缺失，而非靠要求模型“更加努力”（try harder）；精炼启动入口 + 结构化持久文档优于臃肿的常驻指令。
+5. **Russell & Wefald — Principles of metareasoning**, *Artificial Intelligence* 49 (1991), DOI: `10.1016/0004-3702(91)90015-C` `[Reported]`  
+   - **承重结论**：计算动作（推理、搜索、核验）本身具有时间与资源成本；确立了**计算价值 (Value of Computation)** 与**资源有界元推理 (Resource-Bounded Metareasoning)** 框架——当额外计算动作的预期边际效用不足以覆盖其执行开销时，应当充分即止（Sufficiency Stop）。此为本工作流边际价值纪律的理论谱系。
+6. **Shi, Zheng & Lou — Learning Latency-Aware Orchestration for Multi-Agent Systems** (2026), arXiv:2607.13359 `[Reported]`  
+   - 引用：https://arxiv.org/abs/2607.13359  
+   - **承重结论**：端到端交付延迟由关键执行路径（Critical Execution Path）决定；单纯优化推理成本无法可靠最小化交付延迟；运行时规划应识别依赖并消除冗余的后置交互。
+
+*注：经典系统工程中的关键路径法（Kelley & Walker 1959）与阿姆达尔定律（Amdahl 1967）仅作为背景类比参考。*
 
 ---
 
