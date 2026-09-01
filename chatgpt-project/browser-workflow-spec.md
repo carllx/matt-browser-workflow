@@ -26,7 +26,10 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - Browser Lead 负责统筹方向、真实外部依赖、范围与非目标、决策边界及验收/门禁标准（Direction before motion）；
    - 在已明确的 Mission 边界内，IDE Agent 拥有内部任务分解（Internal Decomposition）与执行拓扑（Execution Topology）的所有权，以自治方式推进至门禁（Run-to-Gate），避免微观机械调度；
    - 当需要用户操作 IDE 时，Browser 提供足以独立执行、易于一键复制的 Work Order（已有 self-contained Issue / Spec 时采用 pointer-first 传递指针与 execution delta）。
-3. **相称性原则 (Proportionality)**：调研深度、流程 ceremony、tracker 产物、Evidence 密度与 Review 深度，应动态与任务价值、不确定性、风险、blast radius、走错方向的代价及跨会话协调需求相称；避免 `process cost > problem value`，避免形式化 ceremony 取代实质 judgment。
+3. **相称性与使命级效率原则 (Proportionality & Mission-Level Efficiency)**：
+   - **使命级效率**：在所有满足权威性、证据链、必要门禁与安全边界的合法路径中，优先选择具备更短关键路径（Critical Path）、更少无价值等待、更少人机/跨端协调开销的执行路径；
+   - **边际价值纪律与充分即止 (Marginal-Value Discipline & Sufficiency Stop)**：额外步骤（调研、检查、报告、流程或修饰）只有在预期能实质改变结果、降低真实风险、满足必要门禁或补足关键证据时才值得执行；完成门禁达成且无实质边际收益时立即停止（Sufficiency Stop），严禁 100→110 式的过度打磨；
+   - **相称性**：调研深度、流程 ceremony、tracker 产物、Evidence 密度与 Review 深度，应动态与任务价值、不确定性、风险、blast radius、走错方向的代价及跨会话协调需求相称；避免 `process cost > problem value`，避免形式化 ceremony 取代实质 judgment。
 4. **人类决策边界与责任 (Human Decision Boundary)**：Fact 与常规专业判断默认由 Agent 承担，不把可自行查证的信息或明确专业选择推给用户；真正涉及重大成本增加、大方向改变、核心产品价值取舍或用户个性/偏好的决定由 User 裁决。
 5. **情境判断与透镜 (Advisory Judgment Lens & Preserve Judgment)**：
    - 工作流应保留 Agent 根据具体情境进行工程判断的空间，任何 heuristic 或示例均不得被机械解释为固定 checklist；
@@ -187,13 +190,15 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 
 ### 依赖优先并行与汇聚不变式 (Dependency-First Parallelism & Join Invariant)
 
-1. **依赖优先原则**：
-   - 存在独立工作项且各自拥有隔离的可变状态时，方为并行候选（Parallel Candidate）；
-   - 存在共享可变状态（Shared Mutable State）、有序全局门禁（Ordered Gate）或真实跨 Agent 依赖时，必须串行推进或显式定义 Join 汇聚。
+1. **依赖优先与关键路径原则 (Serialize Dependencies, Not Habits)**：
+   - 存在独立工作项且各自拥有隔离的可变状态时，默认为批量或并行候选（Parallel Candidate）；
+   - 仅在存在共享可变状态（Shared Mutable State）、有序全局门禁（Ordered Gate）或真实跨 Agent 依赖时，必须串行推进或显式定义 Join 汇聚；
+   - **执行杠杆与非微观编排**：Browser 统筹识别真实依赖关系与明显的并行机会（Obvious Execution Leverage），但绝不越权微观编排 IDE 的具体子代理拓扑；IDE 拥有内部拓扑自治权绝不等于 Browser 对并行机会保持沉默或默认单线串行。
 2. **写并行的文件系统隔离要求**：
    - 涉及文件写入与代码变更的并行执行（Write Parallelism），必须建立在真实的文件系统/工作区隔离（如 Git Worktrees 或独立 Workspace 分支）基础之上；
    - 仅有会话隔离（Conversation Isolation / Multi-Session）而共享同一底层工作区时，**严禁**进行并发写入。
-3. **汇聚不变式 (Join Invariant)**：
+3. **汇聚与单整合证据包不变式 (Join Invariant & Consolidated Evidence)**：
+   - 服务于同一后置决策的并行兄弟分支（Parallel Siblings）共享同一闭环边界与完成门禁；内部各分流仅返回最小必要结果；
    - 所有内部并行分流（Parallel Lanes）必须在完成门禁前汇聚（Join）为**单一规范实现/审查状态**（One Canonical Implementation/Review State）；
    - 向 Browser 反馈时必须输出**单一整合证据包**（One Consolidated Evidence Bundle），严禁未汇聚的碎片化状态逃逸至门禁外。
 4. **人类唯一调用权限与宿主调用保真度不变式 (Human-Only & Host-Scoped Invocation Invariants)**：

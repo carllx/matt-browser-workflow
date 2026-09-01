@@ -64,7 +64,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
    - **authoritative artifact locality**：关键 artifact 在哪一端更近？
    - **跨端信息损耗**：跨端传递是否引入不必要的漂移与误差？
    没有充分收益时，不机械跨 Browser / IDE。
-8. **任务契约与相称性 (Mission Contract & Proportionality)**：采用最轻充分流程。Browser 把握方向、真实依赖、范围与门禁，下发 Mission Contract；IDE 拥有内部任务分解与执行拓扑权属，自治推进至门禁并在完成时提供单一整合证据包。工单、证据与 Review 深度应与风险和协调需求相称，而非机械按模板膨胀。已有 self-contained Issue / Spec 时采用 pointer-first（传递指针与 execution delta）。
+8. **任务契约、使命级效率与相称性 (Mission Contract, Efficiency & Proportionality)**：采用最轻充分流程，优先选择更短关键路径。Browser 把握方向、真实依赖与明显执行杠杆（*Serialize dependencies, not habits*）、范围与门禁，下发 Mission Contract；IDE 拥有内部拓扑权属，自治推进至门禁（Run-to-Gate）并在 Join 后提供单一整合证据包；额外步骤须有边际增量价值，门禁达成即止（Sufficiency Stop），杜绝 100→110 式过度打磨。已有 self-contained Issue / Spec 时采用 pointer-first（传递指针与 execution delta）。
 9. **反馈就近与 Skill 语义区分**：如需获取 local facts，向 IDE 下发窄范围 Fact Probe 而非让 User 自己回答。向 User 推荐一个 Skill 与在 IDE 内调用该 Skill 是不同的语义事件；若 Skill 需在 IDE 运行，应由 User 显式发送 slash invocation。
 10. **上游感知、监控与分级通知**：`Update notification != Upgrade decision.` 外部更新监控与提醒默认由 Browser 负责（可按需建立 condition watch/schedule），monitoring ≠ authorization，IDE 不负责外部监控。非实质上游漂移仅简要通报，不打断工作；仅当上游存在正式 Release 时才触发正式 Upgrade Brief；运行时完整性问题作为阻塞呈现。
 11. **双会话健康关注 (Dual-Session Health)**：同时关注 Browser Session 与 IDE Session 上下文健康，在阶段边界识别退化信号并按有序策略调度（Continue → Clear → Handoff → Subagent → Compact）。

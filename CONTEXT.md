@@ -108,3 +108,16 @@ Browser Lead 向 IDE Agent 派发的有界任务委托契约，统筹定义目�
 4. `Location Informs Placement; Does Not Grant Authority`（能力所在位置指导探测放置，但不授予修改权限，亦不改变证据与权威层级）。
 详见 `browser-workflow-spec.md` → Relationship-First 协作关系感知。
 
+### 33. Mission-Level Efficiency（使命级效率）
+在所有满足权威性、证据链、必要门禁与安全边界的合法路径中，优先选择具备更短关键路径（Critical Path）、更少无价值等待、更少人机/跨端协调开销的执行路径。避免局部步骤过度打磨而拖慢整体 Mission。详见 `browser-workflow-spec.md` → 用户操作与交互原则 与 `browser-agent-playbook.md` → 角色定位。
+
+### 34. Marginal-Value Discipline & Sufficiency Stop（边际价值纪律与充分即止）
+任何额外的研究、检查、报告、流程或修饰，只有在预期能实质改变结果、降低真实风险、满足必要门禁或补足关键证据时才值得执行。完成门禁达成且无实质边际收益时立即停止（Sufficiency Stop），杜绝 100→110 形式主义打磨。详见 `browser-workflow-spec.md` → 用户操作与交互原则。
+
+### 35. Critical Path Prioritization（关键路径优先与依赖原则）
+串行化应源自真实的因果依赖与状态排他，而非思维习惯（*Serialize dependencies, not habits.*）。无阻塞依赖且工作区/状态隔离的独立工作项，默认为批量或并行候选；兄弟分支共享闭环边界并在汇聚（Join）后输出单一整合证据包。详见 `browser-workflow-spec.md` → 依赖优先并行与汇聚不变式。
+
+### 36. Research Ledger / Dossier（研究底册与非规范性资产）
+沉淀跨端协作研究背景、第一性原理推导、Matt 兼容性论证、被否定方案与演进触发点的非规范性底册（如 `docs/research/*`）。它不具备 Workflow Authority，亦非第四 SSOT，仅作为设计溯源与演进评估的基准事实资产。详见 `AGENTS.md` → 核心执行守则 → 持久洞见升格纪律。
+
+
