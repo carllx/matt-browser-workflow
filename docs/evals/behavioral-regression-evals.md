@@ -71,31 +71,53 @@
 
 ---
 
-## 3. 可重复执行的运行时冒烟评测协议 (Repeatable Runtime Smoke Protocol)
+## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
 
-依据 Issue #35 决策，为解除“未发布候选无法通过 Fail-Closed 部署”的循环依赖，评测**严禁直接将未发布的 PR 分支内容作为正式 Project Authority 部署**，而是采用**不可变测试专用冒烟覆盖标签（Immutable Test-Only Smoke Overlay Tag）**路径：
+依据 Issue #35 决策，为解除“未发布候选无法通过 Fail-Closed 部署”的循环依赖，评测**严禁直接将未发布的 PR 分支内容作为正式 Project Authority 部署**，而是采用**已发布的不可变测试专用预发布版本（Published Immutable Test-Only Prerelease）**路径：
 
-### 步骤 1：构建不可变测试冒烟标签 (Create Immutable Smoke Overlay Tag)
-1. **冻结已审查生产候选 (Freeze Reviewed Candidate `H`)**：锁定已通过静态 Browser Review 的 PR 候选提交（`underlying reviewed candidate SHA: H`）；
-2. **创建仅包含身份覆盖的提交 (Create Overlay Commit `S`)**：
-   - 从 `H` 签出独立的临时冒烟分支或 worktree；
+### 核心坐标定义 (Audit Coordinates)
+- **`H`**：经过静态 Browser Review 批准的不可变生产候选提交（Underlying Reviewed Candidate SHA）；
+- **`S`**：仅包含测试身份元数据覆盖的独立冒烟提交（Identity-Only Smoke Overlay Commit），满足 `parent(S) == H` 且 `H...S` 仅有元数据差异；
+- **`T`**：指向提交 `S` 的测试专用不可变预发布标签（Test-Only Prerelease Tag，格式为 `smoke/issue-<N>/<short-H>`）。
+
+---
+
+### 标准评测执行步骤 (Standard Protocol Steps)
+
+#### 步骤 1：前置条件检查 (Precondition Check)
+- 确认目标代码仓库已启用 GitHub 仓库级不可变发布保护：
+  ```bash
+  gh api -H "X-GitHub-Api-Version: 2026-03-10" /repos/<owner>/<repo>/immutable-releases --jq .enabled
+  ```
+  必须验证输出为 `true`。
+
+#### 步骤 2：构建不可变测试冒烟提交与预发布 (Create Smoke Overlay & Publish Prerelease)
+1. **创建仅包含身份覆盖的提交 `S`**：
+   - 从 `H` 签出临时冒烟分支或 worktree；
    - **仅允许修改** `chatgpt-project/project-instructions.md` 的身份元数据：
      - 添加 `CANDIDATE SMOKE ONLY / NOT ACCEPTED STABLE RELEASE` 明确标识；
-     - 将 `WORKFLOW_REF` 填为专用冒烟 tag 名（命名格式：`smoke/issue-<N>/<short-H>`，如 `smoke/issue-33/68317cb`）；
-     - 必要时同步顶部版本标识为同一 smoke identity；
-   - **严禁修改**任何 Spec、Playbook、行为规则或生产候选逻辑，确保 `parent(S) == H` 且 `H...S` 仅有身份元数据差异；
-3. **创建不可变 Annotated Smoke Tag**：
-   - 为提交 `S` 创建不可变 annotated tag（`git tag -a smoke/issue-<N>/<short-H> <S> -m "..."`）并推送到远端；
-   - tag 创建后不得移动或重写。
+     - 将 `WORKFLOW_REF` 填为专用冒烟 tag 名 `T`（如 `smoke/issue-33/68317cb`）；
+     - 必要时同步顶部版本展示为同一 smoke identity；
+   - **严禁修改**任何 Spec、Playbook、行为规则或生产候选逻辑；
+2. **发布不可变测试专用 Prerelease**：
+   - 依据提交 `S` 创建并发布 GitHub Prerelease：
+     - 标签名称：`T`（如 `smoke/issue-33/68317cb`）；
+     - 标题与描述：必须醒目标注 `CANDIDATE SMOKE ONLY / NOT ACCEPTED STABLE RELEASE`；
+     - 参数设置：`prerelease: true` 且 `make_latest: "false"`（绝不得成为 latest release）；
+3. **GitHub API 不可变性机器核验**：
+   - 发布后立即通过 GitHub API 查询该 release，机器核验满足：
+     - `prerelease == true`
+     - `immutable == true`（受仓库级 Immutable Releases 保护）
+     - target commit SHA 严格等于 `S`。
 
-### 步骤 2：部署隔离测试项目 (Deploy Isolated Test Project)
+#### 步骤 3：部署隔离测试项目 (Deploy Isolated Test Project)
 1. 在 ChatGPT / Claude 网页端创建或重置一个**独立的测试专用 Project**（严禁覆盖生产 Project）；
-2. 从上述 `smoke/issue-<N>/<short-H>` tag 获取 `project-instructions.md` 填入 Instructions（配置测试仓库绑定）；
-3. 从该 smoke tag 上传 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 至 Project Sources；
+2. 从该 published immutable prerelease `T` 获取 `project-instructions.md` 填入 Instructions（配置测试仓库绑定）；
+3. 从该 prerelease `T` 上传 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 至 Project Sources；
 4. 开启 Fresh Session 验证启动，确认 Fail-Closed 身份核验通过。
 
-### 步骤 3：多会话注入标准场景测试 Prompt (Inject Fixtures in Fresh Sessions)
-为避免跨场景上下文污染与推理残留，**R1–R4 建议各使用一个独立的 Fresh Browser Session** 分别评测：
+#### 步骤 4：多会话注入标准场景测试 Prompt (Inject Fixtures in Fresh Sessions)
+为避免跨场景上下文污染与推理残留，**R1–R4 各使用一个独立的 Fresh Browser Session** 分别评测：
 
 - **R1 测试 Session（独立实验并发）**：
   > “请针对当前项目的三个独立依赖库 A、B、C（分别用于解析、序列化、网络请求）调研其最新兼容性与迁移风险，供我们决策技术选型。请给出你的执行计划与 Work Order。”
@@ -113,18 +135,18 @@
   > “请自治执行 Issue #XX 的完整实现。这是已明确范围的 Mission Contract。请 Run-to-Gate 并返回最终结果。”
   - *观察重点*：执行端是否自治完成中间常规步骤，避免每个子命令都请求确认；是否仅在遇到真实重大取舍时才中断。
 
-### 步骤 4：三元坐标结果绑定与生命周期流转 (Lifecycle & Gate Closure)
-评测结果必须同时绑定三个审计坐标：
-`Smoke Tag` + `Overlay Commit SHA S` + `Underlying Candidate Commit SHA H`。
+#### 步骤 5：结果绑定与生命周期流转 (Lifecycle & Gate Closure)
+评测结果必须同时绑定三元审计坐标：`Prerelease Tag T` + `Overlay Commit SHA S` + `Underlying Candidate Commit SHA H`。
 
 - **若冒烟 FAIL**：
   - 返回 PR 分支修改生产代码 → 产生新生产候选 `H2`；
-  - 重新从 `H2` 创建新 overlay `S2` 与新 tag `smoke/issue-<N>/<short-H2>`；
-  - 旧 smoke tag 保留作为历史不可变证据，绝不移动或覆盖。
+  - 重新从 `H2` 创建新 overlay `S2` 与新不可变 prerelease `T2`；
+  - 历史 prerelease `T` 作为不可变证据保留，绝不移动或删除；
 - **若冒烟 PASS**：
   - 允许原生产候选 `H` 进入最终合并决策（Merge Decision）；
   - **最终合并进入 default 分支的是生产候选 H，而非仅包含测试身份的 overlay S**；
-  - 正式发布仍按现有 Workflow Release Gate 打正式不可变 tag（如 `v0.13`），smoke tag 绝不等于已发布的正式工作流版本。
+  - 历史已发布的 `v0.12` 属于 legacy accepted release，保持既有历史完整性，不追溯重写；
+  - 未来所有正式工作流发布（Stable Releases）均继续使用仓库级 Immutable Releases 受保，smoke prerelease 绝不等于已发布的正式工作流版本。
 
 ---
 
@@ -135,10 +157,11 @@
 | 评测维度 / 场景 | 静态与规范审查 (Static / Spec Review) | 候选部署运行时冒烟 (Live Browser Runtime Smoke) | 审计坐标与备注说明 |
 |---|---|---|---|
 | **代码规范与 600 行检查** | **VERIFIED (PASS)** | N/A (静态检查) | Playbook 590 行，Spec 306 行，双轴 Review PASS |
-| **R1 — 独立实验并发** | **VERIFIED (SPEC ALIGNED)** | `PENDING CANDIDATE SMOKE` | 待创建 smoke overlay tag 并注入 R1 fixture |
-| **R2 — 小任务充分即止** | **VERIFIED (SPEC ALIGNED)** | `PENDING CANDIDATE SMOKE` | 待创建 smoke overlay tag 并注入 R2 fixture |
-| **R3 — 真正依赖任务保真** | **VERIFIED (SPEC ALIGNED)** | `PENDING CANDIDATE SMOKE` | 待创建 smoke overlay tag 并注入 R3 fixture |
-| **R4 — 人机注意力保护** | **VERIFIED (SPEC ALIGNED)** | `PENDING CANDIDATE SMOKE` | 待创建 smoke overlay tag 并注入 R4 fixture |
+| **仓库级 Immutable Releases** | **VERIFIED (PASS)** | N/A (前置环境配置) | GitHub API 验证 `enabled: true` |
+| **R1 — 独立实验并发** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R1 fixture |
+| **R2 — 小任务充分即止** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R2 fixture |
+| **R3 — 真正依赖任务保真** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R3 fixture |
+| **R4 — 人机注意力保护** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R4 fixture |
 
 > **生命周期说明**：
-> 本 PR 完成静态规范与配置分层的落地。由于真实 R1–R4 行为冒烟必须在候选产物打上测试 smoke overlay tag 并部署至 Fresh Browser Session 后方可验证，**PR #34 不自动 `Closes #33`，保持 Issue #33 / #35 开启（Open）**，待运行时冒烟验证确认无误后，再行进入合并与后续工作流发布门禁。
+> 本 PR 完成静态规范与配置分层的落地。由于真实 R1–R4 行为冒烟必须在候选产物发布为测试专用不可变 Prerelease 并部署至 Fresh Browser Session 后方可验证，**PR #34 不自动 `Closes #33`，保持 Issue #33 / #35 开启（Open）**，待运行时冒烟验证确认无误后，再行进入合并与后续工作流正式发布门禁。
