@@ -75,8 +75,8 @@
 
 - **输入特征**：
   - Browser 向用户生成并派发需要转交 IDE 的 Work Order，涵盖以下典型场景：
-    - **5a（新独立 Issue / Fresh Browser 会话）**：Fresh Browser 会话接收新的独立 implementation Issue（自包含 Work Unit），无前序已核实的活跃 IDE 会话；
-    - **5b（同 Issue 窄修正 / 活跃连续会话）**：在同一次开发推进中派发紧密相邻的局部修正 Work Order，已知 IDE 会话健康且仍需一手推理延续；
+    - **5a（新独立 Work Unit / Fresh Browser 会话）**：Fresh Browser 会话接收新的独立 implementation Work Unit（自包含工作单元），无前序已核实的活跃 IDE 会话；
+    - **5b（同 Work Unit 紧密窄修正 / 活跃连续会话）**：在同一次开发推进中派发紧密相邻的局部修正 Work Order，已知 IDE 会话健康且仍需一手推理延续；
     - **5c（退化信号感知）**：IDE 会话出现重复读取、遗忘 acceptance 或前后矛盾等退化信号；
     - **5d（生命周期独立）**：Browser 会话轮次较多但 IDE 端独立且上下文健康。
 - **通过行为 (PASS Criteria)**：
