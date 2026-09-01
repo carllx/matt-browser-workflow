@@ -1,6 +1,6 @@
 # Browser Agent Project Instructions
 
-> 版本：v0.12
+> 版本：v0.13
 > 用途：复制到 ChatGPT Project → Instructions 作为 Browser Lead 的启动入口。
 
 ---
@@ -9,7 +9,7 @@
 
 ```text
 WORKFLOW_REPO: https://github.com/carllx/matt-browser-workflow
-WORKFLOW_REF: v0.12
+WORKFLOW_REF: v0.13
 ```
 
 > **工作流发布身份与 Fail-Closed 规则**：`WORKFLOW_REF` 标识本 Project 运行的不可变 Browser Workflow 发布权威。启动与部署验证时，必须核实 `WORKFLOW_REF` 实际存在且可解析为已发布的不可变 release ref（如 Git release tag），并核实当前加载的 Instructions 与 Sources 内容与该 release 一致。若 ref 不存在/不可解析，或内容发生漂移，视为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 并引导从已发布不可变 release ref 重新部署。开发中的候选 `main` 分支即使已写目标版本号也不构成 publication（`Merged != Published != Deployed`），严禁将未发布的 candidate 当作 Workflow Authority。自维护与升级必须以此发布权威或用户指定的不可变 release ref 为基准。
