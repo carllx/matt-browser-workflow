@@ -74,7 +74,8 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - **Browser orchestration context**：可以跨多个 implementation Issues 继续，只要当前 context 仍是有价值的 primary source 且健康；
    - **grilling → spec / tickets 等依赖当前 primary reasoning 的连续阶段**：优先 Continue，不因 tracker object 边界机械 Clear；
    - **triage / discovery 等可批量处理多 Issue 的 flow**：不强制 Issue:Session 1:1；
-   - **Browser Session 与 IDE Session 生命周期独立**：一端 Clear/Fresh 不机械触发另一端。
+   - **Browser Session 与 IDE Session 生命周期独立**：一端 Clear/Fresh 不机械触发另一端；
+   - **IDE 会话目标中继指示不变式 (Session Targeting Advice Invariant)**：Browser 在向用户派发 IDE Work Order 时，必须显式输出会话目标指示（`Continue current IDE session` 或 `Fresh IDE session`）及一句话事实依据。新独立 implementation Issue 默认建议 Fresh IDE Session；严禁在缺乏已核实事实依据时盲目假定既往 IDE 会话存在与存活。
    以上默认映射是 session / work-unit 的参考基准，不构成固定的 Skill → Host mapping；实际 execution placement 仍依据 Relationship-First 判断（见 §10）。
 
 ---
