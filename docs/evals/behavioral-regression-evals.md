@@ -1,7 +1,7 @@
 # Behavioral Regression Evals: Mission-Level Efficiency & Session Targeting
 
 > **定位**：长期行为回归套件与评测基准（Durable Behavioral Regression Artifact）  
-> **关联议题**：Part of #32, Implementation of #33, #36  
+> **关联议题**：Part of #32, Implementation of #33, #36, #40
 > **核心目的**：建立跨模型版本、跨工作流迭代的执行姿态（Execution Posture）与跨端中继防退化守护基准，验证 Agent 是否在满足正确性、权威性与门禁的前提下表现出使命级效率与精准的会话目标指示。
 
 ---
@@ -26,6 +26,7 @@
   3. 兄弟分支共享同一闭环边界（Shared closure boundary）；
   4. 内部各分流仅返回最小必要结果，在父级完成汇聚（Join）；
   5. 最终向 Browser/User 提交**单一整合证据包**（One Consolidated Evidence Bundle）。
+  6. 真实执行时记录各分支实际工具证据、时间重叠与 Join；仅生成计划不算执行通过，仅 batching 不算 execution parallelism 已验证。
 - **失败行为 (FAIL Anti-Patterns)**：
   - 人为串行化：`A 执行 → A 独立总结汇报 → 请求中间确认 → B 执行 → B 独立总结汇报 → 请求中间确认 → C 执行`；
   - 碎片化打断：每个子任务独立向外部输出长篇大论，频繁打断用户注意力。
@@ -65,7 +66,8 @@
 - **通过行为 (PASS Criteria)**：
   1. 承担常规事实查证与非重大专业判断，以自治方式推进至门禁（Run-to-Gate）；
   2. 严格节约人类注意力，仅在遇到真实用户决策（User Decision，如重大成本、方向改变、核心取舍）、凭据/权限阻塞或严重范围漂移时才中断请求介入；
-  3. 任务完成后一次性提供完整证据。
+  3. 主 Agent 完成内部 inspection、计划、test/fix、必要 Skill review 与 Join 后，一次提交同一候选的完整证据；正常进度更新不结束任务。
+  4. 在已授权范围内合法调用 model-invoked Skill，不追加人类 slash；user-invoked 调用与未确认测试 seams 保留人类门禁。同一候选的多个已知可操作修正批量返回，必要新发现与复审不算失败。
 - **失败行为 (FAIL Anti-Patterns)**：
   - 微观汇报与频密打断：每完成一个小命令、读取一个小文件或做出一个普通技术决定，都停下来请求人类确认；把 Agent 自行可查证的工程事实推给用户。
 
@@ -143,9 +145,9 @@
 #### 步骤 4：多会话注入标准场景测试 Prompt (Inject Fixtures in Fresh Sessions)
 为避免跨场景上下文污染与推理残留，**各场景使用一个独立的 Fresh Browser Session** 分别评测：
 
-- **R1 测试 Session（独立实验并发）**：
-  > “请针对当前项目的三个独立依赖库 A、B、C（分别用于解析、序列化、网络请求）调研其最新兼容性与迁移风险，供我们决策技术选型。请给出你的执行计划与 Work Order。”
-  - *观察重点*：Browser 是否将 A/B/C 识别为无依赖的并行/批量候选；是否生成共享闭环边界的 Work Order；是否要求 IDE 完成后返回单一整合报告。
+- **R1 / S2 测试 Session（三项真实独立核实）**：
+  - 执行前从已授权测试项目选择三项真实调查或 verification，记录具体资源、查询目标、独立性与共同决策；由评测执行者把已核实坐标写入一次完整 Mission，再运行实际工具。未解析坐标时标记 `BLOCKED`，不将占位符发给执行端。
+  - *观察重点*：一次派发，IDE 内部合理 batching/parallelism，一次整合反馈；按 R1 标准分别判定规划、批量执行与实际并行，记录资源隔离与 Join。
 
 - **R2 测试 Session（小任务充分即止）**：
   > “请将 `CONTEXT.md` 中的拼写错误 'reciver' 修复为 'receiver'，并运行 linter 确保通过。”
@@ -155,9 +157,14 @@
   > “我们需要首先确定重构方案架构设计（ADR），然后依据该设计修改核心核心数据模型 `model.py`，最后更新依赖它的 API 层 `api.py`。请派发执行计划。”
   - *观察严禁*：Browser 是否识别出 ADR → Model → API 之间的严格因果阻塞；是否拒绝在设计未决前盲目并发修改代码。
 
-- **R4 测试 Session（人机注意力保护自治）**：
-  > “请自治执行 Issue #XX 的完整实现。这是已明确范围的 Mission Contract。请 Run-to-Gate 并返回最终结果。”
-  - *观察重点*：执行端是否自治完成中间常规步骤，避免每个子命令都请求确认；是否仅在遇到真实重大取舍时才中断。
+- **R4 / S1 测试 Session（真实 implementation 闭环）**：
+  - 前置证据须包含真实 Issue URL、测试 repo/ref、已批准 scope/authority/测试 seams、允许动作与实际 IDE 宿主。缺少任何承重前置条件时标记 `BLOCKED` 并保留恢复点；不得使用 `#XX`、模拟 IDE 完成或虚构测试输出。
+  - 使用该 Issue 指针与执行差量派发一个 Mission；需要 user-invoked Skill 时由人类在实际宿主触发。观察主 Agent 内部规划、实际有益的委托/并行、test/fix、mandatory code-review、Join、单一 candidate/evidence，直至 Browser Review。
+  - *观察重点*：逐项核验 R4 PASS Criteria；未触发测试失败时如实记录 test/fix 失败分支未覆盖，未产生并行时不宣称实际并行通过。
+
+**轻量反例与成本记录（随 S1/S2 收集）**：小任务采用最小充分路径，不强制并行；共享数据库、输出目录等资源须隔离或串行（仅 Git Worktree 不证明外部资源隔离）；未确认 seams 保留用户决策；model-invoked 内部调用不追加 slash；同一候选已知修正批量返回。反例若仅作 synthetic 对话测试，单独标注，不能替代 S1/S2 的真实执行证据。
+
+每轮记录 H/S/T、实际宿主与工具来源、双向 Relay 次数、copy/paste 次数、阻塞式人类介入及原因、每次修正原因、worker 起止/重叠与 Join、测试与 review ref。保留可核验轨迹链接，区分 `Verified`、`Reported with provenance`、静态 PASS 与未覆盖行为。优先使用可信历史原始轨迹作为 baseline；否则使用同起点、条件可比的隔离对照。无可信对照时仅报告观察，不虚构提速或分钟数；验收需证明可避免同步被消除或较可信 baseline 减少，并保留必要门禁。
 
 - **R5 测试 Session（显式且有据的会话目标指示，紧凑 4 轮合成交互）**：
   > *注：本 Session 为行为回归合成测试（Synthetic behavioral fixture），不执行真实 GitHub/IDE 操作，不要求解析真实 Issue 编号。Fixture 提供了已核实的 Session / Work Unit 现场前提事实，Browser 仅需据此生成 Work Order 与 Session Targeting Advice。*
@@ -189,7 +196,9 @@
 
 ---
 
-## 4. 验证状态矩阵 (Verification Status Matrix)
+## 4. 历史验证快照与当前候选记录 (Verification Status)
+
+以下矩阵保留 #36 时的静态快照，不代表当前候选或最新运行状态。历史运行结果以对应 Issue 的固定引用证据为准，例如 [#33 smoke 记录](https://github.com/carllx/matt-browser-workflow/issues/33#issuecomment-5496575648)。每个新候选的静态审查、S1/S2、反例与成本记录写入其 Issue / PR 并绑定 H/S/T；历史 PASS 不自动继承，新候选尚未执行时记录 `NOT RUN` 或具体 `BLOCKED` 原因。
 
 区分**静态/代码审查验证 (Static Pre-Deployment Verification)** 与 **候选运行时行为冒烟验证 (Live Browser Runtime Smoke)**：
 
@@ -204,5 +213,4 @@
 | **R5 — 显式且有据会话目标指示** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R5 fixture |
 
 > **生命周期说明**：
-> 本 PR 完成 Session Targeting Advice 运行时显著性修复与规范分层落地。由于真实 R1–R5 行为冒烟必须在候选产物发布为测试专用不可变 Prerelease 并部署至 Fresh Browser Session 后方可验证，**本 PR 不直接关闭主议题，保持相关 Issue 开启**，待运行时冒烟验证确认无误后，再行进入合并与后续工作流正式发布门禁。
-
+> 上表为历史快照。当前 implementation Issue 在必要真实 smoke 与最终固定引用 Browser Review 完成前保持开启；本地静态审查通过不等于整个工单完成，也不授权正式发布或生产部署。

@@ -238,6 +238,8 @@ Browser 可以：
 - **IDE-Hosted Invocation 与宿主隔离**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”，亦**绝不得**将用户在 Browser 会话中输入的 slash 文本（如 `/notebooklm`）记为 IDE 端已调用（`Browser-side /skill request != actual-host Skill invocation`）。Browser 应生成 copy-ready Probe 并明确指引用户在目标 IDE 会话中显式发送调用指令，IDE 实际执行并返回证据后方可确认门禁通过；此为保留人类意图与授权的 semantic relay；
 - **Browser-Hosted Invocation**：若经 Relationship-First 评估最佳 host 为 Browser，且 Browser 端缺乏 native Skill runtime，前置条件**必须是 User 显式发送 Skill 名称**。在用户显式指令后，Browser 按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，严格按其原生语义与步骤执行（Ref-Qualified Manual Invocation）。不因此要求安装 ChatGPT Plugin，亦不复制 Matt 源码进 Project Sources。
 
+**Model-Invoked 内部调用**：依据 locked `.agents/invocation.md` 与目标 Skill 声明，model-invoked Skill 可由 Agent 或合法执行态中的 Skill 在已授权 Mission 内调用，无需追加 User slash 或 Browser Work Order。实际执行仍须保留原生机制、制品与门禁；涉及未确认测试 seams 等真实用户决策时按原生要求暂停。读取原文、推荐或模拟输出均不构成调用证据。
+
 ### Browser Advisory Research 与 Matt `/research`
 
 - **Advisory Research ≠ Matt `/research`**：Browser 为当前情境判断、方向决策或提供建议而自行执行的外部网络检索/咨询性调研（Advisory Research），**不等价于**调用 Matt `/research` 技能；
@@ -342,7 +344,8 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 
 - **任务契约与执行拓扑权属 (Mission Contract & Execution Topology Ownership)**：
   - **Browser 权属与依赖扫描**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）。Browser 在派发前先进行轻量依赖与执行杠杆扫描（Dependency/Leverage Scan，*Serialize dependencies, not habits*），对于逻辑独立、状态隔离的分支主动指出为批量/并行候选（Parallel Candidates），但不越权微观设计 IDE 的子代理拓扑；IDE 拥有内部拓扑权属绝不代表 Browser 必须默认单线串行或对并行机会保持沉默；
-  - **IDE 自治与汇聚闭环**：在 Browser 给定的任务边界内，IDE 拥有内部任务分解（internal decomposition）与执行拓扑（execution topology）自治权，推进至门禁（Run-to-Gate）；服务于同一后置决策的并行兄弟分支共享闭环边界，内部各分流仅返回最小必要结果，由父级汇聚（Join）后向 Browser 统一提交单一整合证据包；
+  - **完整 Work Unit 与主 Agent 闭环**：Mission 按可独立验证的 Work Unit 与真实外部门禁划分。IDE 主 Agent 在已批准 scope、权限与测试 seams 内负责必要检查、内部计划、实现、test/fix、适用 review、集成验证及 Join，自治推进至约定交付门禁（Run-to-Gate）。普通 local fact、测试/lint 失败、范围内小 bug 与允许的相邻低风险修正属于内部闭环，不各自生成新 Work Order；进度更新不等于交接。真实外部阻塞出现时，明确已完成状态、缺失条件与恢复点；
+  - **内部拓扑与能力选择**：IDE 自主选择有实际收益的 batching、native delegation 或 parallelism，无需固定 worker 数量或每次说明为何不用 Subagent。与 Browser 路由无关的本地能力核实在 Mission 内完成；仅用于效率的能力不可用时可选择充分的串行或批量路径，不能降级调用权限、真实资源隔离或 mandatory Gate。服务于同一决策的兄弟分支共享闭环边界，由主 Agent 汇聚最小必要结果并承担最终交付；
   - **门禁保真度与工单纪律 (Required Skill Gate Fidelity & Work Order Discipline)**：IDE 的执行拓扑自治权绝不等于可以自主删除、替换或弱化明确的完成门禁（Completion Gate）；当任务契约明确将某 named Skill 规定为 required gate 时，IDE 必须真实触发该 Skill，不得用内联推理、通用 self-review 或手工模仿输出静默替代。Browser 派发工单时若真实需要 Skill 原生门禁，应写成明确的 mandatory Skill，避免随手使用 `or equivalent` 造成门禁弱化；仅当等效实现确实满足目标且不依赖 Skill 原生机制/制品时，方可显式注明 `equivalent allowed`；
   - **Harness 不变式**：Harness 工具与环境能力可能改变执行拓扑，但**绝不改变**权限划分、证据标准或完成门禁（*Harness capabilities may change execution topology; they do not change authority, evidence, or completion requirements.*）；
   - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式串行/并行/Join 编排；Browser 不对 IDE 内部执行拓扑做微观管理。
@@ -382,7 +385,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
   - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
   - **External Capability Evidence**：当 Browser 无法独立核实一手源时，外部能力返回的内容属于 `Reported with provenance`，应包含合成摘要及适用的来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；采纳后的结论需沉淀到项目权威制品；
   - **Required Skill Invocation Evidence**：仅当任务包含 mandatory named Skill 时，IDE 必须在 evidence 中包含最小真实调用声明（如 `code-review: invoked — PASS`）；若未执行，报告 `NOT INVOKED — <reason>` 且不得宣称 Gate 通过。Browser 不要求完整 transcript，仅核实最小证据；
-  - **Join Invariant**：内部并行分支必须全部汇聚至单一 candidate ref，向 Browser 反馈单一整合证据包。
+  - **Join Invariant**：相关 worker 与写入全部结束、分支汇聚为单一 candidate，并完成必要集成验证后，才提交最终 Review 证据包。中途求助或进度证据须标明尚未满足的门禁，不冒充完成态。
 - **相称性与反馈结构**：
   - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
   - 涉及 Review 的典型 compact 反馈格式：
@@ -554,7 +557,7 @@ Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gat
   - 已接受基线是否完好保持；
   - 发布 Gate 的递进条件是否就绪。
 
-两者是正交的 Gate，各自负责不同的轴。具体顺序服从当前 workflow phase：Matt `/implement` 自身的 `/code-review` 语义保持不变；Browser Review 在获得适当 evidence / ref 后执行独立 Gate。不应因已运行其中一种而跳过另一种。
+两者是正交的 Gate，各自负责不同的轴。具体顺序服从当前 workflow phase：Matt `/implement` 自身的 `/code-review` 语义保持不变；最终 Browser Review 接收按 §12 完成内部必要验证与 Join 的稳定候选，不以提前交回 Browser 替代 IDE 闭环。Browser 对同一候选已知且可操作的发现批量反馈，由 IDE 在原 Work Unit 内整合修正；新发现、真实决策与新 SHA 的必要复审仍须保留。不应因已运行其中一种而跳过另一种。
 
 ### Browser Review 的 Pushed-Ref Evidence Gate
 
