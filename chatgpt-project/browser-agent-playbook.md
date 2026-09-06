@@ -235,10 +235,10 @@ Browser 可以：
 
 **User-Invoked 调用权限与宿主调用保真度 (Ref-Qualified Manual Invocation & Host Fidelity)**：
 - **Human-Only Invocation Authority**：依据 Matt locked `.agents/invocation.md`，`user-invoked` 技能只能由人类用户显式输入其名称（human typing its name）触发，模型或其他技能不得自主触达（reach）。Browser 读取 locked `SKILL.md` 原文用于 routing、recommendation 或 review，**绝不等于**进入或调用该 Skill，**不得**因此将自身视为已进入 user-invoked flow；
-- **IDE-Hosted Invocation 与宿主隔离**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”，亦**绝不得**将用户在 Browser 会话中输入的 slash 文本（如 `/notebooklm`）记为 IDE 端已调用（`Browser-side /skill request != actual-host Skill invocation`）。Browser 应生成 copy-ready Probe 并明确指引用户在目标 IDE 会话中显式发送调用指令，IDE 实际执行并返回证据后方可确认门禁通过；此为保留人类意图与授权的 semantic relay；
-- **Browser-Hosted Invocation**：若经 Relationship-First 评估最佳 host 为 Browser，且 Browser 端缺乏 native Skill runtime，前置条件**必须是 User 显式发送 Skill 名称**。在用户显式指令后，Browser 按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，严格按其原生语义与步骤执行（Ref-Qualified Manual Invocation）。不因此要求安装 ChatGPT Plugin，亦不复制 Matt 源码进 Project Sources。
+- **IDE-Hosted Invocation 与宿主隔离**：若经判断该 Skill 应在 IDE 执行，Browser **不得**把“推荐该 Skill”描述成“已在 IDE 内调用该 Skill”，亦**绝不得**将用户在 Browser 会话中输入的 slash 文本（如 `/notebooklm`）记为 IDE 端已调用（`Browser-side /skill request != actual-host Skill invocation`）。对于 **user-invoked Skill**，Browser 应生成 copy-ready Probe 并明确指引用户在目标 IDE 会话中显式发送调用指令；IDE 实际执行并返回证据后方可确认门禁通过。此类人类调用中继用于保留 user-invoked 的人类意图与授权；
+- **Browser-Hosted Invocation**：若经 Relationship-First 评估最佳 host 为 Browser，且 Browser 端缺乏 native Skill runtime，**user-invoked Skill** 的前置条件必须是 User 显式发送 Skill 名称。在该人类指令后，Browser 按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，严格按其原生语义与步骤执行（Ref-Qualified Manual Invocation）。不因此要求安装 ChatGPT Plugin，亦不复制 Matt 源码进 Project Sources。
 
-**Model-Invoked 内部调用**：依据 locked `.agents/invocation.md` 与目标 Skill 声明，model-invoked Skill 可由 Agent 或合法执行态中的 Skill 在已授权 Mission 内调用，无需追加 User slash 或 Browser Work Order。实际执行仍须保留原生机制、制品与门禁；涉及未确认测试 seams 等真实用户决策时按原生要求暂停。读取原文、推荐或模拟输出均不构成调用证据。
+**Model-Invoked 内部调用**：依据 locked `.agents/invocation.md` 与目标 Skill 声明，model-invoked Skill 可由 Agent 或合法执行态中的 Skill 在已授权 Mission 内调用，无需追加 User slash 或 Browser Work Order；Browser-hosted 场景同样适用，包括缺乏 native Skill runtime 时。实际执行须按 `MAT_REPO @ MAT_REF` Ref-Qualified 读取目标 `SKILL.md` 及必要 supporting files，保留原生机制、制品与门禁；涉及未确认测试 seams 等真实用户决策时按原生要求暂停。读取原文、推荐或模拟输出均不构成调用证据，门禁通过须有实际执行证据。
 
 ### Browser Advisory Research 与 Matt `/research`
 
