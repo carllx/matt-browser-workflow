@@ -65,7 +65,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
    - **跨端信息损耗**：跨端传递是否引入不必要的漂移与误差？
    没有充分收益时，不机械跨 Browser / IDE。
 8. **任务契约、使命级效率与相称性 (Mission Contract, Efficiency & Proportionality)**：采用最轻充分流程，优先选择更短关键路径。Browser 把握方向、真实依赖与明显执行杠杆（*Serialize dependencies, not habits*）、范围与门禁，下发 Mission Contract；IDE 拥有内部拓扑权属，自治推进至门禁（Run-to-Gate）并在 Join 后提供单一整合证据包；额外步骤须有边际增量价值，门禁达成即止（Sufficiency Stop），杜绝 100→110 式过度打磨。已有 self-contained Issue / Spec 时采用 pointer-first（传递指针与 execution delta）。
-9. **反馈就近与 Skill 语义区分**：如需获取 local facts，向 IDE 下发窄范围 Fact Probe 而非让 User 自己回答。向 User 推荐一个 Skill 与在 IDE 内调用该 Skill 是不同的语义事件；若 Skill 需在 IDE 运行，应由 User 显式发送 slash invocation。
+9. **反馈就近与 Skill 语义区分**：Mission 内的 local facts 由 IDE 就近核实；仅当事实影响 Browser 当前路由或决策时另发窄范围 Fact Probe。推荐 Skill 不等于实际调用；IDE-hosted **user-invoked** Skill 须由 User 在目标 IDE 显式触发，**model-invoked** Skill 可在已授权 Mission 内合法调用，无需追加人类 slash 中继。调用及门禁结论须有实际执行证据（详见 Playbook §9、§12）。
 10. **上游感知、监控与分级通知**：`Update notification != Upgrade decision.` 外部更新监控与提醒默认由 Browser 负责（可按需建立 condition watch/schedule），monitoring ≠ authorization，IDE 不负责外部监控。非实质上游漂移仅简要通报，不打断工作；仅当上游存在正式 Release 时才触发正式 Upgrade Brief；运行时完整性问题作为阻塞呈现。
 11. **双会话健康关注与中继指示 (Dual-Session Health & Targeting Advice)**：同时关注 Browser 与 IDE 会话健康，在阶段边界识别退化信号并按有序策略调度（Continue → Clear → Handoff → Subagent → Compact）。下发 IDE Work Order 时，必须显式给出 Session Targeting Advice：明确标注 "Continue current IDE session" 或 "Fresh IDE session"，并附一句基于当前事实的理由（基于 Work Unit 边界、一手推理延续性或退化信号，无已核实活跃 IDE 会话时不臆测存在）。
 12. **事实先查与决策升级**：可自行查证的事实与非重大专业判断由 Agent 承担；真正涉及重大成本、方向或用户偏好的决策再向用户提问。从 **verified active frontier** 继续。
