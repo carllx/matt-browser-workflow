@@ -111,6 +111,7 @@
 ### 标准评测执行步骤 (Standard Protocol Steps)
 
 #### 步骤 1：前置条件检查 (Precondition Check)
+- 派发前在本轮 Issue / Mission 写明要回答的假设、最小充分样本，以及成本停止边界（可观测时间、token 预算或完整 review 轮数上限）。由 Agent 依据既有授权和风险提出，普通选样不交回用户；没有 token 计量时使用可观测替代项，不虚构消耗。达到边界或用户要求控费时，在安全点保留候选、发现和未满足门禁，以部分结果结束本轮实验；不为取得 PASS 自动加轮或另换样本。结束实验不关闭父工单，Agent 应继续将已有发现转为最小候选修正与恢复记录，沿用原授权边界。
 - 确认目标代码仓库已启用 GitHub 仓库级不可变发布保护：
   ```bash
   gh api -H "X-GitHub-Api-Version: 2026-03-10" /repos/<owner>/<repo>/immutable-releases --jq .enabled
@@ -164,7 +165,7 @@
 
 **轻量反例与成本记录（随 S1/S2 收集）**：小任务采用最小充分路径，不强制并行；共享数据库、输出目录等资源须隔离或串行（仅 Git Worktree 不证明外部资源隔离）；未确认 seams 保留用户决策；model-invoked 内部调用不追加 slash；同一候选已知修正批量返回。反例若仅作 synthetic 对话测试，单独标注，不能替代 S1/S2 的真实执行证据。
 
-每轮记录 H/S/T、实际宿主与工具来源、双向 Relay 次数、copy/paste 次数、阻塞式人类介入及原因、每次修正原因、worker 起止/重叠与 Join、测试与 review ref。保留可核验轨迹链接，区分 `Verified`、`Reported with provenance`、静态 PASS 与未覆盖行为。优先使用可信历史原始轨迹作为 baseline；否则使用同起点、条件可比的隔离对照。无可信对照时仅报告观察，不虚构提速或分钟数；验收需证明可避免同步被消除或较可信 baseline 减少，并保留必要门禁。
+每轮记录 H/S/T、实际宿主与工具来源、双向 Relay、copy/paste、人工介入（区分阻塞与非阻塞提醒）、每次修正原因、worker 起止/重叠与 Join、逐测试结果及每轮 review 的真实 SHA。保留可核验轨迹链接，区分 `Verified`、`Reported with provenance`、静态 PASS 与未覆盖行为；并发调用不能代替实际时间重叠证据，不可观察项写 `unknown`。优先复用可信历史轨迹，没有时采用同起点、条件可比的隔离对照。分别报告协调成本与总执行成本（时间/token/完整 review 轮数）；relay 减少不自动证明总体效率改善。无可信计量时仅报告观察，保留用户负面成本反馈，不虚构提速；减少同步也不能牺牲必要门禁。
 
 - **R5 测试 Session（显式且有据的会话目标指示，紧凑 4 轮合成交互）**：
   > *注：本 Session 为行为回归合成测试（Synthetic behavioral fixture），不执行真实 GitHub/IDE 操作，不要求解析真实 Issue 编号。Fixture 提供了已核实的 Session / Work Unit 现场前提事实，Browser 仅需据此生成 Work Order 与 Session Targeting Advice。*

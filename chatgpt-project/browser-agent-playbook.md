@@ -382,9 +382,9 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
 - **职责与证据边界**：
   - **Remote Code Evidence**：已推送的 commit / PR / diff 由 Browser 直接远程读取，IDE 无需机械重复粘贴大段 diff 或修改说明；
   - **Remote Execution Evidence**：远程 CI / Checks（若已配置）由 Browser 远程核实；
-  - **Local Evidence**：本地测试命令与输出摘要、运行时行为、未提交/未推送的本地变更（Local-only state），由 IDE 返回最小必要 evidence；
+  - **Local Evidence**：本地测试命令与逐命令结果、运行时行为及 Local-only state，由 IDE 返回最小必要 evidence；Browser 未独立核实时保持 `Reported`。批量命令最后一个 exit code 不代表整批通过；物理行数包含空行。先利用已有日志补足缺口，不为重写报告机械重跑测试；
   - **External Capability Evidence**：当 Browser 无法独立核实一手源时，外部能力返回的内容属于 `Reported with provenance`，应包含合成摘要及适用的来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；采纳后的结论需沉淀到项目权威制品；
-  - **Required Skill Invocation Evidence**：仅当任务包含 mandatory named Skill 时，IDE 必须在 evidence 中包含最小真实调用声明（如 `code-review: invoked — PASS`）；若未执行，报告 `NOT INVOKED — <reason>` 且不得宣称 Gate 通过。Browser 不要求完整 transcript，仅核实最小证据；
+  - **Required Skill Invocation Evidence**：任务包含 mandatory named Skill 时，IDE 返回真实调用声明及其覆盖的制品引用；未执行则报告 `NOT INVOKED — <reason>`，不宣称 Gate 通过。若 review 使用 `base...HEAD`，先将全部待审修改形成完整本地候选提交，再调用 review；修正后绑定新 HEAD，push 后核实 `pushed SHA == reviewed SHA`，不得把旧 PASS 写成最终 HEAD 的结论。保留各轮引用和发现的简短记录，不要求完整 transcript；
   - **Join Invariant**：相关 worker 与写入全部结束、分支汇聚为单一 candidate，并完成必要集成验证后，才提交最终 Review 证据包。中途求助或进度证据须标明尚未满足的门禁，不冒充完成态。
 - **相称性与反馈结构**：
   - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
