@@ -4,21 +4,23 @@
 > **关联议题**：Part of #32, Implementation of #33, Follow-up to #14 & #17  
 > **权威声明**：本文件记录研究背景、一手信源依据、推导逻辑、事实状态、被否定方案、研究前沿与演进触发点，**不构成 Workflow Authority，亦非第四 SSOT**。规范性需求与不变式归属于 `browser-workflow-spec.md`，操作指引归属于 `browser-agent-playbook.md`。
 
+> **2026-09-10 研究收尾**：`NO PRODUCTION CHANGE WARRANTED BY CURRENT EVIDENCE`。历史模式不证明 v0.14 当前运行失败；C2 / Mission Frontier 与文件硬门禁均保留为有条件的研究候选。当前决策、E1–E4 证据分级和重新开启条件见[用户问题研究](user-problem-research-direction-2026-09-10.md)。#40 的运行效率仍为 `UNVERIFIED`，成本反馈为 `NEGATIVE`；本次不恢复 S1/S2。
+
 ---
 
 ## 1. 背景与问题溯源 (Problem Statement & Empirical Failures)
 
-在 Browser Workflow 演进至 v0.12 后，跨端协作在正确性、证据链（Evidence-Based Verification）、门禁保真度（Skill Gate Fidelity）、发布接受边界（Release Acceptance Boundary）和权限划分（Default Split）上建立了严格的规范。然而，在真实工程实践中，大模型频繁表现出**过度注重局部步骤周全性、忽视整体任务交付效率（Ceremony-Heavy Local Optimization）**的系统性退化。
+在 Browser Workflow 演进至 v0.12 后，跨端协作已经建立正确性、证据链、门禁保真度、发布边界与权限规范。[Issue #32](https://github.com/carllx/matt-browser-workflow/issues/32)仍记录了用户关于过度打磨、人工串行和并行能力闲置的报告。以下保留这些历史模式；报告存在不等于根因已验证，也不证明 v0.14 已部署后的当前运行行为。
 
 ### 真实典型失败模式与事实归属
 
-1. **小而明确的任务过度打磨 (100→110 Polishing)** `[Verified]`：
+1. **小而明确的任务过度打磨 (100→110 Polishing)** `[Reported — historical]`：
    - 面对已明确界定范围的小型任务（例如修复单行配置、增补已确定的术语词条、执行针对性测试），Agent 在达成既定完成门禁（Completion Gate）后，仍自发发起多余的深度拓展调研、全量文档重构、多轮无新信息的自我审查或冗长汇报，导致流程成本远超问题本身的工程价值（`process cost >> problem value`）。
-2. **独立并行候选被人为串行化 (Artificial Serialization)** `[Verified]`：
+2. **独立并行候选被人为串行化 (Artificial Serialization)** `[Reported — historical]`：
    - 面对多个在逻辑上互不阻塞、共同服务于下游单一决策的独立实验或调研分支（如 A/B/C 三种技术方案的独立探针），Agent 习惯性采用 `A 执行 → A 独立总结汇报 → 用户/Browser 确认 → B 执行 → B 独立总结汇报 → ...` 的串行流水线，引入大量的空等与人工中继损耗。
-3. **已知 IDE 并行能力闲置 (Unused Harness Leverage)** `[Verified]`：
+3. **已知 IDE 并行能力闲置 (Unused Harness Leverage)** `[Reported — historical]`：
    - 在已明确知道当前 IDE Harness 原生支持子代理（Subagents）、后台任务（Background Tasks）或多会话（Multi-Session）并发执行时，Browser 在派发 Mission Contract 时仍默认以单线思维组织任务，未主动释放并行的执行杠杆。
-4. **对“IDE 拥有拓扑权属”的消极误读 (Misinterpreting Topology Ownership)** `[Verified]`：
+4. **对“IDE 拥有拓扑权属”的消极误读 (Misinterpreting Topology Ownership)** `[Inferred — historical]`：
    - 规则明确规定“IDE 拥有内部任务分解与执行拓扑权属，Browser 不做微观调度”。部分模型将其机械反向误读为“Browser 应该对明显的并行杠杆与独立分支保持沉默”，放弃了在目标和契约层面识别依赖关系与并行候选（Parallel Candidates）的统筹职责。
 
 ---
@@ -99,7 +101,7 @@
 | **`PHASE-BOUNDARIES.md` 决策树** (`skills/engineering/ask-matt/PHASE-BOUNDARIES.md`) | 阶段边界评估顺序为 `Continue → Clear → Handoff → Subagent → Compact`，优先采用最廉价、保护 primary-source continuity 的方案。 | **完全一致**。反对无收益的上下文切换与过重 ceremony，坚持最小充分代价。 | `[Verified]` |
 | **调用权限与调用边界** (`.agents/invocation.md`) | 严格区分 `user-invoked` 技能（必须人类显式输入名称触发）与模型自治边界。 | **完全一致**。并行与拓扑自治仅限于内部实现，绝不绕过人类显式授权边界与必要技能门禁。 | `[Verified]` |
 
-**结论**：Mission-level efficiency 与 Marginal-value discipline 是 Matt 原生工程哲学的自然延伸，不仅未弱化 Matt 门禁，反而清除了偏离 Matt 极简主张的形式主义冗余。
+**结论**：上述对照支持 Mission-level efficiency 与 Marginal-value discipline 的设计兼容性；不证明实际运行已经消除形式主义或降低用户总成本。
 
 ---
 
@@ -188,8 +190,8 @@
 
 ### 重新评估流程
 
-1. 按照 `docs/evals/behavioral-regression-evals.md` 中的 Runtime Eval Protocol 执行真实 Browser 评测；
-2. 查阅本文件中的未决前沿与被否定方案，避免重复试错；
-3. 遵循 Subtraction Check 进行 `KEEP / MODIFY / DELETE / ADD` 决策；
+1. 先复用现有轨迹、固定引用和当前已部署事实，区分历史报告、当前行为与尚未验证的解释；
+2. 查阅本文件中的未决前沿与被否定方案，按 Subtraction Check 作出 `KEEP / MODIFY / DELETE / ADD` 或 no-change 决策；
+3. 仅当剩余证据缺口会影响候选选择或必要验收、且新运行处于授权范围内时，才沿用 `docs/evals/behavioral-regression-evals.md` 的 Runtime Eval Protocol 与成本停止边界；本流程不自动恢复已暂停的实验；
 4. 若新模型已原生具备某项能力，主动精简提示词中的冗余规则；
 5. 任何新理念必须经由真实回归证据验证后，方可通过 Durable Insight Promotion 升格为生产规范。
