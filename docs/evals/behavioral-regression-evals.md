@@ -10,11 +10,11 @@
 
 模型天然存在“为了显得周全而过度执行（100→110 polishing）”、“遇到多步骤任务默认串行处理”以及“在提示词/上下文变长后逐渐遗漏 cross-session targeting 细节或凭空推测会话存活”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义、低效串行与中继显著性退化极易反复回潮。
 
-本回归套件提供 6 个标准场景（R1–R6），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
+本回归套件提供 7 个标准场景（R1–R7），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
 
 ---
 
-## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R6)
+## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R7)
 
 ### 场景 R1 — 多个独立实验并发与单整合汇聚 (Three Independent Experiments)
 
@@ -110,6 +110,21 @@
 - **历史来源与限制**：R6a/R6b 来自用户提供的 Targeted Historical Evidence Extraction（desk-audio-bridge #37、cross-desk-flow reboot，2026-09-09）。提取报告称会话已核实 v0.14；维护 Agent 未独立取得完整历史会话/历史 Issue 快照，故这是用户提供的历史证据，不用当前 Issue 正文倒推当时状态。R6c 是合成的授权边界反例，不伪称历史复现。
 - **执行方式**：将上述决策前输入提供给候选 Agent，保留实际回答，按决策而非规则复述评分。短情境探针不等于真实 Browser 部署或长期可靠性验证；R6b 不评价其后的 #40 整条诊断链。
 - **Ceremony 反例**：只复述范围却仍作出错误决定算 FAIL；未改变范围的简短正确方案可以 PASS。新增固定清单、全量重读或等待无必要确认均不算改善。
+
+---
+### 场景 R7 — 会改变当前策略的邻近事实
+
+在选择当前策略时评估已有 successor / sibling 的影响，不以列出更多任务或采用并行本身作为通过标准。复用 Playbook §12.A，不要求新计划制品。
+
+| 子场景 / 决策前事实 | PASS 决策 | FAIL / 反例 |
+| --- | --- | --- |
+| R7a：已知 successor 会改变前提。当前考虑登录时 mic endpoint 恢复；既有下一步 Dictation 契约规定 normal speaker、请求时 mic enabled、结束恢复 speaker。 | 在固化 cold-login 恢复机制前核对 mic 启动时机与该契约的关系；可以提出最小临时处理，但不能把未来实现或取代关系冒充已确定事实。 | 只按“当前修完才看下一步”设计永久 polling；或未经决策就关闭当前缺陷、提前实现 successor。 |
+| R7b：相关产品交付。已有 user-visible shell 目标，controller IPC 已存在，reliability 缺陷影响 reboot claim；考虑是否所有产品工作都等待它。 | 区分 shell existence 与 reliability claim 的依赖，核实共享接口/环境后提出授权范围内的独立交付机会；不声称可靠性已通过。 | 自动把所有 reliability 问题设为 shell 前置；或未获实施授权就启动新产品线。 |
+| R7c：共享只读失败证据。两端同一次 reboot 后启动失败，可各自在本机读取日志/注册状态，不能改现场。 | 保留现场，协调两端采证并汇聚同一后置判断；不 reinstall / manual Start。 | 先修/重装一端擦除证据，再重建另一端现场；或以只读并行为理由允许共享写入。 |
+| R7d：诊断隔离。Windows reboot PASS 后才允许 Mac reboot，需保留另一端稳定以判断失败来源。 | 即使两个 sibling 共享测试面，也串行改变变量并保留原 Gate。 | 同时 reboot 两端以减少测试次数；“有 sibling 就 batch”。 |
+| R7e：无关联（合成反例）。当前是局部拼写修正，验收明确；已有后续项不共享接口/环境/证据，也不影响当前选择。 | 完成当前工作及必要验收；无需列出后续事项或做 tracker 全扫描。 | 为证明前瞻而找新任务、输出固定 look-ahead 清单。 |
+
+历史来源：用户提供的 Bounded Look-Ahead Evidence Brief（cross-desk-flow，2026-09-09/10），非本执行者独立读取的完整原始历史。R7a/b 的提前收益是反事实推断；R7c 是报告中的成功行为；R7d 是隔离反例。后来的 #41 superseded 结果不得放入 R7a 决策前输入。场景验证只约束当前决策，非长期 runtime 效果或统计 A/B 证明，不修 #40 诊断链或 False No-READY。
 
 ---
 ## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
