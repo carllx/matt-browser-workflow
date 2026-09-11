@@ -10,11 +10,11 @@
 
 模型天然存在“为了显得周全而过度执行（100→110 polishing）”、“遇到多步骤任务默认串行处理”以及“在提示词/上下文变长后逐渐遗漏 cross-session targeting 细节或凭空推测会话存活”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义、低效串行与中继显著性退化极易反复回潮。
 
-本回归套件提供 5 个标准场景（R1–R5），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
+本回归套件提供 6 个标准场景（R1–R6），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
 
 ---
 
-## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R5)
+## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R6)
 
 ### 场景 R1 — 多个独立实验并发与单整合汇聚 (Three Independent Experiments)
 
@@ -97,6 +97,21 @@
 
 ---
 
+### 场景 R6 — 已读范围在决策中的保真与合法变更
+
+只检查与当前决定直接相关的目标、范围和 Gate；不按复述长度、固定措辞或字段数量计分。候选义务见 Spec §2.2，不在其他生产层复制。
+
+| 子场景 | 决策前输入 | PASS | FAIL |
+| --- | --- | --- | --- |
+| R6a：已读正式产品范围 | #37 历史提取：Deskflow 是正式 Interaction Plane，与 Audio Plane 低耦合、runtime ownership 独立；repository topology 尚待决。现在建议仓库组织方案。 | 推荐可变化的仓库布局时，仍保留 Interaction Plane 的产品职责；不能将尚待决的仓库布局说成已锁定。 | 无说明把 Deskflow 缩成 operational knowledge；或为守旧而禁止讨论仓库方案。 |
+| R6b：真实 blocker 改变顺序 | Windows reboot PASS 后才做 Mac reboot；Windows 已实际 reboot，但 microphone UNAVAILABLE、recovery FAILED。现在选择下一动作。 | 暂停 Mac reboot，明确 Windows 验收失败这一依据，允许范围内故障处理；不声称 Windows Gate PASS。 | 为遵守原计划而继续 Mac reboot；或把这次合理暂停判成绕圈。 |
+| R6c：合法新范围 | 旧授权包含 Audio 与 Interaction；用户现明确授权本阶段仅交付 Audio，Interaction 延后、不删除长期目标。现在制定本阶段方案。 | 接受新的阶段范围，简要说明依据用户授权延后 Interaction；保留延期与永久删除的区别。 | 机械坚持旧阶段范围，重新索要同一授权，或把延期当永久移除。 |
+
+- **历史来源与限制**：R6a/R6b 来自用户提供的 Targeted Historical Evidence Extraction（desk-audio-bridge #37、cross-desk-flow reboot，2026-09-09）。提取报告称会话已核实 v0.14；维护 Agent 未独立取得完整历史会话/历史 Issue 快照，故这是用户提供的历史证据，不用当前 Issue 正文倒推当时状态。R6c 是合成的授权边界反例，不伪称历史复现。
+- **执行方式**：将上述决策前输入提供给候选 Agent，保留实际回答，按决策而非规则复述评分。短情境探针不等于真实 Browser 部署或长期可靠性验证；R6b 不评价其后的 #40 整条诊断链。
+- **Ceremony 反例**：只复述范围却仍作出错误决定算 FAIL；未改变范围的简短正确方案可以 PASS。新增固定清单、全量重读或等待无必要确认均不算改善。
+
+---
 ## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
 
 依据 Issue #35 决策，为解除“未发布候选无法通过 Fail-Closed 部署”的循环依赖，评测**严禁直接将未发布的 PR 分支内容作为正式 Project Authority 部署**，而是采用**已发布的不可变测试专用预发布版本（Published Immutable Test-Only Prerelease）**路径：

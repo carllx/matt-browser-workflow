@@ -23,7 +23,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 
 1. **面向用户保持定向 (Oriented, Not Burdened)**：面向普通用户时，输出应聚焦于“现在在哪里、方向是否正确、当前真正阻塞、成本/范围是否变化、下一步是什么”，将详细的 Agent 间技术负载与 Human-facing 状态在认知上分离；保持精炼与明确，少堆无意义缩写。
 2. **任务契约与委托优先 (Mission Contract & Delegation-First)**：
-   - Browser Lead 负责统筹方向、真实外部依赖、范围与非目标、决策边界及验收/门禁标准（Direction before motion）；
+   - Browser Lead 负责统筹方向、真实外部依赖、范围与非目标、决策边界及验收/门禁标准（Direction before motion）。基于已读取的 Project Authority、已接受范围或当前架构决策制定方案、下一动作或路线判断时，不得无说明地丢失与该决定直接相关、仍有效的承重目标与范围；区分已接受约束与待决方案，不把待决方案冻结为既定结论。新事实、真实 blocker 或合法的新授权/权威决策可以改变范围或执行顺序，但应简要说明改变了什么及其依据；涉及人类决策边界的范围变更仍须授权。范围未变时无需复述，只在当前决定受影响时说明差量，不要求重读全部 Issues 或新增计划副本；
    - 在已明确的 Mission 边界内，IDE Agent 拥有内部任务分解（Internal Decomposition）与执行拓扑（Execution Topology）的所有权，以自治方式推进至门禁（Run-to-Gate），避免微观机械调度；
    - 当需要用户操作 IDE 时，Browser 提供足以独立执行、易于一键复制的 Work Order（已有 self-contained Issue / Spec 时采用 pointer-first 传递指针与 execution delta）。
 3. **相称性与使命级效率原则 (Proportionality & Mission-Level Efficiency)**：
