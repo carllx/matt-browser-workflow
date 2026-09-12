@@ -16,7 +16,7 @@
 
 ## 2. 当前发布基线
 
-本轮核实 remote main 与 v0.15 tag 均指向 `cddb5690829a825a2619345d6689b114d3a00ea7`；GitHub Release 为已发布、非 draft、非 prerelease。实际 Browser 部署内容未核实。维护权威为 v0.15，`MAT_REF` 保持 `8b78b531ab965735c5dc74f6f7a219e1e37326df`。
+本轮核实 remote main 与 v0.15 tag 均指向 `cddb5690829a825a2619345d6689b114d3a00ea7`；GitHub Release 为已发布、非 draft、非 prerelease。维护权威为 v0.15，`MAT_REF` 保持 `8b78b531ab965735c5dc74f6f7a219e1e37326df`。
 
 [v0.15 Spec §4](https://github.com/carllx/matt-browser-workflow/blob/v0.15/chatgpt-project/browser-workflow-spec.md)明确将约 600 行作为人工编写代码及面向 Agent 文档的 soft warning，要求评估自然职责分离点，禁止机械碎片化；列有 generated、lockfiles、vendor、fixtures/snapshots 例外；超出 Issue 范围只报告，不顺手重构。Playbook §14 与 AGENTS §3.5 有对应表述。
 
