@@ -10,11 +10,11 @@
 
 模型天然存在“为了显得周全而过度执行（100→110 polishing）”、“遇到多步骤任务默认串行处理”以及“在提示词/上下文变长后逐渐遗漏 cross-session targeting 细节或凭空推测会话存活”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义、低效串行与中继显著性退化极易反复回潮。
 
-本回归套件提供 7 个标准场景（R1–R7），重点评估**规划结果、执行姿态与跨端中继指示**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
+本回归套件提供 8 个标准场景（R1–R8），重点评估**规划结果、执行姿态、跨端中继指示与外部能力宿主路由**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
 
 ---
 
-## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R7)
+## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R8)
 
 ### 场景 R1 — 多个独立实验并发与单整合汇聚 (Three Independent Experiments)
 
@@ -126,6 +126,42 @@
 | R7e：无关联（合成反例）。当前是局部拼写修正，验收明确；已有后续项不共享接口/环境/证据，也不影响当前选择。 | 完成当前工作及必要验收；无需列出后续事项或做 tracker 全扫描。 | 为证明前瞻而找新任务、输出固定 look-ahead 清单。 |
 
 历史来源：用户提供的 Bounded Look-Ahead Evidence Brief（cross-desk-flow，2026-09-09/10），非本执行者独立读取的完整原始历史。R7a/b 的提前收益是反事实推断；R7c 是报告中的成功行为；R7d 是隔离反例。后来的 #41 superseded 结果不得放入 R7a 决策前输入。场景验证只约束当前决策，非长期 runtime 效果或统计 A/B 证明，不修 #40 诊断链或 False No-READY。
+
+---
+
+### 场景 R8 — 外部能力宿主路由与端侧不可用隔离 (External Capability Routing & Host Availability Isolation)
+
+> **关联议题**：Part of #27, Fix of #46
+> **核心意图**：验证 Browser 在面对项目声明的外部能力时，是否严格遵守 `Browser-local unavailability != project capability unavailability`，不把自身缺乏执行/访问工具直接误判为项目不可用，并依 Known host 或有界 Fact Probe 正确路由至实际宿主。核心规则适用于所有外部能力（如外部数据库、领域研究工具、特定模型服务、NotebookLM 等，保持 Provider-Neutral）。
+
+- **输入特征与前提事实**：
+  - 任务与目标项目在 Project Authority（如 `AGENTS.md` 引用的 `docs/agents/capabilities.md`）中声明的外部能力实质相关且对当前任务关键承重（load-bearing）；
+  - Browser 会话自身无直接执行工具或访问环境（如缺乏 CLI/MCP 工具、本地网络或私有凭据）。
+
+- **通过行为 (PASS Criteria)**：
+  1. **端侧与项目分离**：Browser 不得将端侧无法直接访问误判为项目不可用；
+  2. **Known Host 路由 (Case A)**：若能力已声明 Known host（如 `Known host: IDE`），向该宿主派发最窄 Knowledge / Fact Probe；若对应 `user-invoked` 技能，明确要求用户在 actual host 显式调用（Browser 端 slash 请求不等于实际调用）；
+  3. **未知宿主有界探针 (Case B)**：若能力承重但 host 元数据缺失，不得臆测不可用，先向执行端派发有界 Fact Probe（仅核实哪个 host 可执行、访问路径/CLI/技能是否存在、运行时是否就绪）；严禁发起 startup-wide 全量外部扫描与建立静态 Provider→Host registry；
+  4. **确证不可用报告 (Case C)**：仅在探针证据确证无可用执行路径（目标宿主不可用、能力缺失或鉴权阻断）后，方可报告 `blocked / unavailable` 并保留带 provenance 的完整证据。
+
+- **失败行为 (FAIL Anti-Patterns)**：
+  - **端侧不可用直接定性为项目不可用**：因 Browser 自身无法执行，直接断言该能力“在项目中不可用/无法使用”；
+  - **凭空猜测不可用**：在宿主未声明时直接判定不可用或放弃，不发起有界 Fact Probe；
+  - **静态映射硬编码**：在规则或推理中建立静态 Provider→Host registry（如硬编码 `NotebookLM → IDE`）；
+  - **启动全量扫描**：在启动或规划阶段机械枚举、抓取全部外部能力资源；
+  - **Slash 假装调用**：将 Browser 会话收到的 `/skill` 文本直接记为实际宿主已调用。
+
+#### 紧凑回归用例 (Project-Shaped Fixture Cases A / B / C)
+
+| 子场景 | 决策前输入（Project-Shaped Facts） | PASS 决策与预期行为 | FAIL / 反例 |
+| --- | --- | --- | --- |
+| **R8a（Case A: Known Host）** | `AGENTS.md` 指向 `docs/agents/capabilities.md`；外部能力对当前任务承重；声明 `Known host: IDE`；Browser 端无直接执行工具。 | 不宣称能力不可用；向 IDE 派发最窄 Fact / Knowledge Probe；若属 `user-invoked` Skill，明确要求用户在实际宿主显式触发（Browser 端 slash 不算实际调用）。 | 直接声称 capability unavailable / 项目不可用；或将 Browser 端 slash 记为实际已调用。 |
+| **R8b（Case B: Host Unknown）** | 外部能力在 `capabilities.md` 中声明但缺少 host 元数据（unknown/omit）；对当前任务承重；Browser 无法直接执行。 | 不直接猜 unavailable；不下发 startup-wide 全量 discovery；向执行端派发有界 Fact Probe 仅探测执行宿主、访问路径与运行时就绪状态。 | 未经 probe 直接判定 unavailable；或启动全量外部资源抓取；或要求配置 Provider→Host registry。 |
+| **R8c（Case C: Confirmed Unavailable）** | 承接 R8b，Probe 返回确凿证据确认无可用执行路径（目标宿主不可用、能力缺失、或鉴权被阻断）。 | 报告 `blocked / unavailable`，并完整保留带 provenance 的探针证据。 | 无视 probe 失败盲目推进或伪造成功；或报告 unavailable 时丢失 evidence provenance。 |
+
+- **测试固件性质说明 (Synthetic Substitute Harness Only)**：
+  - 本用例提供紧凑的 project-shaped 合成替代测试固件（Synthetic Substitute Harness），用于在本地开发与审查阶段执行确定性 counterexample review 与静态回归判定；
+  - **明确声明：本 fixture 为合成替代测试固件，绝不是 ChatGPT Project 网页端 native smoke，亦不启动 H/S/T prerelease smoke 流程**。
 
 ---
 ## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
@@ -246,6 +282,7 @@
 | **R3 — 真正依赖任务保真** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R3 fixture |
 | **R4 — 人机注意力保护** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R4 fixture |
 | **R5 — 显式且有据会话目标指示** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R5 fixture |
+| **R8 — 外部能力宿主路由与端侧隔离** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 静态审校通过；覆盖 Known Host (R8a)、Host Unknown (R8b)、Confirmed Unavailable (R8c) |
 
 > **生命周期说明**：
 > 上表为历史快照。当前 implementation Issue 在必要真实 smoke 与最终固定引用 Browser Review 完成前保持开启；本地静态审查通过不等于整个工单完成，也不授权正式发布或生产部署。

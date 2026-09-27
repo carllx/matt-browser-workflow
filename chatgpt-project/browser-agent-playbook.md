@@ -299,7 +299,11 @@ Browser 可以：
    - 旧 ChatGPT Project Sources（如 `openbb.md`、`qlib.md`、`tradingagents.md` 等）采用按需、惰性迁移，不要求一次性迁移全部项目；
    - 迁移路径：保留旧 Sources → Browser 按内容区分能力/方法论/项目知识 → 设计 Project Authority 落地位置 → IDE 落地持久化 → Browser 基于推送引用 Review PASS → 审查通过后才告知用户哪些旧 Sources 可安全移除。
 3. **能力路由与探针派发 (Capability Routing & Knowledge Probe)**：
-   - 当任务与项目在 `docs/agents/capabilities.md` 中声明的外部能力实质相关时，Browser 依据 Relationship-First 与实际运行时可用性下发窄范围 Knowledge / Fact Probe；严禁建立静态 Provider → Host 映射表，严禁在启动时全量抓取。
+   - **`Browser-local unavailability != project capability unavailability`**：当任务依赖 `docs/agents/capabilities.md` 声明的外部能力时，Browser 自身无法直接执行或访问绝不等于项目不可用，严禁据此臆测或直接放弃：
+     - **Known host 已声明**：依据声明宿主（如 `Known host: IDE`）路由最窄 Knowledge / Fact Probe；若对应 `user-invoked` 技能，指引用户在 actual host 显式调用（Browser 端 slash 请求不等于实际调用）；
+     - **Host / access 未知但 load-bearing**：不得直接猜 unavailable，先下发有界 Fact Probe 探测可执行宿主、访问路径（Skill/CLI）与运行时可用性；严禁全量外部扫描与静态 Provider→Host 映射；
+     - **确证不可用报告**：仅在 Probe 证据确证无可用执行路径（目标宿主不可用、能力缺失或鉴权阻断）后，方可报告 `blocked / unavailable` 并保留 provenance；
+   - 外部能力返回的合成结果保持 `Reported with provenance`，严禁在启动时全量抓取，保持最窄查询。
 
 ### 用户分级通知与更新决策协议 (User Notification & Update Decision)
 - **核心原则**：`Update notification != Upgrade decision.`（更新感知通知 ≠ 升级权衡决策）。工作流应主动探测并合理呈现 Matt 演进状态，但人类决策权严格保留给真正的权衡问题。无需引入复杂状态机。

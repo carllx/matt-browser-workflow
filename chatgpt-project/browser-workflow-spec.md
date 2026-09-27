@@ -226,11 +226,15 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
 1. **项目仓库单一事实源 (Project Authority Canonical Binding)**：
    - 目标项目所需的外部能力（外部知识库、特定模型服务、领域工具等）的项目级声明（能力类型、目的、适用范围、known host 提示、非机密逻辑定位符），其权威定义仅归属于目标代码仓库（如 `docs/agents/capabilities.md`，即 Project Authority）；
    - ChatGPT Project Sources 仅承载通用的工作流发布制品，不新增也不维护项目专属能力清单；工作流升级与项目能力生命周期彻底解耦，升级工作流不要求重新录入项目能力绑定。
-2. **能力边界四分离不变式 (Boundary Invariants)**：
+2. **能力边界五分离不变式 (Boundary Invariants)**：
    - **`Capability declaration != runtime availability`**：能力声明仅表明项目在语义上存在该能力与已知属性，不保证当前运行时环境即刻可用或认证已就绪；
    - **`Capability discovery != capability invocation`**：启动或规划阶段通过 Bounded Sync 进行的轻量声明发现（Metadata Discovery）绝不等于调用能力；严禁在启动阶段机械调用外部工具、枚举知识源或全量读取外部内容；
    - **`Locator != Browser-readable resource`**：逻辑定位符（如 Notebook ID、数据库逻辑名、MCP 资源标识）仅作为具备能力的宿主在本地执行检索的定位线索，不代表 Browser 可直接读取或解析；
-   - **`Location informs placement; it does not grant authority`**：能力或宿主所在位置仅用于推导最窄 Knowledge / Fact Probe 的执行放置，绝不自动赋予外部工具或执行端修改权限，亦不改变代码审查与完成门禁。
+   - **`Location informs placement; it does not grant authority`**：能力或宿主所在位置仅用于推导最窄 Knowledge / Fact Probe 的执行放置，绝不自动赋予外部工具或执行端修改权限，亦不改变代码审查与完成门禁；
+   - **`Browser-local unavailability != project capability unavailability`**：Browser 本地无法直接访问或执行某项已声明能力，绝不等于该能力在项目或目标宿主不可用，严禁将端侧执行缺失误判为项目能力不可用；
+     - **Known host 已声明**：若 Project Authority 已声明 Known host（如 `Known host: IDE`），不得宣称 unavailable，应向该目标宿主路由最窄 Knowledge / Fact Probe；若依赖 `user-invoked` 技能，明确指引用户在 actual host 显式调用（Browser 端的 slash 指令绝不构成实际调用）；
+     - **Host / access metadata 未知**：若该能力对当前任务关键承重（load-bearing），不得直接猜 unavailable，应先下发有界 Fact Probe 仅探测哪个宿主可执行、访问路径/CLI/技能是否存在以及当前运行时是否就绪；严禁发起 startup-wide 全量探测，严禁建立 Provider→Host registry；
+     - **确证不可用报告门禁 (Confirmed Unavailable Gate)**：只有在探针返回明确证据确认无可用执行路径（目标宿主不可用、能力缺失、鉴权阻断等）后，方可报告 `blocked / unavailable`，并完整保留带 provenance 的证据。
 3. **外部能力不构成第四权威 (External Capabilities != Fourth Authority)**：
    - 外部能力仅为检索、合成与调研手段（Retrieval / Synthesis / Research），不构成工作流的第四权威；
    - 当 Browser 无法独立核实一手源时，外部能力返回的合成与证据保持 `Reported with provenance`（按能力特性附带适用的 provenance 依据，如 provider/source/dataset/query/version/locator/citation 等 when applicable，以及限制或冲突证据）；若 Browser 能直接访问权威一手源、执行可独立验证的查询或取得独立测试证据，仍适用现有 `Verified` 判定；
