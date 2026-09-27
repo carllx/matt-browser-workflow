@@ -1,0 +1,23 @@
+{
+  "meta_description": "旧式自证明 payload：在同一根对象中自报 expected_sha、自报 required_checks 并声称 PASS，缺少独立的 contract 对象。必须被直接拒绝为 FAIL",
+  "meta_expected_verdict": "FAIL",
+  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "provenance": {
+    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "session_id": "ide-session-legacy-self-certifying"
+  },
+  "required_checks": [
+    "git_diff_check"
+  ],
+  "check_runs": [
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "terminal_state": "success",
+      "exit_code": 0
+    }
+  ],
+  "acceptance_records": [],
+  "claimed_overall_status": "PASS"
+}

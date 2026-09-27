@@ -39,9 +39,10 @@ DOES_NOT_PROVE_SCOPE = [
 
 
 def evaluate_contract_and_evidence(
-    contract: Dict[str, Any],
-    evidence: Dict[str, Any],
+    contract: Optional[Dict[str, Any]],
+    evidence: Optional[Dict[str, Any]],
     expected_sha_override: Optional[str] = None,
+    load_error: Optional[str] = None,
 ) -> Tuple[str, List[str]]:
     """
     对 Evidence 是否满足独立的 External Contract 执行确定性事实判断。
@@ -51,6 +52,22 @@ def evaluate_contract_and_evidence(
       verdict 必须是: PASS | FAIL | UNVERIFIED
     """
     findings: List[str] = []
+
+    # 0. 检查 fixture / payload 是否具有合法的 contract 与 evidence 边界
+    if load_error:
+        findings.append(load_error)
+        return "FAIL", findings
+
+    if contract is None or not isinstance(contract, dict):
+        findings.append(
+            "Missing valid external contract object. "
+            "Self-certifying payloads without independent contract authority are strictly rejected."
+        )
+        return "FAIL", findings
+
+    if evidence is None or not isinstance(evidence, dict):
+        findings.append("Missing valid evidence payload object.")
+        return "FAIL", findings
 
     # 1. 外部契约权威性提取 (External Contract Authority)
     expected_sha = expected_sha_override or contract.get("expected_candidate_sha")
@@ -208,30 +225,32 @@ def print_report(case_name: str, verdict: str, findings: List[str], verbose: boo
 
 def load_fixture_contract_and_evidence(
     fixture_path: Path,
-) -> Tuple[Dict[str, Any], Dict[str, Any], str]:
+) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], str, Optional[str]]:
+    """
+    加载测试用例 fixture。
+    严格要求顶层必须同时包含 'contract' 和 'evidence' 对象。
+    绝对不从旧式 payload 自动推导 contract，拒绝自证明。
+    """
     with open(fixture_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    if not isinstance(data, dict):
+        return None, None, "FAIL", "Fixture root must be a JSON object."
+
     expected_verdict = data.get("meta_expected_verdict", "UNKNOWN")
 
-    # 如果 fixture 顶层明确分离了 contract 与 evidence
-    if "contract" in data and "evidence" in data:
-        return data["contract"], data["evidence"], expected_verdict
+    if "contract" not in data or "evidence" not in data:
+        err = (
+            "Invalid fixture structure: missing top-level 'contract' and/or 'evidence' object. "
+            "Self-certifying payloads without independent external contract are strictly rejected."
+        )
+        return None, None, expected_verdict, err
 
-    # 兼容过渡（若 fixture 尚未迁移，自动解耦成 contract 与 evidence）
-    contract = {
-        "expected_candidate_sha": data.get("expected_sha"),
-        "required_checks": data.get("required_checks", []),
-        "required_acceptance": data.get("required_acceptance", []),
-    }
-    evidence = {
-        "candidate_sha": data.get("candidate_sha"),
-        "provenance": data.get("provenance"),
-        "check_runs": data.get("check_runs", []),
-        "acceptance_records": data.get("acceptance_records", []),
-        "claimed_overall_status": data.get("claimed_overall_status"),
-    }
-    return contract, evidence, expected_verdict
+    if not isinstance(data["contract"], dict) or not isinstance(data["evidence"], dict):
+        err = "Invalid fixture structure: top-level 'contract' and 'evidence' must both be JSON objects."
+        return None, None, expected_verdict, err
+
+    return data["contract"], data["evidence"], expected_verdict, None
 
 
 def run_self_test(fixtures_dir: Path) -> bool:
@@ -243,19 +262,19 @@ def run_self_test(fixtures_dir: Path) -> bool:
         return False
 
     all_passed = True
-    print(f"{'Fixture File':<52} | {'Expected':<12} | {'Actual':<12} | {'Status'}")
-    print("-" * 85)
+    print(f"{'Fixture File':<54} | {'Expected':<12} | {'Actual':<12} | {'Status'}")
+    print("-" * 87)
 
     for fix in fixtures:
-        contract, evidence, expected_verdict = load_fixture_contract_and_evidence(fix)
-        actual_verdict, findings = evaluate_contract_and_evidence(contract, evidence)
+        contract, evidence, expected_verdict, load_err = load_fixture_contract_and_evidence(fix)
+        actual_verdict, findings = evaluate_contract_and_evidence(contract, evidence, load_error=load_err)
 
         status = "MATCH" if actual_verdict == expected_verdict else "MISMATCH"
         if status != "MATCH":
             all_passed = False
-        print(f"{fix.name:<52} | {expected_verdict:<12} | {actual_verdict:<12} | {status}")
+        print(f"{fix.name:<54} | {expected_verdict:<12} | {actual_verdict:<12} | {status}")
 
-    print("-" * 85)
+    print("-" * 87)
     if all_passed:
         print("RESULT: ALL FIXTURE TESTS PASSED (External Contract Authority & Trichotomy verified).")
     else:
@@ -282,8 +301,9 @@ def main():
         success = run_self_test(fix_dir)
         sys.exit(0 if success else 1)
 
-    contract: Dict[str, Any] = {}
-    evidence: Dict[str, Any] = {}
+    contract: Optional[Dict[str, Any]] = None
+    evidence: Optional[Dict[str, Any]] = None
+    load_err: Optional[str] = None
     case_name = "check"
 
     if args.contract and args.evidence:
@@ -297,7 +317,7 @@ def main():
         if not fix_path.exists():
             print(f"Error: Fixture file not found: {fix_path}", file=sys.stderr)
             sys.exit(1)
-        contract, evidence, _ = load_fixture_contract_and_evidence(fix_path)
+        contract, evidence, _, load_err = load_fixture_contract_and_evidence(fix_path)
         case_name = fix_path.name
         if args.contract:
             with open(args.contract, "r", encoding="utf-8") as f:
@@ -306,7 +326,9 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    verdict, findings = evaluate_contract_and_evidence(contract, evidence, args.expected_sha)
+    verdict, findings = evaluate_contract_and_evidence(
+        contract, evidence, args.expected_sha, load_error=load_err
+    )
     print_report(case_name, verdict, findings, verbose=args.verbose)
 
     # Exit code mapping: PASS -> 0, FAIL -> 1, UNVERIFIED -> 2
