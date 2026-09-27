@@ -1,0 +1,31 @@
+{
+  "meta_description": "必需的检查命令执行失败 (exit code 非零 / failure)",
+  "meta_expected_verdict": "FAIL",
+  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "provenance": {
+    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "session_id": "ide-session-bad-03"
+  },
+  "required_checks": [
+    "git_diff_check",
+    "unit_tests"
+  ],
+  "check_runs": [
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "terminal_state": "success",
+      "exit_code": 0
+    },
+    {
+      "name": "unit_tests",
+      "command": "pytest",
+      "terminal_state": "failure",
+      "exit_code": 1
+    }
+  ],
+  "required_acceptance": [],
+  "acceptance_records": [],
+  "claimed_overall_status": "FAIL"
+}

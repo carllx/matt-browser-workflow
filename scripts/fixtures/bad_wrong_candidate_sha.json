@@ -1,0 +1,24 @@
+{
+  "meta_description": "候选 SHA 与预期目标 SHA 不匹配",
+  "meta_expected_verdict": "FAIL",
+  "candidate_sha": "0000000000000000000000000000000000000000",
+  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "provenance": {
+    "commit_sha": "0000000000000000000000000000000000000000",
+    "session_id": "ide-session-bad-01"
+  },
+  "required_checks": [
+    "git_diff_check"
+  ],
+  "check_runs": [
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "terminal_state": "success",
+      "exit_code": 0
+    }
+  ],
+  "required_acceptance": [],
+  "acceptance_records": [],
+  "claimed_overall_status": "PASS"
+}

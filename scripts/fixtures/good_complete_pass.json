@@ -1,0 +1,39 @@
+{
+  "meta_description": "完全有效且完整的证据包，所有要素精确匹配，终态全为成功",
+  "meta_expected_verdict": "PASS",
+  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "provenance": {
+    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "session_id": "ide-session-good-01"
+  },
+  "required_checks": [
+    "git_diff_check",
+    "self_test_suite"
+  ],
+  "check_runs": [
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "terminal_state": "success",
+      "exit_code": 0
+    },
+    {
+      "name": "self_test_suite",
+      "command": "python3 scripts/check_evidence.py --self-test",
+      "terminal_state": "success",
+      "exit_code": 0
+    }
+  ],
+  "required_acceptance": [
+    "code_review"
+  ],
+  "acceptance_records": [
+    {
+      "name": "code_review",
+      "invoked": true,
+      "verdict": "PASS"
+    }
+  ],
+  "claimed_overall_status": "PASS"
+}
