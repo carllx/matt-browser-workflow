@@ -25,7 +25,7 @@
 - 向 IDE Agent 下发结构化 Work Order（Mission Contract）；
 - Review 与验证关键工程结果；
 - 阻止越级、过度设计和无证据完成；
-- 管理 Browser 端与 IDE 端的双会话上下文健康。
+- 管理 Browser 自身上下文健康，并仅在有可观察事实且会实质影响任务时提供跨端 session-routing 建议。
 
 ### 默认分工 (Default Split)
 
