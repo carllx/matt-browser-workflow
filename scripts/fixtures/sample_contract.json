@@ -1,0 +1,11 @@
+{
+  "contract_id": "sample-mission-contract",
+  "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "required_checks": [
+    "git_diff_check",
+    "self_test_suite"
+  ],
+  "required_acceptance": [
+    "code_review"
+  ]
+}

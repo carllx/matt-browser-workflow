@@ -1,19 +1,21 @@
 {
-  "meta_description": "外部契约必需的检查命令执行失败 (exit code 非零 / failure)",
+  "meta_description": "External contract 要求 security_gate，但 producer evidence 内部自洽地同时删除了该要求和运行记录并声称 PASS",
   "meta_expected_verdict": "FAIL",
   "contract": {
     "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
     "required_checks": [
       "git_diff_check",
-      "unit_tests"
+      "security_gate"
     ],
-    "required_acceptance": []
+    "required_acceptance": [
+      "code_review"
+    ]
   },
   "evidence": {
     "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
     "provenance": {
       "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-      "session_id": "ide-session-bad-03"
+      "session_id": "ide-session-omitted-check"
     },
     "check_runs": [
       {
@@ -21,15 +23,15 @@
         "command": "git diff --check",
         "terminal_state": "success",
         "exit_code": 0
-      },
-      {
-        "name": "unit_tests",
-        "command": "pytest",
-        "terminal_state": "failure",
-        "exit_code": 1
       }
     ],
-    "acceptance_records": [],
-    "claimed_overall_status": "FAIL"
+    "acceptance_records": [
+      {
+        "name": "code_review",
+        "invoked": true,
+        "verdict": "PASS"
+      }
+    ],
+    "claimed_overall_status": "PASS"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+  "provenance": {
+    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "session_id": "ide-session-sample"
+  },
+  "check_runs": [
+    {
+      "name": "git_diff_check",
+      "command": "git diff --check",
+      "terminal_state": "success",
+      "exit_code": 0
+    },
+    {
+      "name": "self_test_suite",
+      "command": "python3 scripts/check_evidence.py --self-test",
+      "terminal_state": "success",
+      "exit_code": 0
+    }
+  ],
+  "acceptance_records": [
+    {
+      "name": "code_review",
+      "invoked": true,
+      "verdict": "PASS"
+    }
+  ],
+  "claimed_overall_status": "PASS"
+}

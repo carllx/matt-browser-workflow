@@ -1,21 +1,25 @@
 {
   "meta_description": "缺少 provenance 字段，无法追踪证据所属的具体提交和会话",
   "meta_expected_verdict": "UNVERIFIED",
-  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "provenance": null,
-  "required_checks": [
-    "git_diff_check"
-  ],
-  "check_runs": [
-    {
-      "name": "git_diff_check",
-      "command": "git diff --check",
-      "terminal_state": "success",
-      "exit_code": 0
-    }
-  ],
-  "required_acceptance": [],
-  "acceptance_records": [],
-  "claimed_overall_status": "PENDING"
+  "contract": {
+    "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "required_checks": [
+      "git_diff_check"
+    ],
+    "required_acceptance": []
+  },
+  "evidence": {
+    "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "provenance": null,
+    "check_runs": [
+      {
+        "name": "git_diff_check",
+        "command": "git diff --check",
+        "terminal_state": "success",
+        "exit_code": 0
+      }
+    ],
+    "acceptance_records": [],
+    "claimed_overall_status": "PENDING"
+  }
 }

@@ -1,26 +1,30 @@
 {
-  "meta_description": "必需的 acceptance 检验尚未执行或缺少记录，未声称通过",
+  "meta_description": "外部契约必需的 acceptance 检验尚未执行或缺少记录，未声称通过",
   "meta_expected_verdict": "UNVERIFIED",
-  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "provenance": {
-    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-    "session_id": "ide-session-incomplete-03"
+  "contract": {
+    "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "required_checks": [
+      "git_diff_check"
+    ],
+    "required_acceptance": [
+      "code_review"
+    ]
   },
-  "required_checks": [
-    "git_diff_check"
-  ],
-  "check_runs": [
-    {
-      "name": "git_diff_check",
-      "command": "git diff --check",
-      "terminal_state": "success",
-      "exit_code": 0
-    }
-  ],
-  "required_acceptance": [
-    "code_review"
-  ],
-  "acceptance_records": [],
-  "claimed_overall_status": "WAITING_REVIEW"
+  "evidence": {
+    "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "provenance": {
+      "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+      "session_id": "ide-session-incomplete-03"
+    },
+    "check_runs": [
+      {
+        "name": "git_diff_check",
+        "command": "git diff --check",
+        "terminal_state": "success",
+        "exit_code": 0
+      }
+    ],
+    "acceptance_records": [],
+    "claimed_overall_status": "WAITING_REVIEW"
+  }
 }

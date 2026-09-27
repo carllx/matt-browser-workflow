@@ -1,24 +1,28 @@
 {
   "meta_description": "工具被系统或权限拒绝 (tool denied)，但 bundle 仍声明整体通过",
   "meta_expected_verdict": "FAIL",
-  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "provenance": {
-    "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-    "session_id": "ide-session-bad-04"
+  "contract": {
+    "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "required_checks": [
+      "security_scan"
+    ],
+    "required_acceptance": []
   },
-  "required_checks": [
-    "security_scan"
-  ],
-  "check_runs": [
-    {
-      "name": "security_scan",
-      "command": "run_security_audit",
-      "terminal_state": "denied",
-      "exit_code": 0
-    }
-  ],
-  "required_acceptance": [],
-  "acceptance_records": [],
-  "claimed_overall_status": "PASS"
+  "evidence": {
+    "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "provenance": {
+      "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+      "session_id": "ide-session-bad-04"
+    },
+    "check_runs": [
+      {
+        "name": "security_scan",
+        "command": "run_security_audit",
+        "terminal_state": "denied",
+        "exit_code": 0
+      }
+    ],
+    "acceptance_records": [],
+    "claimed_overall_status": "PASS"
+  }
 }

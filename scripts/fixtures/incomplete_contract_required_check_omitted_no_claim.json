@@ -1,11 +1,11 @@
 {
-  "meta_description": "完全有效且完整的证据包，外部契约要求的各项检查全部验证通过",
-  "meta_expected_verdict": "PASS",
+  "meta_description": "External contract 要求 security_gate，producer evidence 省略该检查且未声称 PASS (状态为 INCOMPLETE)，必须 UNVERIFIED 而非 PASS",
+  "meta_expected_verdict": "UNVERIFIED",
   "contract": {
     "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
     "required_checks": [
       "git_diff_check",
-      "self_test_suite"
+      "security_gate"
     ],
     "required_acceptance": [
       "code_review"
@@ -15,18 +15,12 @@
     "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
     "provenance": {
       "commit_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-      "session_id": "ide-session-good-01"
+      "session_id": "ide-session-omitted-check-unverified"
     },
     "check_runs": [
       {
         "name": "git_diff_check",
         "command": "git diff --check",
-        "terminal_state": "success",
-        "exit_code": 0
-      },
-      {
-        "name": "self_test_suite",
-        "command": "python3 scripts/check_evidence.py --self-test",
         "terminal_state": "success",
         "exit_code": 0
       }
@@ -38,6 +32,6 @@
         "verdict": "PASS"
       }
     ],
-    "claimed_overall_status": "PASS"
+    "claimed_overall_status": "INCOMPLETE"
   }
 }

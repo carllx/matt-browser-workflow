@@ -1,24 +1,28 @@
 {
   "meta_description": "采证来源 commit 与当前 candidate SHA 不一致 (陈旧证据冒充当前候选)",
   "meta_expected_verdict": "FAIL",
-  "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "expected_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
-  "provenance": {
-    "commit_sha": "c368bdc111111111111111111111111111111111",
-    "session_id": "ide-session-bad-02"
+  "contract": {
+    "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "required_checks": [
+      "git_diff_check"
+    ],
+    "required_acceptance": []
   },
-  "required_checks": [
-    "git_diff_check"
-  ],
-  "check_runs": [
-    {
-      "name": "git_diff_check",
-      "command": "git diff --check",
-      "terminal_state": "success",
-      "exit_code": 0
-    }
-  ],
-  "required_acceptance": [],
-  "acceptance_records": [],
-  "claimed_overall_status": "PASS"
+  "evidence": {
+    "candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
+    "provenance": {
+      "commit_sha": "c368bdc111111111111111111111111111111111",
+      "session_id": "ide-session-bad-02"
+    },
+    "check_runs": [
+      {
+        "name": "git_diff_check",
+        "command": "git diff --check",
+        "terminal_state": "success",
+        "exit_code": 0
+      }
+    ],
+    "acceptance_records": [],
+    "claimed_overall_status": "PASS"
+  }
 }

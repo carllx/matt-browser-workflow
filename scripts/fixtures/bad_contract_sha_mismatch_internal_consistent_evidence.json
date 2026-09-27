@@ -1,5 +1,5 @@
 {
-  "meta_description": "候选 SHA 与外部契约要求的目标 SHA 不匹配",
+  "meta_description": "Evidence 自己填写互相一致但错误的 candidate SHA 与 provenance SHA；External contract 指定另一个 exact SHA，必须判定 FAIL",
   "meta_expected_verdict": "FAIL",
   "contract": {
     "expected_candidate_sha": "afdfa82670e8e025d4a91630d812dc7b11685f8c",
@@ -9,10 +9,11 @@
     "required_acceptance": []
   },
   "evidence": {
-    "candidate_sha": "0000000000000000000000000000000000000000",
+    "candidate_sha": "bad_deadbeef_internally_consistent_0000000000",
+    "expected_sha": "bad_deadbeef_internally_consistent_0000000000",
     "provenance": {
-      "commit_sha": "0000000000000000000000000000000000000000",
-      "session_id": "ide-session-bad-01"
+      "commit_sha": "bad_deadbeef_internally_consistent_0000000000",
+      "session_id": "ide-session-wrong-sha-self-consistent"
     },
     "check_runs": [
       {
