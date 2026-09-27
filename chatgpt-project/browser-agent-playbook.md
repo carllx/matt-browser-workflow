@@ -343,12 +343,11 @@ Relay Contract 的目标是提供**完成当前任务所需的最小充分信息
 Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供易于用户一键复制的结构：
 
 - **任务契约与执行拓扑权属 (Mission Contract & Execution Topology Ownership)**：
-  - **Browser 权属与依赖扫描**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）。Browser 在选择当前策略及派发前进行轻量依赖与执行杠杆判断（Dependency/Leverage Scan，*Serialize dependencies, not habits*）：从已有项目指针出发，仅在已知的下一真实 Gate / successor 或共享证据、环境、接口、测试面的相关 sibling 可能实质改变当前选择时，核对必要事实，避免把即将变化的前提固化或把局部 blocker 当成全局依赖；没有这类关联就保持当前范围，不扫描全部 Issues、不生成固定清单、不提前实施后续任务；后续方案尚未生效时，不自动替换当前已接受的验收条件。对于逻辑独立、状态隔离的分支主动指出批量/并行或共享证据机会；共享现场不等于可以同时改变变量，若会污染失败归因或破坏有序 Gate，保留隔离与串行。不越权微观设计 IDE 的子代理拓扑；IDE 拥有内部拓扑权属绝不代表 Browser 必须默认单线串行或对并行机会保持沉默；
-  - **完整 Work Unit 与主 Agent 闭环**：Mission 按可独立验证的 Work Unit 与真实外部门禁划分。IDE 主 Agent 在已批准 scope、权限与测试 seams 内负责必要检查、内部计划、实现、test/fix、适用 review、集成验证及 Join，自治推进至约定交付门禁（Run-to-Gate）。普通 local fact、测试/lint 失败、范围内小 bug 与允许的相邻低风险修正属于内部闭环，不各自生成新 Work Order；进度更新不等于交接。真实外部阻塞出现时，明确已完成状态、缺失条件与恢复点；
-  - **内部拓扑与能力选择**：IDE 自主选择有实际收益的 batching、native delegation 或 parallelism，无需固定 worker 数量或每次说明为何不用 Subagent。与 Browser 路由无关的本地能力核实在 Mission 内完成；仅用于效率的能力不可用时可选择充分的串行或批量路径，不能降级调用权限、真实资源隔离或 mandatory Gate。服务于同一决策的兄弟分支共享闭环边界，由主 Agent 汇聚最小必要结果并承担最终交付；
-  - **门禁保真度与工单纪律 (Required Skill Gate Fidelity & Work Order Discipline)**：IDE 的执行拓扑自治权绝不等于可以自主删除、替换或弱化明确的完成门禁（Completion Gate）；当任务契约明确将某 named Skill 规定为 required gate 时，IDE 必须真实触发该 Skill，不得用内联推理、通用 self-review 或手工模仿输出静默替代。Browser 派发工单时若真实需要 Skill 原生门禁，应写成明确的 mandatory Skill，避免随手使用 `or equivalent` 造成门禁弱化；仅当等效实现确实满足目标且不依赖 Skill 原生机制/制品时，方可显式注明 `equivalent allowed`；
-  - **Harness 不变式**：Harness 工具与环境能力可能改变执行拓扑，但**绝不改变**权限划分、证据标准或完成门禁（*Harness capabilities may change execution topology; they do not change authority, evidence, or completion requirements.*）；
-  - **显式跨端协调边界**：仅在存在共享可变状态（shared mutable state）、有序全局门禁（ordered gates）或真实的跨 Agent 依赖时，才需要 Browser 进行显式串行/并行/Join 编排；Browser 不对 IDE 内部执行拓扑做微观管理。
+  - **Browser 权属与依赖扫描**：Browser 负责定义真实外部依赖（real dependencies）、目标方向（destination）、范围与禁止项（scope / non-goals）、决策边界（decision boundaries）以及完成与证据门禁（completion / evidence gates）。Browser 统筹识别真实依赖与明显并行杠杆（*Serialize dependencies, not habits*），避免把局部 blocker 当成全局依赖；不越权微观编排 IDE 的子代理拓扑，亦不默认单线串行；
+  - **完整 Work Unit、Run-to-Gate 与中继减负**：任务按独立验证的 Work Unit 划分。对于 local-feedback-heavy 的 implementation / debugging / testing 任务，已具备清晰目标、范围、验收标准与门禁时，IDE 主 Agent 默认自行闭环推进完整流程（`inspect → plan → edit → test → diagnose/fix → re-test → evidence → commit/push`）至真实 Gate。普通工程判断、本地事实查证、测试与 lint 失败、常规修复均属内部拓扑，不逐步向 Browser/User 索要授权；Browser 不得将工程步骤切碎为多个需用户来回复制的微工单；
+  - **人类中继边界与单一整合返回**：严格区分语义中继（重大决策、凭据/权限边界、破坏性操作、实质范围扩大、user-invoked Skill 真实触发等信任边界保留人类裁决）与机械中继（默认避免让人类搬运仓库事实、普通局部测试输出、中间实现状态或已知远程信息）。协作主路径为 `one Mission Contract → IDE autonomous execution → one consolidated evidence bundle → Browser fixed-ref review`，核心是 *Human handles meaning and authorization, not routine transport*；
+  - **内部拓扑与门禁保真度**：IDE 自主选择有实际收益的 batching、native delegation 或 parallelism；服务于同一决策的兄弟分支必须在门禁前汇聚为单一规范状态。IDE 的拓扑自治权绝不等于可以自主删除、替换或弱化明确的完成门禁（Completion Gate）；当任务契约明确将某 named Skill 规定为 required gate 时，IDE 必须真实触发该 Skill，不得用内联推理或通用 self-review 静默替代；Harness 工具能力改变执行拓扑，但绝不改变权限划分、证据标准或完成门禁；
+  - **显式跨端协调边界**：仅在存在共享可变状态、有序全局门禁或真实跨 Agent 依赖时，才需要 Browser 进行显式串行/并行/Join 编排；Browser 不对 IDE 内部执行拓扑做微观管理。
 
 **模式一—非 canonical self-contained artifact 场景（提供最小充分上下文）**
 按需覆盖以下契约维度：
@@ -372,10 +371,10 @@ Browser Lead 向 IDE 派发任务时，需视场景组织契约维度并提供�
 - **Query & Scope**：具体查询要点、检索范围与非目标；
 - **Evidence Required**：要求返回合成摘要及适用来源依据（如 provider/source/dataset/query/version/locator/citation 等 when applicable 及限制说明）。
 
-**中继会话指示 (Session Targeting Advice)**：每次需要用户将 Work Order 复制到 IDE 时，Browser 必须在 Work Order 中显式输出会话目标指示与一句话简要理由：
-- `Continue current IDE session`：仅当在同一 implementation Issue 进行紧密窄修正、已知 IDE 上下文健康且仍需一手推理延续时推荐；
-- `Fresh IDE session`（或 `Open fresh IDE session`）：当进入新的独立 implementation Issue（自包含 Work Unit）、IDE 出现上下文退化信号，或在 Fresh Browser 会话中缺乏已核实的健康活跃 IDE 会话时推荐；
-- **禁止无依据连续性推断 (No Ungrounded Continuity Inference)**：严禁在缺乏已核实事实依据时凭空推测既有 IDE 会话处于活动或健康状态；Browser 与 IDE 生命周期相互独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然。
+**条件化会话目标指示 (Material-Only Session Targeting Advice)**：仅当会话选择对当前 Work Unit 具有实质影响时，Browser 才显式输出会话目标指示与一句话事实依据；非实质或缺乏相关事实依据时无需机械输出会话仪式：
+- `Continue current IDE session`：仅当在同一 implementation Issue 进行紧密窄修正、已知当前 IDE 上下文健康且仍需一手推理延续时推荐；
+- `Fresh IDE session`（或 `Open fresh IDE session`）：当进入新的独立 implementation Issue（自包含 Work Unit）、IDE 出现可观察退化信号需重置，或在 Fresh Browser 会话中缺乏已核实的健康活跃 IDE 会话时推荐；
+- **禁止臆测不可见状态与保持独立**：严禁在缺乏已核实事实依据时凭空推测既有 IDE 会话处于活动或健康状态；Browser 与 IDE 生命周期相互独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然。
 
 ### B. 证据反馈与汇聚门禁 (IDE → Browser Feedback & Join Gate)
 IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地工作区。其核心是**在完成门禁前将内部并行或子任务汇聚为单一规范状态，并提供足够 Browser 独立核实的最小整合证据包**：
@@ -406,12 +405,9 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
 
 ## 13. 双会话上下文治理 (Dual-Session Context Stewardship)
 
-### A. 独立双会话视角
-Browser Lead 必须分别独立评估：
-1. **Browser Session Health**（网页端调度会话健康度）；
-2. **IDE Session Health**（本地端执行会话健康度）。
-
-一端因会话过长或完成阶段需要切换，**不代表**另一端也必须切换。
+### A. 双会话自治与介入边界
+各 host / 当前 owner 优先自治管理自身上下文健康度：IDE 管理自身本地执行健康度，Browser 管理自身调度健康度。Browser 不再持续遥控不可观测的 IDE 内部状态。
+Browser 仅在已观察到真实退化信号（见 B 项）、处于明确 Work Unit / 阶段边界、会话选择会实质改变当前任务、或用户明确询问时介入建议；一端因会话长度或阶段完成切换，**绝不代表**另一端也必须机械切换。
 
 ### B. 上下文退化信号 (Context Degradation Signals)
 当任一会话出现以下警告信号时，应在最近的阶段边界进行处理：

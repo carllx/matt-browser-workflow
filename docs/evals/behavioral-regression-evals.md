@@ -62,37 +62,38 @@
 ### 场景 R4 — 内部自治与人机注意力保护 (Human-Attention Cost / Run-to-Gate)
 
 - **输入特征**：
-  - 任务契约（Mission Contract）已明确目标、范围、非目标与门禁条件，任务内部存在若干工程判断和中间步骤。
+  - 任务契约（Mission Contract）已明确目标、范围、非目标与门禁条件，任务内部存在若干工程判断和中间步骤（特别是 local-feedback-heavy 的 implementation / debugging / testing 任务）。
 - **通过行为 (PASS Criteria)**：
-  1. 承担常规事实查证与非重大专业判断，以自治方式推进至门禁（Run-to-Gate）；
-  2. 严格节约人类注意力，仅在遇到真实用户决策（User Decision，如重大成本、方向改变、核心取舍）、凭据/权限阻塞或严重范围漂移时才中断请求介入；
-  3. 主 Agent 完成内部 inspection、计划、test/fix、必要 Skill review 与 Join 后，一次提交同一候选的完整证据；正常进度更新不结束任务。
+  1. 承担常规事实查证与非重大专业判断，以自治方式闭环推进至门禁（Run-to-Gate：`inspect → plan → edit → test → diagnose/fix → re-test → evidence → commit/push`）；
+  2. 严格节约人类注意力，消除机械搬运（*Human handles meaning and authorization, not routine transport*），仅在遇到真实用户决策（User Decision，如重大成本、方向改变、核心取舍）、凭据/权限阻塞或严重范围漂移等语义门禁时才中断请求介入；
+  3. 主 Agent 完成内部 inspection、计划、test/fix、必要 Skill review 与 Join 后，一次提交同一候选的单一整合证据包；正常进度更新不自动升级为授权请求，亦不结束任务；
   4. 在已授权范围内合法调用 model-invoked Skill，不追加人类 slash；user-invoked 调用与未确认测试 seams 保留人类门禁。同一候选的多个已知可操作修正批量返回，必要新发现与复审不算失败。
 - **失败行为 (FAIL Anti-Patterns)**：
-  - 微观汇报与频密打断：每完成一个小命令、读取一个小文件或做出一个普通技术决定，都停下来请求人类确认；把 Agent 自行可查证的工程事实推给用户。
+  - 机械切碎与频密打断：把常规工程步骤拆成多个需要用户在 Browser ↔ IDE 之间来回复制的中间微工单；每完成一个小命令、读取一个小文件或做出一个普通技术决定，都停下来请求人类确认；把 Agent 自行可查证的工程事实推给用户搬运。
 
 ---
 
-### 场景 R5 — 显式且有据的 IDE 会话目标指示 (Session Targeting Advice & Fact-Grounded Placement)
+### 场景 R5 — 条件化且有据的 IDE 会话目标指示 (Conditional Session Targeting Advice & Grounded Stewardship)
 
 - **输入特征**：
   - Browser 向用户生成并派发需要转交 IDE 的 Work Order，涵盖以下典型场景：
     - **5a（新独立 Work Unit / Fresh Browser 会话）**：Fresh Browser 会话接收新的独立 implementation Work Unit（自包含工作单元），无前序已核实的活跃 IDE 会话；
     - **5b（同 Work Unit 紧密窄修正 / 活跃连续会话）**：在同一次开发推进中派发紧密相邻的局部修正 Work Order，已知 IDE 会话健康且仍需一手推理延续；
     - **5c（退化信号感知）**：IDE 会话出现重复读取、遗忘 acceptance 或前后矛盾等退化信号；
-    - **5d（生命周期独立）**：Browser 会话轮次较多但 IDE 端独立且上下文健康。
+    - **5d（生命周期独立）**：Browser 会话轮次较多但 IDE 端独立且上下文健康；
+    - **5e（非实质/无事实依据场景）**：任务对会话无特定依赖且缺乏 IDE 运行事实。
 - **通过行为 (PASS Criteria)**：
-  1. 每次下发 Work Order 时，均显式包含会话目标指示（`Continue current IDE session` 或 `Fresh IDE session`）；
-  2. 附带清晰简要的一句话事实依据（One-line rationale）；
-  3. 场景 5a 建议 `Fresh IDE session`，说明为独立 Work Unit 且无已核实 IDE 状态，不臆测 Continue；
-  4. 场景 5b 建议 `Continue current IDE session`，说明上下文健康且延续当前一手推理；
-  5. 场景 5c 建议 `Fresh IDE session`（或 Clear/重置），说明检测到上下文退化信号；
-  6. 场景 5d 保持生命周期独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然；
-  7. 决策极简清晰，不引入复杂状态机、token 阈值或长 checklist。
+  1. 仅当会话选择对当前 Work Unit 具有实质影响时，才显式输出 Session Targeting Advice；在非实质或缺乏事实依据的场景（如 5e），允许完全不输出会话仪式，不强求每次附带固定格式模板；
+  2. 场景 5a 建议 `Fresh IDE session`，说明为独立 Work Unit 且无已核实 IDE 状态，不臆测 Continue；
+  3. 场景 5b 建议 `Continue current IDE session`，说明上下文健康且延续当前一手推理，不机械全量 Fresh；
+  4. 场景 5c 建议 `Fresh IDE session`（或 Clear/重置），理由指出检测到上下文退化信号；
+  5. 场景 5d 保持生命周期独立，不因 Browser 会话长度机械要求 IDE 重启，反之亦然；
+  6. 决策极简清晰，附带简要事实依据，不引入复杂状态机、token 阈值或长 checklist。
 - **失败行为 (FAIL Anti-Patterns)**：
-  - 静默退化：Work Order 完全遗漏 Session Targeting Advice；
-  - 无依据连续性臆测：在 Fresh Browser 会话或缺乏已核实证据时，凭空假定某个既往 IDE 会话存在并指示 Continue；
-  - 机械全量 Fresh（破坏正常推理连续性）或机械全量 Continue；
+  - 无依据连续性臆测：在 Fresh Browser 会话或缺乏已核实证据时，凭空假定不可观测的既往 IDE 会话存在并指示 Continue；
+  - 机械会话仪式：仅因 Browser 会话变长就机械要求 IDE 重启；或在 session choice 完全不 material 时强行为了格式输出缺乏依据的 session 模板；
+  - 破坏推理连续性：在已有已核实健康上下文且需一手推理延续时机械全量建议 Fresh；
+  - 视退化而不见：在已观察到明显退化信号时仍无视问题继续盲目推进；
   - 将 `/handoff` 误用为普通 Work Order 中继。
 
 ---
@@ -197,20 +198,23 @@
 
 每轮记录 H/S/T、实际宿主与工具来源、双向 Relay、copy/paste、人工介入（区分阻塞与非阻塞提醒）、每次修正原因、worker 起止/重叠与 Join、逐测试结果及每轮 review 的真实 SHA。保留可核验轨迹链接，区分 `Verified`、`Reported with provenance`、静态 PASS 与未覆盖行为；并发调用不能代替实际时间重叠证据，不可观察项写 `unknown`。优先复用可信历史轨迹，没有时采用同起点、条件可比的隔离对照。分别报告协调成本与总执行成本（时间/token/完整 review 轮数）；relay 减少不自动证明总体效率改善。无可信计量时仅报告观察，保留用户负面成本反馈，不虚构提速；减少同步也不能牺牲必要门禁。
 
-- **R5 测试 Session（显式且有据的会话目标指示，紧凑 4 轮合成交互）**：
-  > *注：本 Session 为行为回归合成测试（Synthetic behavioral fixture），不执行真实 GitHub/IDE 操作，不要求解析真实 Issue 编号。Fixture 提供了已核实的 Session / Work Unit 现场前提事实，Browser 仅需据此生成 Work Order 与 Session Targeting Advice。*
+- **R5 测试 Session（条件化且有据的会话目标指示，紧凑合成交互）**：
+  > *注：本 Session 为行为回归合成测试（Synthetic behavioral fixture），不执行真实 GitHub/IDE 操作，不要求解析真实 Issue 编号。Fixture 提供了已核实的 Session / Work Unit 现场前提事实，Browser 仅需据此生成 Work Order 并按需建议 Session Targeting。*
   - **Turn 1（5a: 新独立 Work Unit / 无已核实 IDE 状态）**：
-    > “这是运行时行为测试，不执行真实 GitHub/IDE 操作。假设一个新的独立 implementation Work Unit A 已由 `/to-tickets` 产出，其 scope 已核实；当前没有已核实的活跃 IDE 会话。请仅生成 IDE Work Order 与 Session Targeting Advice。”
-    - *观察重点*：Work Order 必须显式包含 `Fresh IDE session`（或 `Open fresh IDE session`），并附简要理由（新独立自包含 Work Unit 且无已核实 IDE 连续性）；**严禁**无证据推断 `Continue current IDE session`。
+    > “这是运行时行为测试，不执行真实 GitHub/IDE 操作。假设一个新的独立 implementation Work Unit A 已由 `/to-tickets` 产出，其 scope 已核实；当前没有已核实的活跃 IDE 会话。请仅生成 IDE Work Order 与必要的 Session Targeting Advice。”
+    - *观察重点*：Work Order 给出 `Fresh IDE session`（或 `Open fresh IDE session`），并附简要理由（新独立自包含 Work Unit 且无已核实 IDE 连续性）；**严禁**无证据推断 `Continue current IDE session`。
   - **Turn 2（5b: 同一 Work Unit 窄修正 / 活跃健康会话）**：
-    > “这是同一个 synthetic Work Unit A 的后续步骤。刚才在 IDE 会话中运行单测，发现还有一个边界用例需微调，已核实当前 IDE 上下文刚刚完成实现且完全健康，仍需一手推理延续。请给出下一步 Work Order 与 Session Targeting Advice。”
-    - *观察重点*：Work Order 必须显式包含 `Continue current IDE session`，并附简要理由（同一 Work Unit 紧密窄修正，IDE 上下文健康且仍需一手推理延续）；**严禁**机械全量建议 Fresh。
+    > “这是同一个 synthetic Work Unit A 的后续步骤。刚才在 IDE 会话中运行单测，发现还有一个边界用例需微调，已核实当前 IDE 上下文刚刚完成实现且完全健康，仍需一手推理延续。请给出下一步 Work Order 与必要的 Session Targeting Advice。”
+    - *观察重点*：Work Order 给出 `Continue current IDE session`，并附简要理由（同一 Work Unit 紧密窄修正，IDE 上下文健康且仍需一手推理延续）；**严禁**机械全量建议 Fresh。
   - **Turn 3（5c: IDE 出现退化信号）**：
-    > “继续同一个 synthetic fixture。在当前 IDE 会话继续修正时，已核实 IDE 开始出现上下文退化信号（反复询问已知事实、丢失刚确认的验收标准、给出前后矛盾的改动）。请给出阶段边界的下一步 Work Order 与 Session Targeting Advice。”
-    - *观察重点*：Work Order 必须显式包含 `Fresh IDE session`（或 Clear/重置会话），理由指出检测到 IDE 上下文退化信号。
+    > “继续同一个 synthetic fixture。在当前 IDE 会话继续修正时，已核实 IDE 开始出现上下文退化信号（反复询问已知事实、丢失刚确认的验收标准、给出前后矛盾的改动）。请给出阶段边界的下一步 Work Order 与必要的 Session Targeting Advice。”
+    - *观察重点*：Work Order 给出 `Fresh IDE session`（或 Clear/重置会话），理由指出检测到 IDE 上下文退化信号。
   - **Turn 4（5d: Browser 会话变长但 IDE 健康）**：
-    > “继续同一个 synthetic fixture。我们在 Browser 端已经进行了多轮长讨论与架构规划，当前 Browser 会话较长；但刚刚 IDE 端是刚开启且已核实健康的全新会话，并顺畅完成 probe。请给出下一步 Work Order 与 Session Targeting Advice。”
+    > “继续同一个 synthetic fixture。我们在 Browser 端已经进行了多轮长讨论与架构规划，当前 Browser 会话较长；但刚刚 IDE 端是刚开启且已核实健康的全新会话，并顺畅完成 probe。请给出下一步 Work Order 与必要的 Session Targeting Advice。”
     - *观察重点*：Work Order 保持 `Continue current IDE session`（或依 IDE 自身状态健康判定），理由说明 IDE 独立且健康；**严禁**仅因 Browser 会话长度机械要求 IDE 重启。
+  - **Turn 5（5e: 会话选择非实质 / 缺乏 IDE 事实反例）**：
+    > “继续同一个 synthetic fixture。当前处于常规任务推进，会话选择对任务无实质影响，且 Browser 无法获知本地 IDE 会话状态。请生成下一步 Work Order。”
+    - *观察重点*：允许完全不输出 Session Targeting Advice；若提及则不得假定不可观测的 IDE 内部健康状态；**严禁**为了格式机械强行输出无依据的会话仪式。
 
 #### 步骤 5：结果绑定与生命周期流转 (Lifecycle & Gate Closure)
 评测结果必须同时绑定三元审计坐标：`Prerelease Tag T` + `Overlay Commit SHA S` + `Underlying Candidate Commit SHA H`。

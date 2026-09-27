@@ -50,9 +50,10 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 
 ## 3. 上下文治理要求 (Context Requirements)
 
-1. **双会话独立治理 (Dual-Session Context Stewardship)**：
+1. **双会话独立自治与边界 (Dual-Session Context Stewardship)**：
    - Browser Session 与 IDE Session 是物理隔离的独立上下文空间；
-   - 两端各自独立监控并评估其上下文健康度（Session Health），一端的切换/清理不应机械引发另一端的变动。
+   - 每个 host / 当前 owner 优先自治管理其自身上下文健康度（Session Health），Browser 不持续遥控不可观测的 IDE 内部会话健康；
+   - Browser 仅在已观察到真实退化信号、明确 Work Unit / 阶段边界、会话选择会实质改变当前任务、或用户明确询问时参与 session-routing 建议；一端的切换/清理不机械引发另一端的变动。
 2. **阶段边界优先 (Phase Boundary Over Token Count)**：
    - 上下文治理应在明确的阶段边界（Phase Boundary）发生；
    - 严禁仅因对话长度增加而在阶段中途（Mid-Phase）随意切换。
@@ -75,7 +76,7 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - **grilling → spec / tickets 等依赖当前 primary reasoning 的连续阶段**：优先 Continue，不因 tracker object 边界机械 Clear；
    - **triage / discovery 等可批量处理多 Issue 的 flow**：不强制 Issue:Session 1:1；
    - **Browser Session 与 IDE Session 生命周期独立**：一端 Clear/Fresh 不机械触发另一端；
-   - **IDE 会话目标中继指示不变式 (Session Targeting Advice Invariant)**：Browser 在向用户派发 IDE Work Order 时，必须显式输出会话目标指示（`Continue current IDE session` 或 `Fresh IDE session`）及一句话事实依据。新独立 implementation Issue 默认建议 Fresh IDE Session；严禁在缺乏已核实事实依据时盲目假定既往 IDE 会话存在与存活。
+   - **条件化会话目标指示不变式 (Conditional Session Targeting Advice Invariant)**：Session Targeting Advice 仅在会话选择对当前 Work Unit 具有实质影响时（如进入新的独立自包含 Work Unit、已核实 IDE 上下文健康且推理延续有实质价值、或观察到退化信号需重置）才显式输出，并附带简要事实依据。当会话选择对当前任务无实质影响或缺乏可核实事实时，不为了格式机械输出 session ceremony；严禁在缺乏已核实事实依据时盲目假定不可观测的既往 IDE 会话存在与存活。
    以上默认映射是 session / work-unit 的参考基准，不构成固定的 Skill → Host mapping；实际 execution placement 仍依据 Relationship-First 判断（见 §10）。
 
 ---
@@ -210,6 +211,15 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
    - IDE 的内部拓扑与分解自治权（Execution Topology Autonomy）仅统辖执行实现方式（How to do），**绝不授予**静默弱化、删除或用内联推理/通用 self-review / 手工模仿输出替代 mandatory Skill 的权限（*Agent autonomy governs execution topology; it does not permit silently weakening an explicit completion gate.*）；
    - 仅当权威任务契约**明确注明允许等效替代（equivalent allowed）**时，IDE 方可采用等效方案并在完成证据中说明；
    - 技能路由、阅读或推荐不等于技能调用（Reading / Routing != Invocation）；未执行且无合法替代时不得声明门禁通过；无需新增 Skill registry 或 state machine 等冗余子系统。
+6. **IDE 自治推进至门禁不变式 (IDE Autonomous Run-to-Gate Invariant)**：
+   - 当 implementation / debugging / test-heavy Work Unit 具备清晰的目标与非目标（Goal / Non-goal）、权威引用与允许范围（Authority / Scope）、验收标准（Acceptance Criteria）、必要证据（Required Evidence）及用户决策边界时，IDE 主 Agent 默认自行推进完整闭环（`inspect → plan → edit → test → diagnose/fix → re-test → evidence → commit/push`）直至遇到真实 Gate；
+   - 范围内的常规工程判断、本地事实查证、测试与 lint 失败、常规修复与重新验证均属于内部执行拓扑，**严禁**切碎为多个中间步骤并要求用户在 Browser ↔ IDE 之间来回搬运微工单；
+   - 正常协作路径保持 `one Mission Contract → IDE autonomous execution → one consolidated evidence bundle → Browser fixed-ref review`；进度更新不自动升级为新的授权请求。
+7. **人类中继边界与减负不变式 (Human Relay Boundary & Reduction Invariant)**：
+   - 严格区分语义中继（Semantic / Human-Required Relay）与机械中继（Mechanical Relay）；
+   - **保留语义中继**：重大产品/成本/方向决策、凭据与权限边界、破坏性或不可逆变更授权、实质范围扩大、`user-invoked` 技能在实际宿主的人类触发，以及其他明确的信任边界；
+   - **消除机械中继**：默认避免要求用户搬运仓库事实、普通局部测试输出、中间实现状态、已授权范围内的常规工程选择，或 Browser 已可从 GitHub / 规范产物 / 最终整合证据获取的信息；
+   - 核心原则：**`Human handles meaning and authorization, not routine transport.`**（人类负责意义与授权，而非日常机械搬运）。
 
 ### 项目声明外部能力与边界不变式 (Project-Declared External Capabilities & Boundary Invariants)
 
