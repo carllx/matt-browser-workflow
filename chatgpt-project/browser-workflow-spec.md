@@ -220,6 +220,16 @@ Browser 是 Workflow Steward，但**不是所有 Matt reasoning 的强制 Host**
    - **保留语义中继**：重大产品/成本/方向决策、凭据与权限边界、破坏性或不可逆变更授权、实质范围扩大、`user-invoked` 技能在实际宿主的人类触发，以及其他明确的信任边界；
    - **消除机械中继**：默认避免要求用户搬运仓库事实、普通局部测试输出、中间实现状态、已授权范围内的常规工程选择，或 Browser 已可从 GitHub / 规范产物 / 最终整合证据获取的信息；
    - 核心原则：**`Human handles meaning and authorization, not routine transport.`**（人类负责意义与授权，而非日常机械搬运）。
+8. **人类可读审查就绪转接与门禁保真不变式 (Human-Readable Review Readiness Transition & Gate Fidelity Invariant)**：
+   - **减负与定向定位 (Oriented Transition)**：IDE 在最终回复或门禁阻断处提供标准收尾的 Review Readiness Footer（`BROWSER REVIEW: READY` / `BROWSER REVIEW: NOT READY` / `USER ACTION REQUIRED`），使人类中继无需阅读或转录长篇 transcript，即可即时判断下一步控制流（回 Browser、留在 IDE 还是执行 Human Gate）；
+   - **状态语义与前置条件**：
+     - **Code mutation READY**：仅在包含代码修改且已将不可变引用推送到 remote（提供 fixed pushed SHA 或 PR head）时允许输出；本地已完成但未 push 必须标为 `BROWSER REVIEW: NOT READY` 并以未推送为 Blocker；
+     - **No-mutation Probe READY**：纯探针或无代码修改调查任务，不得为了满足格式而机械制造虚假 commit；在证据完整汇聚后允许标为 `BROWSER REVIEW: READY`，以规范证据指针作为 review input，并显式标注 `Repo mutation: none`；
+     - **Human-only Gate**：未在实际宿主触发的 `user-invoked` 技能、重大产品/成本/方向决策、凭据授权/破坏性操作审批、实质范围扩张或未完成 Join 时，严禁输出 READY，必须输出 `USER ACTION REQUIRED` 并指明具体动作；
+     - **NOT READY**：仅指出一个真实阻塞（Blocker），指导用户留在 IDE 处理，不把中间状态转交 Browser；
+   - **核心安全守则**：
+     - **`UX signal != Review PASS`**：Footer 仅为面向人类的流程转接信号，绝非免除 Review 的凭据；Browser 绝不得看到 READY 即判定 PASS，必须基于 Review input 独立远程核实；
+     - **充分即止与非状态机**：Footer 仅出现在最终/门禁回复，不要求每次进度更新输出；严禁扩展为有限状态机、跨应用自动通信总线或独立 Registry。
 
 ### 项目声明外部能力与边界不变式 (Project-Declared External Capabilities & Boundary Invariants)
 

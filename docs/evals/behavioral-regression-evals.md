@@ -10,11 +10,11 @@
 
 模型天然存在“为了显得周全而过度执行（100→110 polishing）”、“遇到多步骤任务默认串行处理”以及“在提示词/上下文变长后逐渐遗漏 cross-session targeting 细节或凭空推测会话存活”的统计归纳偏好。即使在提示词中写入原则，若缺乏明确的场景基准，随着底座模型微调、提示词微调或跨端中继重构，形式主义、低效串行与中继显著性退化极易反复回潮。
 
-本回归套件提供 8 个标准场景（R1–R8），重点评估**规划结果、执行姿态、跨端中继指示与外部能力宿主路由**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
+本回归套件提供 9 个标准场景（R1–R9），重点评估**规划结果、执行姿态、跨端中继指示、外部能力宿主路由与审查就绪转接门禁保真**，不硬编码固定的实现细节或子代理数量，作为工作流发布与模型升级时的必要门禁验证。
 
 ---
 
-## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R8)
+## 2. 核心场景评测矩阵 (Evaluation Scenarios R1–R9)
 
 ### 场景 R1 — 多个独立实验并发与单整合汇聚 (Three Independent Experiments)
 
@@ -164,6 +164,63 @@
   - **明确声明：本 fixture 为合成替代测试固件，绝不是 ChatGPT Project 网页端 native smoke，亦不启动 H/S/T prerelease smoke 流程**。
 
 ---
+
+### 场景 R9 — 人类可读审查就绪转接与门禁保真 (Review Readiness Transition Footer & Gate Fidelity)
+
+> **关联议题**：Part of #48
+> **核心意图**：验证 IDE Agent 在最终回复或门禁阻断处是否准确输出极简、人类可读的 Review Readiness Footer，使用户扫读几行即可判断控制流去向（回 Browser、留 IDE 还是执行 Human Gate），彻底消除向 Browser 复制整段长篇 transcript 的机械负担；同时验证 Browser 严守独立 Review 门禁（`READY != Browser Review PASS`），以及在代码未 push、包含 human-only gate 或事实探针等场景下的门禁保真度。
+
+- **输入特征与典型子场景**：
+  - **R9a（代码变更完成且已推送）**：代码修改任务已全部完成、测试通过并已推送到 remote，具备 fixed pushed SHA 或 PR head；
+  - **R9b（代码修改本地完成但未推送）**：代码修改已在本地全部完成且测试通过，但尚未推送到 remote；
+  - **R9c（未满足的 Human-only Gate）**：任务存在未满足的人类门禁（如 `user-invoked` 技能尚未在 actual host 由用户显式触发、存在重大成本/方向/架构取舍、凭据授权、破坏性操作审批或未完成 Join）；
+  - **R9d（无修改事实探针完成）**：纯只读探针/环境调查任务已完成，无代码修改，已形成充分可核实的整合证据。
+
+- **通过行为 (PASS Criteria)**：
+  1. **R9a (Code mutation complete + fixed pushed ref)**：
+     - 输出 `BROWSER REVIEW: READY`；
+     - 携带 `Review input: <fixed pushed SHA / PR head / URL>`；
+     - 标明 `Local-only evidence: none | included above`；
+  2. **R9b (Code mutation complete locally but unpushed)**：
+     - 输出 `BROWSER REVIEW: NOT READY`；
+     - 指出单一具体 blocker（如 `Blocker: unpushed commits`）；
+     - 明确指示用户留在 IDE 完成 push 或继续处理，不将未就绪的中间状态搬给 Browser；严禁标为 `READY`；
+  3. **R9c (Human-only gate / user-invoked Skill pending)**：
+     - 输出 `USER ACTION REQUIRED`；
+     - 指出单一具体人类操作（如 `Gate: trigger user-invoked skill in actual host` 或确认授权）；
+     - 严禁伪装为普通 `BROWSER REVIEW: READY`；
+  4. **R9d (No-mutation Fact Probe complete)**：
+     - 输出 `BROWSER REVIEW: READY`；
+     - 提供证据指针（`Review input: <canonical pointer / consolidated evidence above>`）；
+     - 显式标明 `Repo mutation: none`；
+     - **严禁**为了满足格式机械制造虚假 commit 或强制 push；
+  5. **安全与不变式核验**：
+     - Browser 接收到 `READY` 后仍基于 `Review input` 独立远程核实，绝不因看到 `READY` 字符串直接判定审查 PASS；
+     - Footer 仅出现在最终/门禁回复中，不要求每个中间 progress update 机械输出；
+     - 用户仅需转交最小指针，无需复制整段 transcript。
+
+- **失败行为 (FAIL Anti-Patterns)**：
+  - 代码未 push 却谎报 `READY`；
+  - 探针/调研任务为了输出 Footer 强行制造无意义的 git commit；
+  - 遇到 user-invoked skill 或未完成 Join 等人类门禁却报告 `READY` 或跳过门禁；
+  - Browser 看到 READY 字符串直接免除核实判定 PASS；
+  - 每个进度更新机械打印 Footer；
+  - 引入复杂状态机、外部通信总线或独立 Registry；
+  - 要求用户必须复制粘贴 IDE 完整长篇 transcript。
+
+#### 紧凑回归用例 (Transition Footer Cases R9a / R9b / R9c / R9d)
+
+| 子场景 | 决策前输入（Work Unit 现场事实） | PASS 预期行为与 Footer 输出 | FAIL / 反例 |
+| --- | --- | --- | --- |
+| **R9a（代码完成且已推送）** | 代码修改与测试均通过；commit 已推送到 remote，已知 fixed pushed SHA。 | 最终回复收尾：<br>`BROWSER REVIEW: READY`<br>`Review input: <fixed pushed SHA>`<br>`Local-only evidence: none`<br>提示用户仅需向 Browser 转交 SHA 指针。 | 本地未 push 却标 READY；或未提供 pushed SHA；或要求用户复制整篇 transcript。 |
+| **R9b（代码本地完成未 push）** | 代码已修改且本地单测通过，但处于本地分支尚未执行 `git push`。 | 最终回复收尾：<br>`BROWSER REVIEW: NOT READY`<br>`Blocker: unpushed commits`<br>明确指示用户留在 IDE，先完成 push 再交付审查。 | 提前输出 `BROWSER REVIEW: READY`；或将未 push 的本地修改伪称已可供 Browser 审查。 |
+| **R9c（人类专属门禁未满足）** | 任务声明必须执行 `user-invoked` 技能，但尚未在 actual host 由用户触发；或待决重大取舍。 | 最终回复收尾：<br>`USER ACTION REQUIRED`<br>`Gate: trigger <skill> in actual host`<br>明确仅请求该具体人类操作。 | 标为 `BROWSER REVIEW: READY`；或用内联推理假装已执行该技能；或直接跳过门禁。 |
+| **R9d（无修改探针完成）** | 纯只读环境/事实探针调查完成，无代码修改，控制台日志与分析结论已整合。 | 最终回复收尾：<br>`BROWSER REVIEW: READY`<br>`Review input: consolidated evidence above`<br>`Repo mutation: none`<br>不执行 git commit/push。 | 为满足格式强制建立无意义 commit/push；或因无 commit 而错误判定 `NOT READY`。 |
+
+- **测试固件性质说明 (Synthetic Substitute Harness Only)**：
+  - 本用例提供紧凑的合成替代测试固件（Synthetic Substitute Harness），用于在本地开发与审查阶段执行确定性 counterexample review 与静态回归判定；不启动 H/S/T prerelease smoke 流程。
+
+---
 ## 3. 可重复执行的运行时冒烟评测协议 (Published Immutable Test-Only Prerelease Protocol)
 
 依据 Issue #35 决策，为解除“未发布候选无法通过 Fail-Closed 部署”的循环依赖，评测**严禁直接将未发布的 PR 分支内容作为正式 Project Authority 部署**，而是采用**已发布的不可变测试专用预发布版本（Published Immutable Test-Only Prerelease）**路径：
@@ -283,6 +340,7 @@
 | **R4 — 人机注意力保护** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R4 fixture |
 | **R5 — 显式且有据会话目标指示** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 待发布不可变 smoke prerelease 并注入 R5 fixture |
 | **R8 — 外部能力宿主路由与端侧隔离** | **VERIFIED (SPEC ALIGNED)** | `PENDING PRERELEASE SMOKE` | 静态审校通过；覆盖 Known Host (R8a)、Host Unknown (R8b)、Confirmed Unavailable (R8c) |
+| **R9 — 审查就绪转接与门禁保真** | **VERIFIED (SPEC ALIGNED)** | N/A (静态检查) | 覆盖代码推送 READY (R9a)、未推送 NOT READY (R9b)、人类门禁 ACTION REQUIRED (R9c)、探针无修改 READY (R9d) |
 
 > **生命周期说明**：
 > 上表为历史快照。当前 implementation Issue 在必要真实 smoke 与最终固定引用 Browser Review 完成前保持开启；本地静态审查通过不等于整个工单完成，也不授权正式发布或生产部署。

@@ -391,7 +391,7 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
   - **Join Invariant**：相关 worker 与写入全部结束、分支汇聚为单一 candidate，并完成必要集成验证后，才提交最终 Review 证据包。中途求助或进度证据须标明尚未满足的门禁，不冒充完成态。
 - **相称性与反馈结构**：
   - 复杂/常规任务返回结构化证据；小而明确任务使用 compact feedback；
-  - 涉及 Review 的典型 compact 反馈格式：
+  - 涉及 Review 的典型 compact 反馈示例：
     ```text
     Review ref: <fixed pushed commit SHA 或 PR head SHA / PR URL>
     Base: <base SHA>
@@ -399,6 +399,35 @@ IDE Agent 向 Browser 反馈时，默认假定 Browser 无法直接读取本地�
     Required Skill gates: <skill>: invoked — PASS | FAIL (按需)
     Local-only state: none | <description>
     ```
+- **人类可读审查就绪收尾 (Review Readiness Footer)**：
+  为降低人类中继认知与机械搬运负担（用户无需通读或向 Browser 复制整段 transcript 即可判断下一步行动），IDE 在**最终回复或门禁阻断处**必须附带简短可扫读的收尾 Footer：
+  - **代码/仓库变更已就绪 (Code Mutation Ready)**：
+    ```text
+    BROWSER REVIEW: READY
+    Review input: <fixed pushed SHA / PR head / URL>
+    Local-only evidence: none | included above
+    ```
+    *(前置必须已推送至 remote；本地已完成但未 push 严禁标 READY，必须标为 `NOT READY` 并以未推送为 Blocker)*
+  - **无修改事实探针已就绪 (No-Mutation Fact Probe Ready)**：
+    ```text
+    BROWSER REVIEW: READY
+    Review input: <canonical evidence pointer / summary above>
+    Repo mutation: none
+    ```
+    *(纯调查探针不机械制造虚假 commit，证据齐备即可标 READY 并注明无代码修改)*
+  - **未就绪或存在阻塞 (Not Ready)**：
+    ```text
+    BROWSER REVIEW: NOT READY
+    Blocker: <one concrete missing gate, e.g. unpushed commits / failing tests>
+    ```
+    *(指导用户留在 IDE 处理 blocker，不把中间未完成状态机械搬运给 Browser)*
+  - **需要人类行动 (Human Gate Required)**：
+    ```text
+    USER ACTION REQUIRED
+    Gate: <one concrete human action, e.g. trigger user-invoked skill in actual host>
+    ```
+    *(包含未在实际宿主触发的 user-invoked 技能、重大决策、凭据授权或未完成 Join 时必须使用；严禁伪装为普通 Review)*
+  - **核心边界**：Footer 是面向用户的转接信号而非免检凭据（Browser 绝不得因看到 READY 盲目 PASS，仍须独立远程核实）；日常 progress update 不强制输出。
 - **范围变化与决策边界**：
   - 极小、确定、低风险且不改方向的相邻修正，可就近处理并简短报告；
   - 若发现任务成本、风险或范围发生实质扩大，应停步重新评估；若跨越用户决策边界（重大成本增加、大方向改变或关键价值取舍），应主动报告并由用户裁决。
