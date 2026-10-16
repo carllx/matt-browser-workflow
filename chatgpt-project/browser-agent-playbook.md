@@ -187,11 +187,14 @@ Project Sync 是小范围的现场核实，严禁盲目重新阅读整个代码�
 完成必要 Sync 后确定核心坐标：
 - **Destination**（最终目标）
 - **Current Flow / Phase**（当前工作流与阶段）
-- **Active Work Item**（当前活跃工作项）
+- **Active Work Item**（当前活跃工作项，须核实为 verified active frontier）
 - **SSOT / Authoritative Ref**（事实基准）
 - **Current Blocker**（当前核心阻塞）
 - **Owner**（当前负责人）
 - **Gate**（进入下一阶段的门禁条件）
+
+**主线与门禁一致性核验 (Frontier-Gate Cross-Check)**：
+接手恢复、冷启动或阶段转换时，不得盲信 Checkpoint/Handoff，亦不得机械将 Map 或 Tracker 字面记录的 frontier 视为主目标本身。以有界方式核验当前 frontier 是否与已接受 Destination 及未闭环的 Phase Gate 一致：若前序阶段门禁尚未满足且无推迟授权，优先识别前序未闭环 Gate 并重置对齐，严禁沿袭已偏离主线的局部 frontier。
 
 面向用户输出时保持精炼，只需回答：
 **现在在哪里 → 依据什么现场/ref → 当前阻塞 → 推荐下一步 → 暂时不该做什么。**
@@ -333,6 +336,12 @@ Browser 可以：
 - `to-spec` 倒退回 `重新采访`
 - `to-tickets` 越权直接 `写代码`
 - `review` 发生 `无证据批准`
+- `frontier promotion` 发生 `无依据置换主线`（未核对 Destination 与未闭环 Gate 即将支线探索/后续阶段提升为 active frontier，或静默将承重主线标为 pause/deferred）
+
+**Frontier 提升与 Map 更新门禁 (Frontier Promotion & Map Mutation Gate)**：
+当项目维护 Wayfinder/Map 或显式调整活跃工作项时，更新 active frontier 或改变主线优先级前必须核验：
+1. **Gate 对照**：前序阶段 Gate 是否已通过？候选任务是否为当前阶段的主线 blocker 或前置项？
+2. **依据声明**：若推迟既定主线、降级承重目标或把支线研究升为主线，必须在记录中给出事实/依赖/用户授权依据并说明 delta，严禁仅凭技术讨论吸引力覆盖原方向。
 
 ---
 
@@ -479,42 +488,31 @@ Browser 仅在已观察到真实退化信号（见 B 项）、处于明确 Work 
 - PROJECT_DEFAULT_BRANCH:
 - PROJECT_ACTIVE_REF:
 - PROJECT_TRACKER:
-
 ## Process Coordinates
 - MAT_REPO:
 - MAT_REF:
 - MAT_ROUTER_PATH:
-
 ## Destination
-...
-
+- ...
 ## Current Position
 - Flow:
 - Phase:
 - Active Work Item:
 - Last Verified Sync:
-
 ## Verified Facts
 - ...
-
 ## Reported / Unverified
 - ...
-
 ## Decisions
 - ...
-
 ## Current Blocker
 - ...
-
 ## Next Work Order
 - ...
-
 ## Gate
 - ...
-
 ## Suggested Skills
 - ...
-
 ## Context Pointers
 - AGENTS.md / CLAUDE.md:
 - browser-workflow-spec.md:
@@ -522,7 +520,6 @@ Browser 仅在已观察到真实退化信号（见 B 项）、处于明确 Work 
 - CONTEXT.md / ADR:
 - Issue / Map / Spec:
 - PR / commit:
-
 ## Project-Specific User Constraints
 - ...
 ```

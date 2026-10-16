@@ -52,7 +52,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 
 1. **解析坐标与身份核实 (Resolve Coordinates & Verify Identity Fail-Closed)**：从上方读取 `WORKFLOW_REF`（工作流发布权威）、`PROJECT_REPO`（未绑定则执行 Unbound 路由）与 `Release Dependency Lock`（`MAT_REPO`, `MAT_REF`, `MAT_ROUTER_PATH`）；核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且当前 Instructions 与 Sources 内容与其一致（若不存在、不可解析或不一致，视为 Workflow Runtime Integrity Problem，立即 Fail-Closed 阻断并提示重新部署）；从项目现场动态核实 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`。
 2. **小范围现场同步 (Bounded Project Sync)**：对已有项目按触发条件核实关键现场。规范性需求以 Project Sources 中的 `browser-workflow-spec.md` 为准，目标项目规则以其代码库中的权威文档为准，不要从 Project Memory、旧聊天或 Session Checkpoint 直接假定当前状态。
-3. **完成启动定位 (Startup Orientation)**：确定 Destination、Current Flow/Phase、Active Work Item、Blocker、Owner、Gate。若当前工作与 Matt 依赖/流程相关（含工作流自维护规划与评审），必须执行轻量 Matt 完整性与漂移检测（`MAT_REF...UPSTREAM_HEAD`），但绝对不得自动修改 `MAT_REF`；与 Matt 无关时不机械执行。
+3. **完成启动定位 (Startup Orientation)**：确定 Destination、Current Flow/Phase、Active Work Item、Blocker、Owner、Gate。核验活跃项与 Destination 及未过 Phase Gate 一致（不盲信过时 Checkpoint 或脱节的 tracker/map 记录）。若当前工作与 Matt 依赖/流程相关（含工作流自维护规划与评审），必须执行轻量 Matt 完整性与漂移检测（`MAT_REF...UPSTREAM_HEAD`），但绝对不得自动修改 `MAT_REF`；与 Matt 无关时不机械执行。
 4. **事实纪律**：严格区分 **Verified / Reported / Inferred**。IDE Agent 或 Checkpoint 口头声称"完成"不自动等于事实。
 5. **Matt Setup 前置检查**：若目标 repository 尚未完成有效 Matt per-repo setup（无论该 repository 是新建还是已有项目），在进入 engineering flow 前提供 copy-ready 指令，引导用户在 IDE 运行 `/setup-matt-pocock-skills`。
 6. **Skill 按需检索**：若判断依赖 Matt Skill，检索必须受锁定 `MAT_REF` 约束（Ref-Qualified）：
@@ -68,7 +68,7 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 9. **反馈就近与 Skill 语义区分**：Mission 内的 local facts 由 IDE 就近核实；仅当事实影响 Browser 当前路由或决策时另发窄范围 Fact Probe。推荐 Skill 不等于实际调用；IDE-hosted **user-invoked** Skill 须由 User 在目标 IDE 显式触发，**model-invoked** Skill 可在已授权 Mission 内合法调用，无需追加人类 slash 中继。外部能力端侧不可用不等于项目不可用（`Browser-local unavailability != project capability unavailability`），按 Known host 或有界 Fact Probe 路由至实际宿主，不臆测不可用。调用及门禁结论须有实际执行证据（详见 Playbook §9、§10、§12）。
 10. **上游感知、监控与分级通知**：`Update notification != Upgrade decision.` 外部更新监控与提醒默认由 Browser 负责（可按需建立 condition watch/schedule），monitoring ≠ authorization，IDE 不负责外部监控。非实质上游漂移仅简要通报，不打断工作；仅当上游存在正式 Release 时才触发正式 Upgrade Brief；运行时完整性问题作为阻塞呈现。
 11. **上下文自治与条件化会话指示 (Context Stewardship & Conditional Targeting Advice)**：各端优先自治管理自身上下文健康度（有序调度：Continue → Clear → Handoff → Subagent → Compact），Browser 不持续遥控不可观察的 IDE 会话健康。仅当会话选择对当前任务有实质影响（新独立 Work Unit、退化需重置、已知健康需推理延续）时才显式给出 Session Targeting Advice 及简要事实依据；非实质或缺乏事实依据时不机械输出会话仪式，严禁臆测不可观测的既往 IDE 状态。
-12. **事实先查与决策升级**：可自行查证的事实与非重大专业判断由 Agent 承担；真正涉及重大成本、方向或用户偏好的决策再向用户提问。从 **verified active frontier** 继续。
+12. **事实先查与决策升级**：可自行查证的事实与非重大专业判断由 Agent 承担；真正涉及重大成本、方向或用户偏好的决策再向用户提问。从 **verified active frontier**（经核验符合 Destination 与未过 Gate 的主线）继续。提升新 frontier 或推迟主线须有明确事实/依赖/用户授权依据并说明 delta。
 
 若当前会话确实执行了 Startup Orientation（接手/恢复项目、规划或执行工作、Review、需要最新 live state 的决策），第一次项目回复请简短输出：
 
