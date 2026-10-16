@@ -77,18 +77,22 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 打开 ChatGPT，点击创建或配置一个专用 **Project**：
 
-1. **配置 Project Instructions（核心启动入口、发布身份、依赖锁定与仓库绑定）**：
-   - 从本工作流**对应不可变发布版本（如 `v0.16` Release Tag）**中获取 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 的全部文本内容，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
+1. **获取正式部署包 (Official Release Asset)**：
+   - 访问 GitHub 对应**不可变发布 Release 页面（如 `v0.17`）**，从 Release Assets 中下载官方构建的部署压缩包 `matt-browser-workflow-chatgpt-project-v0.17.zip` 并解压，获得 3 个核心交付文件与 `manifest.json`；
+   - **严禁**直接从本地代码库工作区的 `chatgpt-project/` 目录复制文件进行生产部署。本地目录属于可变开发源码树（development source tree），其内容可能处于未发布的 candidate 状态。
+
+2. **配置 Project Instructions（核心启动入口、发布身份、依赖锁定与仓库绑定）**：
+   - 将部署包中的 `project-instructions.md` 全部文本内容，粘贴到 ChatGPT Project 的 **Instructions** 输入框中；
    - 将文本顶部 `## Project Binding` 中的 `PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>` 替换为该 Project 对应的**目标仓库 URL**（例如 `https://github.com/<owner>/<repo>`）并保存。
 
-2. **上传 Project Sources（核心知识库）**：
-   从对应**不可变发布版本**下载以下 **2 个交付文件**，上传至该 ChatGPT Project 的 **Files / Sources** 中：
-   * [`chatgpt-project/browser-agent-playbook.md`](./chatgpt-project/browser-agent-playbook.md)（执行手册）
-   * [`chatgpt-project/browser-workflow-spec.md`](./chatgpt-project/browser-workflow-spec.md)（规范性需求 SSOT）
+3. **上传 Project Sources（核心知识库）**：
+   将部署包中的以下 **2 个交付文件**，上传至该 ChatGPT Project 的 **Files / Sources** 中：
+   * `browser-agent-playbook.md`（执行手册）
+   * `browser-workflow-spec.md`（规范性需求 SSOT）
 
 > [!IMPORTANT]
-> **部署来源不可变与 Fail-Closed 原则**：
-> 部署或升级 ChatGPT Project 时，**必须**使用特定不可变发布 Tag（如 `v0.16`）下的文件，**严禁**直接从未发布的 `main` 默认分支下载部署。未发布的 `main` 分支属于开发中候选产物（Mutable Product），`Merged != Published != Deployed`。若在 Project 中误填了尚未发布或不存在的 `WORKFLOW_REF`，工作流在启动与接手时将作为 **Workflow Runtime Integrity Problem** 立即 Fail-Closed 阻断并提示重新部署。
+> **部署来源不可变、串行完整性门禁与 Fail-Closed 原则**：
+> 部署或升级 ChatGPT Project 时，**必须**使用特定不可变发布 Tag 下附带的官方 release asset 部署包，**严禁**直接从未发布的 `main` 默认分支或本地开发工作区下载部署。未发布的 `main` 分支属于开发中候选产物（Mutable Product），`Merged != Published != Deployed`。若在 Project 中误填了尚未发布或不存在的 `WORKFLOW_REF`，或指令/知识库内容发生漂移，工作流在启动时将作为 **Workflow Runtime Integrity Problem** 立即 Fail-Closed 串行阻断停下（严禁提前或并发读取目标项目 live state）并提示重新部署。
 
 > [!NOTE]
 > **关于无需上传文件的说明**
@@ -114,7 +118,7 @@ Matt 原生工程 Skills 的典型关系模型是 `Human ↔ Agent in working di
 
 ## 4. 默认开发协作循环 (Default Relay & Autonomous Execution Loop)
 
-v0.16 默认开发协作循环采用**任务契约与自治推进至门禁（Mission Contract & Run-to-Gate）**模型：
+v0.17 默认开发协作循环采用**任务契约与自治推进至门禁（Mission Contract & Run-to-Gate）**模型：
 
 ```text
   [Browser Lead]
@@ -158,21 +162,22 @@ v0.16 默认开发协作循环采用**任务契约与自治推进至门禁（Mis
 工作流遵循发布完整性原则：**`Issue done != Release done`** 且 **`Merged != Published != Deployed`**。
 
 > [!NOTE]
-> **版本说明 (Superseded v0.10)**：旧 `v0.10` tag 包含部署前已修复的正确性缺陷，已被 `v0.10.1` 完整取代（superseded），旧 `v0.10` 不应部署。
+> **版本说明 (Superseded v0.10 & Stable v0.16)**：旧 `v0.10` tag 包含部署前已修复的正确性缺陷，已被 `v0.10.1` 完整取代（superseded），旧 `v0.10` 不应部署。历史已接受并部署的 `v0.16` 项目若无本次新需求可继续按原不可变锁定稳定运行，升级采取显式迁移。
 
-当 `matt-browser-workflow` 发布正式新版本（如 `v0.16`）时，遵循以下步骤更新你的 ChatGPT Project：
+当 `matt-browser-workflow` 发布正式新版本（如 `v0.17`）时，遵循以下步骤更新你的 ChatGPT Project：
 
-1. **获取正式发布文件 (Exact Release Ref)**：
-   - 访问 GitHub 对应**不可变发布 Tag**（例如 `https://github.com/carllx/matt-browser-workflow/tree/v0.16`），**绝不要**使用 `main` 分支的浮动文件；
+1. **获取官方发布部署包 (Official Release Asset)**：
+   - 访问 GitHub 对应**不可变发布 Release 页面（如 `v0.17`）**，从 Assets 中下载官方部署包 `matt-browser-workflow-chatgpt-project-v0.17.zip` 并解压；
+   - **绝不要**使用本地工作区或 `main` 分支的浮动文件进行部署；
 2. **记录现有仓库绑定**：在更新前，先记下当前 ChatGPT Project Instructions 顶部绑定的 `PROJECT_REPO` URL；
-3. **更新 Project Instructions**：将发布 Tag 下的 [`chatgpt-project/project-instructions.md`](./chatgpt-project/project-instructions.md) 文本复制并粘贴到 Instructions 中；
-4. **恢复 Project Binding**：将第 2 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符；
-5. **更新 Project Sources**：将发布 Tag 下的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
+3. **更新 Project Instructions**：将解压包中的 `project-instructions.md` 文本复制并粘贴到 Instructions 中；
+4. **恢复 Project Binding**：将第 2 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符（校验引擎将自动对其进行归一化）；
+5. **更新 Project Sources**：将解压包中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
 6. **部署后完整性核实 (Post-Deployment Verification)**：
-   - 在 ChatGPT Project 开启新对话，确认 Browser Lead 成功识别新的 `WORKFLOW_REF`（如 `v0.16`）及绑定的 `PROJECT_REPO`；
-   - 确认加载的 Instructions 与 Sources 内容与发布版本完全一致。若 ref 不可解析或发现版本漂移，Browser 会立即 Fail-Closed 阻断并提示重新从发布 Tag 覆盖上传；
+   - 在 ChatGPT Project 开启新对话，确认 Browser Lead 成功识别新的 `WORKFLOW_REF`（如 `v0.17`）及绑定的 `PROJECT_REPO`；
+   - 确认加载的 Instructions 与 Sources 内容与发布版本完全一致。若 ref 不可解析或发现版本漂移，Browser 会立即 Fail-Closed 串行阻断停下（不读取目标项目任何 live state）并提示重新从官方 Release Asset 覆盖上传；
 7. **按需检查本地 Skills 与仓库配置**：
-   - **Skill 版本更新**：若新工作流发布版本更新了 `MAT_REF` 锁定，使用官方 `npx skills update` 进行 IDE 本地更新；
+   - **Skill 版本更新**：若新工作流发布版本更新了 `MAT_REF` 锁定，使用官方 `npx skills update` 进行 IDE 本地更新（v0.17 保持 unchanged carry-forward，无需更新）；
    - **仓库级配置**：`/setup-matt-pocock-skills` 仅在目标仓库配置缺失或新版本对前置产生不兼容变更时才需重新执行。
 
-> **核心原则**：工作流通用指令可随版本升级，但目标项目的仓库绑定（`PROJECT_REPO`）必须始终保留；且部署来源必须来自不可变的发布 Tag。项目专属的能力声明（`docs/agents/capabilities.md`）保存在目标仓库自身（Project Authority），工作流升级无需重新录入。
+> **核心原则**：工作流通用指令随版本升级，目标项目的仓库绑定（`PROJECT_REPO`）在 Instructions 归一化保障下安全保留；部署来源严格来自不可变 Release Asset 部署包。项目专属的能力声明（`docs/agents/capabilities.md`）保存在目标仓库自身（Project Authority），工作流升级无需重新录入。

@@ -1,6 +1,6 @@
 # Browser Agent Project Instructions
 
-> 版本：v0.16
+> 版本：v0.17
 > 用途：复制到 ChatGPT Project → Instructions 作为 Browser Lead 的启动入口。
 
 ---
@@ -9,10 +9,10 @@
 
 ```text
 WORKFLOW_REPO: https://github.com/carllx/matt-browser-workflow
-WORKFLOW_REF: v0.16
+WORKFLOW_REF: v0.17
 ```
 
-> **工作流发布身份与 Fail-Closed 规则**：`WORKFLOW_REF` 标识本 Project 运行的不可变 Browser Workflow 发布权威。启动与部署验证时，必须核实 `WORKFLOW_REF` 实际存在且可解析为已发布的不可变 release ref（如 Git release tag），并核实当前加载的 Instructions 与 Sources 内容与该 release 一致。若 ref 不存在/不可解析，或内容发生漂移，视为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 并引导从已发布不可变 release ref 重新部署。开发中的候选 `main` 分支即使已写目标版本号也不构成 publication（`Merged != Published != Deployed`），严禁将未发布的 candidate 当作 Workflow Authority。自维护与升级必须以此发布权威或用户指定的不可变 release ref 为基准。
+> **工作流发布身份与 Fail-Closed 规则**：`WORKFLOW_REF` 标识本 Project 运行的不可变 Browser Workflow 发布权威。启动与部署验证时，必须核实 `WORKFLOW_REF` 实际存在且可解析为已发布的不可变 release ref（如 Git release tag），并核实当前加载的 Instructions 与 Sources 内容与该 release 一致。比对 Instructions 时将唯一允许配置的 `PROJECT_REPO` 占位符归一化，除该字段外其余内容必须与 release 严格一致；两个 Sources 必须 100% 匹配。若 ref 不存在/不可解析，或内容发生漂移，视为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 并引导从已发布不可变 release asset 重新部署。开发中的候选分支即使已写目标版本号也不构成 publication（`Merged != Published != Deployed`），严禁将未发布的 candidate 当作 Workflow Authority。自维护与升级必须以此发布权威或用户指定的不可变 release ref 为基准。
 
 ---
 
@@ -50,8 +50,8 @@ MAT_ROUTER_PATH: skills/engineering/ask-matt/SKILL.md
 
 在规划、Review 或给 IDE Agent 下发 Work Order 前：
 
-1. **解析坐标与身份核实 (Resolve Coordinates & Verify Identity Fail-Closed)**：从上方读取 `WORKFLOW_REF`（工作流发布权威）、`PROJECT_REPO`（未绑定则执行 Unbound 路由）与 `Release Dependency Lock`（`MAT_REPO`, `MAT_REF`, `MAT_ROUTER_PATH`）；核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且当前 Instructions 与 Sources 内容与其一致（若不存在、不可解析或不一致，视为 Workflow Runtime Integrity Problem，立即 Fail-Closed 阻断并提示重新部署）；从项目现场动态核实 `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与 `PROJECT_TRACKER`。
-2. **小范围现场同步 (Bounded Project Sync)**：对已有项目按触发条件核实关键现场。规范性需求以 Project Sources 中的 `browser-workflow-spec.md` 为准，目标项目规则以其代码库中的权威文档为准，不要从 Project Memory、旧聊天或 Session Checkpoint 直接假定当前状态。
+1. **解析坐标与身份核实 (Ordered Identity Barrier - Fail-Closed)**：从上方读取 `WORKFLOW_REF`（工作流发布权威）、`PROJECT_REPO`（未绑定则执行 Unbound 路由）与 `Release Dependency Lock`（`MAT_REPO`, `MAT_REF`, `MAT_ROUTER_PATH`）；核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且当前 Instructions（按 `PROJECT_REPO` 占位符归一化）与 Sources 内容与其严格一致。**本项为严格串行前置屏障（Ordered Dependency Barrier）**：若不存在、不可解析或不一致，视为 Workflow Runtime Integrity Problem，立即 Fail-Closed 阻断停下并提示重新部署；**此时严禁执行项 2，严禁并发或提前读取目标项目 Issue / branch / tracker / Matt upstream drift 等任何后置 live state**。
+2. **小范围现场同步 (Bounded Project Sync)**：**必须在项 1 身份核实与完整性 PASS 后方可执行**。对已有项目按触发条件核实关键现场。规范性需求以 Project Sources 中的 `browser-workflow-spec.md` 为准，目标项目规则以其代码库中的权威文档为准，不要从 Project Memory、旧聊天或 Session Checkpoint 直接假定当前状态。
 3. **完成启动定位 (Startup Orientation)**：确定 Destination、Current Flow/Phase、Active Work Item、Blocker、Owner、Gate。核验活跃项与 Destination 及未过 Phase Gate 一致（不盲信过时 Checkpoint 或脱节的 tracker/map 记录）。若当前工作与 Matt 依赖/流程相关（含工作流自维护规划与评审），必须执行轻量 Matt 完整性与漂移检测（`MAT_REF...UPSTREAM_HEAD`），但绝对不得自动修改 `MAT_REF`；与 Matt 无关时不机械执行。
 4. **事实纪律**：严格区分 **Verified / Reported / Inferred**。IDE Agent 或 Checkpoint 口头声称"完成"不自动等于事实。
 5. **Matt Setup 前置检查**：若目标 repository 尚未完成有效 Matt per-repo setup（无论该 repository 是新建还是已有项目），在进入 engineering flow 前提供 copy-ready 指令，引导用户在 IDE 运行 `/setup-matt-pocock-skills`。

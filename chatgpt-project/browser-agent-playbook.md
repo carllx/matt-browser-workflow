@@ -1,6 +1,6 @@
 # Browser Agent Playbook
 
-> 版本：v0.16
+> 版本：v0.17
 > 长期工作协议：规定 Browser Lead 如何定位、取证、路由、监督、分发工单和跨会话治理。
 > 不保存具体项目的易失状态；规范性需求详见 [`browser-workflow-spec.md`](./browser-workflow-spec.md)。
 
@@ -131,8 +131,9 @@
 在已绑定 `PROJECT_REPO` 的项目中遵循标准路径：
 ```text
 Read Workflow Sources (Playbook + browser-workflow-spec.md)
-→ Verify Workflow Release Identity (Fail-Closed if unresolvable or mismatched)
-→ Read Session Checkpoint / Snapshot (if any)
+→ Verify Workflow Release Identity (Ordered Barrier: PROJECT_REPO normalization + Sources integrity)
+→ FAIL: STOP IMMEDIATELY (no target-project live state sync)
+→ PASS: Read Session Checkpoint / Snapshot (if any)
 → Resolve Coordinates (PROJECT_* from binding & MAT_* from Release Dependency Lock)
 → Bounded Project Sync
 → Startup Orientation (with lightweight Matt integrity/drift check if Matt-relevant)
@@ -140,7 +141,7 @@ Read Workflow Sources (Playbook + browser-workflow-spec.md)
 → Route / Dispatch Work Order
 ```
 
-**核心原则**：先核实 Workflow Release Identity（若 `WORKFLOW_REF` 不存在、不可解析或加载的 Instructions/Sources 存在内容漂移，立即作为阻塞性运行时完整性问题 Fail-Closed 并提示从不可变发布 ref 重新部署）；先取足够现场证据再定位，严禁直接根据 Project Memory 或旧聊天假定当前状态。
+**核心原则与串行完整性屏障**：必须严格遵循有序依赖：先核实 Workflow Release Identity（若 `WORKFLOW_REF` 不存在、不可解析，或 Instructions/Sources 经 `PROJECT_REPO` 归一化后存在内容漂移，立即判定为运行时完整性问题 Fail-Closed 并直接终止；**严禁在 PASS 前提前或并发读取目标项目 Issue/branch/tracker 等任何 live state**）。PASS 后方可继续读取现场证据定位，严禁直接根据 Project Memory 或旧聊天假定当前状态。
 
 ---
 
@@ -589,5 +590,5 @@ Browser Lead Review 与 IDE 内运行 Matt `/code-review` 是正交的两个 Gat
 5. **发布身份与不可变 Tag 冻结**：核实 `WORKFLOW_REF` candidate identity 与即将创建的 release tag 一致；仅在 Browser release-level Review 批准后由 IDE 创建不可变 release tag；tag 创建完成后方可进行部署。
 
 ### B. 部署核实与漂移恢复 (Deployment Verification & Drift Recovery)
-1. **部署核实与 Fail-Closed**：User 完成 ChatGPT Project 升级部署后，Browser 启动时核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref，且 Project Instructions 及 Sources 是否与已发布的 release tag 内容严格对齐；若 ref 不存在/不可解析或内容不一致，立即判定为 **Workflow Runtime Integrity Problem** 并 Fail-Closed 阻断；
-2. **漂移感知与恢复**：若发现实际加载的 Instructions / Sources 仍停留在旧版本或开发中 candidate 内容（版本漂移），Browser 将其作为阻塞性现场提示，引导 User 从不可变的 `WORKFLOW_REF` 对应 release 重新下载/部署，严禁将未发布的 candidate 当作 Workflow Authority 运行。
+1. **部署核实、归一化与 Fail-Closed**：User 完成 ChatGPT Project 部署后，Browser 启动时核实 `WORKFLOW_REF` 为实际存在的已发布不可变 release ref。比对 Instructions 时将 `PROJECT_REPO` 占位符归一化，核实除该合法绑定外其余指令与发布版本 100% 匹配，且 Project Sources 与发布版本完全一致。若 ref 不存在/不可解析或内容漂移，立即判定为 **Workflow Runtime Integrity Problem** 并 Fail-Closed 阻断停下；严禁越过该门禁读取目标项目 live state；
+2. **漂移感知与官方部署包恢复**：若发现实际加载的 Instructions / Sources 仍停留在旧版本或开发中 candidate 内容（版本漂移），Browser 将其作为阻塞性现场提示，引导 User 从 GitHub Releases 下载官方构建的不可变发布资产包（`matt-browser-workflow-chatgpt-project-v<version>.zip`）重新覆盖部署，严禁将未发布的本地 working-tree candidate 当作正式发布运行。

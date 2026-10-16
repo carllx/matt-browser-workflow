@@ -1,7 +1,7 @@
 # Browser Workflow Spec
 
 > 规范性需求单一事实源（Normative Requirements SSOT）
-> 版本：v0.16
+> 版本：v0.17
 > 核心问题：我们为什么建立 `matt-browser-workflow`，它长期必须满足什么规范性要求？
 
 ---
@@ -117,7 +117,8 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
 1. **持久仓库绑定与工作流发布身份 (Project Binding & Workflow Release Identity)**：
    - 每个 ChatGPT Project 默认绑定一个主代码仓库（Primary `PROJECT_REPO`），作为定位该 Project 权威事实的稳定实体标识指针（Project Identity Pointer）；
    - Project Instructions 同时携带明确的 **Workflow Release Identity**（`WORKFLOW_REPO` 与不可变的 `WORKFLOW_REF`），明确当前部署所运行的工作流发布版本；
-   - **Fail-Closed 身份门禁**：`WORKFLOW_REF` 必须实际存在且可解析为已发布的不可变 release ref（如 Git release tag）。在 Startup 或部署验证时，若 `WORKFLOW_REF` 不存在/不可解析，或当前 Instructions / Sources 内容与该 release ref 不一致，必须判定为 **Workflow Runtime Integrity Problem**，立即 Fail-Closed 阻断并提示从不可变 release ref 重新部署；严禁将未发布的 candidate 内容作为已发布 Workflow Authority 执行；
+   - **Fail-Closed 身份与串行完整性屏障 (Ordered Identity Barrier & Fail-Closed)**：`WORKFLOW_REF` 必须实际存在且可解析为已发布的不可变 release ref（如 Git release tag）。在 Startup 或部署验证时，必须首先核实 `WORKFLOW_REF` 存在性及当前加载的 Instructions 与 Sources 内容一致性。比对 Instructions 时归一化唯一的合法 per-project binding（`PROJECT_REPO`），除该字段外其余内容必须与 release artifact 严格一致；两个 Sources 必须 100% 匹配。**该核验属于严格串行的前置门禁（Ordered Dependency Barrier）**：若 ref 不存在/不可解析或内容发生漂移，立即判定为 **Workflow Runtime Integrity Problem** 并阻断停下；在完整性 PASS 之前，**严禁**并发或提前读取目标项目 Issue、branch、tracker、Matt 上游漂移等任何后置 live state；
+   - **正式部署包来源不变式 (Official Release Bundle Invariant)**：正式部署与升级必须使用对应不可变发布 Tag 下附带的官方构建资产（`matt-browser-workflow-chatgpt-project-v<version>.zip`，含 manifest / hashes）；本地代码库工作区 `chatgpt-project/` 属于可变开发源码树（development source tree），严禁直接复制未发布的本地 working-tree 文件进行生产部署；未发布的 candidate 内容不得作为已发布 Workflow Authority 执行；
    - `PROJECT_DEFAULT_BRANCH`、`PROJECT_ACTIVE_REF` 与当前 Issue 属于动态易变的现场事实（Live State），严禁作为静态绑定参数持久写死。
 2. **三层权威分立 (Three Authority Layers)**：
    - **Workflow Authority**：由 Project Sources 中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 及 Project Instructions 中锁定的 `WORKFLOW_REF` 定义跨端协作契约；
@@ -127,7 +128,8 @@ Matt 原生工程 Skills 的典型关系模型为 `Human ↔ Agent in working di
    - `Issue done != Release done`；
    - `Merged != Published != Deployed`；
    - 合并到默认分支（`main`）的代码即使已在文件头填写目标版本号，在通过版本级审查并打上不可变发布 tag 前仍属于候选可变产物（Mutable Product），不得仅凭版本字段自我提升为已发布的 Workflow Authority，亦不得提前将未发布产物作为正式版本部署；
-   - 发布门禁必须验证：`WORKFLOW_REF` candidate identity 与即将创建的 release tag 一致；MAT lock provenance 满足来源完整性（未变更则记录 unchanged carry-forward，变更则核实严格等于正式 release commit）；版本级审查通过后方可打 tag 并部署。
+   - 发布门禁必须验证：`WORKFLOW_REF` candidate identity 与即将创建的 release tag 一致；MAT lock provenance 满足来源完整性（未变更则记录 unchanged carry-forward，变更则核实严格等于正式 release commit）；版本级审查通过后方可打 tag 并部署；
+   - **发布包完整性与可复现性**：新 release 发布时必须从最终 immutable ref 生成确定性的 ChatGPT Project deployment bundle（`matt-browser-workflow-chatgpt-project-v<version>.zip`）及机器可核验 manifest（包含 release commit SHA 与三个文件的 SHA-256），附于 GitHub Release 资产中供用户部署。
 4. **MAT_REF 来源完整性与引入门禁 (MAT_REF Provenance & Introduction Gate)**：
    - **历史已发布版本不变式**：历史 release 的 `MAT_REF` 永不被后来规则追溯改写；
    - **Legacy Carry-Forward Lock**：当前 `8b78b531...` 因已存在于 last accepted v0.9，可作为 legacy carry-forward lock 继续沿用；它仍是当前 Matt Process Authority，但不得被描述为“来自正式 v1.2.3 release commit”；新 release 若 `MAT_REF` 未变化，显式 carry-forward 既有 lock 并在 release review 中记录 "unchanged carry-forward"；
