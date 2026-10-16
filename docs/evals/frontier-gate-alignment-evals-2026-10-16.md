@@ -1,8 +1,9 @@
 # Wayfinder 主线推进与阶段门禁一致性评测基准 (Frontier-Gate Alignment Evals)
 
 > **定位**：任务主线防偏航、阶段门禁与冷启动恢复行为回归基准（Behavioral Regression Benchmark）  
+> **候选状态**：NON-DEPLOYABLE CANDIDATE — maintained against v0.16 baseline（基于已发布的不可变 v0.16 基准维护的不可部署开发候选分支；下一次正式发布目标版本暂定为 v0.17，交由后续独立 Release Gate 处理，严禁直接作为正式发布版本部署）  
 > **关联议题**：Part of #30, Complements #32, #44, #50  
-> **维护权威**：正式发布版 `v0.16`（基准 SHA: `2fd1e1a`）  
+> **维护权威**：正式发布版 `v0.16`（不可变基准 tag SHA: `2fd1e1a`）  
 > **核心结论**：`MAP-CONTRACT CLARIFICATION`（澄清活跃推进项与已接受目标/阶段门禁的一致性契约，并在启动定位与阶段门禁处建立双向轻量护栏）。
 
 ---
@@ -71,23 +72,30 @@
 
 ---
 
-### 场景 F3 — 正面对照：版本冲突时的 Fail-Closed 恢复（2026-09-28 历史截面）
+### 场景 F3 — 正面对照：运行时完整性 Fail-Closed 与过时交接包的触发区分（2026-09-28 历史截面）
 
-- **历史已验证事实 (Verified Reported Case)**：
-  - 2026-09-28 旧 handoff 标记 `WORKFLOW_REF: v0.15`，而新部署环境为不可变 `v0.16`；
-  - Browser 启动时严格执行 `WORKFLOW_REF` 不可变发布权威核验，发现版本冲突并立即 Fail-Closed 阻断，引导用户从发布 tag 重新部署。
-- **评测意义**：
-  - 证明**“在确定位置设定明确硬门禁（Hard Gate）”在 Browser 体系中是行之有效且已被真实历史检验的机制**；
-  - 本次在 Seam 1 与 Seam 2 增加的契约澄清正是复用了这一经过验证的治理模式（Fail-Closed / Explicit Cross-Check），而非创建全新的外部规划系统。
+- **历史记录核实 (Reported from 2026-09-28 History)**：
+  - 2026-09-28 历史会话记录包含两个独立的事实现象，不能混为一谈：
+    1. **过时辅助交接包 (Stale Secondary Handoff)**：旧 handoff 中记录了 `WORKFLOW_REF: v0.15`，但 handoff 属于辅助上下文（Secondary Context），其自身过时并不会直接触发完整性阻断（只要部署的 Instructions/Sources 内部一致且与发布 tag 匹配）；
+    2. **运行时完整性阻断 (Actual Runtime Integrity Fail-Closed)**：实际触发 Fail-Closed 的原因是当时部署中标记为 `v0.16` 的 Project Sources 与官方正式发布的 `v0.16` release blobs 发生漂移不一致（Workflow Runtime Integrity Problem），Browser 依据部署门禁执行了阻断。
+  - 证据评级说明：历史会话记录中的声称保持为 **Reported**，未经本次独立复核不随意标注为 Verified。
+- **评测意义与对齐**：
+  - 证明**“在确定位置设定明确硬门禁（Hard Gate）”在部署与执行体系中是行之有效的机制**；
+  - 澄清了触发机理：Secondary Handoff 过时应通过 Seam 2 的 Frontier-Gate Cross-Check 从 Live Authority 找回当前主线，而只有部署权威发生内容漂移时才触发 Fail-Closed 阻断；
+  - 本次在 Seam 1 与 Seam 2 增加的契约澄清正是复用了“不盲从辅助记录、依据权威交叉核验”的治理模式。
 
 ---
 
-## 4. 评测执行结论 (Evaluation Verdict)
+## 4. 评测执行结论与性质说明 (Evaluation Verdict & Status)
 
 - **方案类型**：`MAP-CONTRACT CLARIFICATION`（针对两个决策接缝的最小契约澄清与触发核验）。
+- **评测性质与状态**：
+  - 本文件定义了 F1/F2/F3 的**场景定义与 PASS/FAIL 判定准则**，尚不包含补丁后实际 Agent 运行轨迹；
+  - 不得仅因准则已制定或 IDE 文档审查通过就声称行为已通过真实验证；
+  - **当前状态**：`NON-DEPLOYABLE CANDIDATE — PENDING BROWSER REVIEW`（基于正式 v0.16 维护的不可部署开发候选；下一次正式发布目标版本暂定为 v0.17，交由后续独立 Release Gate 处理；当前在独立分支 `work/issue-30-wayfinder-frontier-alignment` 上开发，严禁提前发布或直接部署）。
 - **冗余检查 (Subtraction Check)**：
   - 未引入 Notion / Whimsical 等外部第二 SSOT；
   - 未引入复杂的每轮必跑 checklist 或状态机；
   - 未修改不可变的 `MAT_REF`；
-  - 文档行数保持：`browser-workflow-spec.md`（323 行），`browser-agent-playbook.md`（593 行，严格控制在 600 行软警示以内），`project-instructions.md`（80 行），`issue-tracker.md`（46 行）。
-- **状态标记**：`MINIMAL CANDIDATE COMMITTED / PENDING BROWSER REVIEW`。
+  - 未伪造或提前更改生产 release identity；
+  - 文档行数保持：`browser-workflow-spec.md`（322 行），`browser-agent-playbook.md`（593 行，严格控制在 600 行软警示以内），`project-instructions.md`（79 行），`docs/agents/issue-tracker.md`（45 行）。
