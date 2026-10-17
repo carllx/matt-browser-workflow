@@ -171,7 +171,7 @@ v0.17 默认开发协作循环采用**任务契约与自治推进至门禁（Mis
    - **绝不要**使用本地工作区或 `main` 分支的浮动文件进行部署；
 2. **记录现有仓库绑定**：在更新前，先记下当前 ChatGPT Project Instructions 顶部绑定的 `PROJECT_REPO` URL；
 3. **更新 Project Instructions**：将解压包中的 `project-instructions.md` 文本复制并粘贴到 Instructions 中；
-4. **恢复 Project Binding**：将第 2 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符（校验引擎将自动对其进行归一化）；
+4. **恢复 Project Binding**：将第 2 步记录的 `PROJECT_REPO` URL 填回新版 Instructions 顶部的 `## Project Binding` 中，确认不再是占位符（Browser 将在启动自检时按规则将其作为唯一合法差异进行归一化比对）；
 5. **更新 Project Sources**：将解压包中的 `browser-agent-playbook.md` 与 `browser-workflow-spec.md` 重新上传至 ChatGPT Project 的 Sources（替换旧文件）；
 6. **部署后完整性核实 (Post-Deployment Verification)**：
    - 在 ChatGPT Project 开启新对话，确认 Browser Lead 成功识别新的 `WORKFLOW_REF`（如 `v0.17`）及绑定的 `PROJECT_REPO`；

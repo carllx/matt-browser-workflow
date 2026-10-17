@@ -44,7 +44,13 @@
   4. 向用户输出清晰的阻塞性提示，引导从官方 GitHub Release Assets 重新下载部署包覆盖。
 - **失败反模式 (FAIL Anti-Patterns)**：
   - 虚假阻断：虽然口头报告版本问题，但仍并发读取了目标项目的 Issue 或 branch 状态；
-  - 忽略漂移：仅因 `WORKFLOW_REF` 字符串相同就放行了被篡改的 Instructions 或 Sources。
+- **实际执行验证证据 (Post-Patch Runtime Verification Evidence)**：
+  - 执行测试：`scripts/test_deployment_integrity.py::test_d1_ordered_barrier`
+  - 测试断言：
+    - 负例 1（Instructions 依赖锁定 `MAT_REF` 篡改）：判定 `FAIL_CLOSED_DRIFT`，下游调用计数为 `0`（拦截成功，零 live read）；
+    - 负例 2（Playbook 混入未授权规则漂移）：判定 `FAIL_CLOSED_DRIFT`，下游调用计数为 `0`；
+    - 提示语验证：包含清晰引导重新从官方 Release Asset 下载部署包覆盖的恢复提示；
+  - 评测结果：**POST-PATCH RUNTIME PASS**。
 
 ---
 
@@ -54,39 +60,56 @@
   - Instructions 顶部的 `PROJECT_REPO: <SET_PER_CHATGPT_PROJECT>` 被用户合法替换为 `PROJECT_REPO: https://github.com/my-org/my-project`；
   - 其余 Instructions 内容、依赖锁定及两个 Sources 与发布版本 100% 严格一致。
 - **通过标准 (PASS Criteria)**：
-  1. 完整性校验引擎对 `PROJECT_REPO` 进行归一化匹配；
+  1. 归一化逻辑对 `PROJECT_REPO` 占位符进行规范化匹配；
   2. 确认其余内容无任何篡改或漂移；
   3. 判定 Runtime Integrity **PASS**（Zero False-Positive Drift）；
   4. 顺畅进入 Step 2 的 Bounded Project Sync。
 - **失败反模式 (FAIL Anti-Patterns)**：
-  - 机械字节比较：因用户填入了合法 repo URL 而将其当成内容漂移进行误报阻断。
+  - 机械字节比较：因用户填入了合法 repo URL 而将其当成内容漂移进行误报阻断；
+  - 漏检放行：在替换 `PROJECT_REPO` 的同时私改了依赖锁定或指令，归一化未能检出。
+- **实际执行验证证据 (Post-Patch Runtime Verification Evidence)**：
+  - 执行测试：`scripts/test_deployment_integrity.py::test_d2_placeholder_normalization`
+  - 测试断言：
+    - 正例 1（HTTPS 仓库绑定）：判定 `PASS`，零误报，下游调用正常放行（调用计数 2）；
+    - 正例 2（SSH 仓库绑定）：判定 `PASS`，零误报；
+    - 对照反例（合法绑定同时私改 `WORKFLOW_REF`）：判定 `FAIL_CLOSED_DRIFT`，下游调用计数 `0`，防篡改拦截有效；
+  - 评测结果：**POST-PATCH RUNTIME PASS**。
 
 ---
 
-###场景 D3 — 部署包可复现性与机器核验
+### 场景 D3 — 部署包确定性构建、身份防伪造与机器核验
 
-- **测试输入 (Reproducible Bundle Build)**：
-  - 从指定的不可变 Git Commit/Tag 运行 `scripts/build_deployment_bundle.py --ref <REF>`。
+- **测试输入 (Deterministic Bundle Build & Verification)**：
+  - 从指定的不可变 Git Commit/Tag 运行 `scripts/build_deployment_bundle.py`。
 - **通过标准 (PASS Criteria)**：
   1. 提取的三个交付文件严格来自 Git 提交对象，不受本地 dirty 工作区影响；
-  2. 生成格式合规的 `manifest.json`，内含 release commit SHA 与每个文件的 SHA-256；
-  3. 打包生成 `matt-browser-workflow-chatgpt-project-v<version>.zip`；
-  4. 运行 `scripts/build_deployment_bundle.py --verify <ZIP>` 验证结果为全部 PASS。
-- **失败反模式 (FAIL Anti-Patterns)**：
-  - 直接从当前本地磁盘目录拷贝未暂存的文件；
-  - 缺失 manifest 或文件 SHA 与提交对象不一致。
+  2. 确定性构建：时间戳与元数据从 Git commit 导出，同一 SHA 多次构建产生相同 ZIP SHA-256；
+  3. 发布身份防伪造：正式发布模式（`--official-release`）强制核验发布 tag 与三文件声明版本一致，未打 tag 拒绝发布；候选预览模式强制添加 `-candidate.zip` 后缀；
+  4. 支持基础内部自洽检查（带有自洽模式限制警告）以及 `--against-git` 交叉核验（验证 ZIP 与 Git blob 100% 一致）。
+- **实际执行验证证据 (Post-Patch Runtime Verification Evidence)**：
+  - 执行测试：`scripts/test_deployment_integrity.py::test_d3_bundle_determinism_and_verification`
+  - 测试断言：
+    - 确定性断言：连续两次构建产物 ZIP SHA-256 均为 `b091f6f7628855da09f2acab9b67dc1c9383150f30326050df795da99d137c97`（完全一致）；
+    - 候选包隔离：文件名为 `matt-browser-workflow-chatgpt-project-v0.17-candidate.zip`；
+    - 内部自洽检查：各文件哈希匹配，输出 Self-Consistency Only 限制警告；
+    - Git 交叉核验：与 `HEAD` Git 引用交叉比对全部通过（Official Release Provenance Verified）；
+    - 防伪造断言：在未打 tag 时执行 `--official-release` 被正确拒绝抛出 `BundleError`；
+  - 评测结果：**POST-PATCH RUNTIME PASS**。
 
 ---
 
 ## 4. 评测执行结论与性质说明 (Evaluation Verdict & Status)
 
-- **方案类型**：`DEPLOYMENT_HARDENING_READY`（包含部署包工艺、串行屏障与归一化校验）。
-- **评测性质与状态**：
-  - 本文件定义了 D1/D2/D3 的**场景定义与 PASS/FAIL 判定准则**；
-  - **当前状态**：`v0.17 RELEASE CANDIDATE — PENDING FIXED-REF REVIEW`；
+- **方案类型**：`DEPLOYMENT_HARDENING_READY`（包含确定性构建、Git 权威核验、串行强屏障与归一化校验）。
+- **实证评测结果**：
+  - **D1 串行强屏障**：`POST-PATCH RUNTIME PASS`（已完成负例拦截与下游零调用断言）；
+  - **D2 占位符归一化**：`POST-PATCH RUNTIME PASS`（已完成合法绑定零误报与篡改阻断断言）；
+  - **D3 部署包确定性与核验**：`POST-PATCH RUNTIME PASS`（已完成重复构建哈希一致与 Git 交叉核验断言）。
+- **当前状态**：`v0.17 RELEASE CANDIDATE — PENDING BROWSER REVIEW`；
   - 下一步交由 Browser 进行版本级固定 SHA 审查，未经用户最终授权严禁合并或发布。
 - **依赖与行数约束核验**：
   - 未修改不可变 `MAT_REF`（`8b78b531...` 保持 unchanged carry-forward）；
   - `browser-agent-playbook.md` 保持在 594 行（严格控制在 600 行以内）；
-  - `browser-workflow-spec.md` 为 326 行；
-  - `project-instructions.md` 为 79 行。
+  - `browser-workflow-spec.md` 为 324 行；
+  - `project-instructions.md` 为 80 行。
+
