@@ -277,7 +277,13 @@ def verify_bundle(zip_path: str, against_git_ref: str = None):
                 raise BundleError(f"与 Git 权威对象不匹配！文件: {filename}\n  Git 实际: {git_sha}\n  ZIP 内容: {zip_sha}")
             print(f"  [PASS] {filename}: 与 Git blob SHA-256 100% 吻合")
 
-        print(f"[PASS] 官方发布身份与 Git 来源交叉核验完全通过 (Official Release Provenance Verified)。")
+        # 4. 根据构建模式与引用性质输出相称的核验结论
+        if declared_mode == "official_release" and manifest.get("release_tag"):
+            print(f"[PASS] 官方发布 Tag 与 Git 来源内容核验一致 (Release Tag Git Content Matched: {manifest.get('release_tag')})。")
+            print("       提示：此结果确认 ZIP 与本地不可变 Git Tag 完全吻合；正式 GitHub Release 仍须在发布门禁中独立核验已发布的 Release Asset。")
+        else:
+            print(f"[PASS] Git 提交对象内容核验完全匹配 (Git Object/Commit Content Matched: {git_commit[:12]})。")
+            print("       提示：当前为候选预览或非 Tag 引用，仅证明内容与 Git 提交对象一致，不代表正式 GitHub Release 发布身份。")
 
 
 def main():
